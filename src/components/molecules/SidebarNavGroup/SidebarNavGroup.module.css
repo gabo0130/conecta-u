@@ -1,0 +1,18 @@
+.group {
+  margin-bottom: 4px;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  padding: 8px 16px 4px;
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.items {
+  padding: 0 4px;
+}

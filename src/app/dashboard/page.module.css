@@ -1,0 +1,48 @@
+.page {
+  width: 100%;
+}
+
+.loadingCard {
+  min-height: 220px;
+  border-radius: 20px;
+  padding: 28px;
+  border: 1px solid rgba(61, 94, 225, 0.14);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(242, 245, 255, 0.95));
+  box-shadow: 0 20px 40px rgba(32, 44, 75, 0.08);
+}
+
+.loadingEyebrow {
+  margin: 0 0 18px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #6b7280;
+}
+
+.loadingLine,
+.loadingLineShort {
+  height: 16px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(61, 94, 225, 0.12), rgba(61, 94, 225, 0.25), rgba(61, 94, 225, 0.12));
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.loadingLine {
+  width: min(100%, 580px);
+  margin-bottom: 12px;
+}
+
+.loadingLineShort {
+  width: min(100%, 360px);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}

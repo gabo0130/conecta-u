@@ -1,0 +1,131 @@
+.shell {
+  display: grid;
+  gap: 22px;
+}
+
+.hero {
+  display: grid;
+  gap: 20px;
+  border-radius: 24px;
+  padding: 28px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(242, 245, 255, 0.98));
+  border: 1px solid rgba(61, 94, 225, 0.12);
+  box-shadow: 0 18px 40px rgba(32, 44, 75, 0.08);
+}
+
+.heroHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.title {
+  margin: 6px 0 10px;
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: #1a1f2e;
+}
+
+.description {
+  margin: 0;
+  max-width: 780px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #596174;
+}
+
+.heroTop {
+  display: grid;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  align-self: flex-start;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.children {
+  display: grid;
+  gap: 14px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  min-height: 160px;
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid rgba(32, 44, 75, 0.08);
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(32, 44, 75, 0.05);
+}
+
+.cardTag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  margin-bottom: 14px;
+  background: #f2f5ff;
+  color: #002fe9;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cardTitle {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #1a1f2e;
+}
+
+.cardDescription {
+  margin: 0;
+  color: #596174;
+  line-height: 1.65;
+}
+
+.footer {
+  border-radius: 18px;
+  padding: 18px 20px;
+  background: rgba(242, 245, 255, 0.8);
+  border: 1px dashed rgba(61, 94, 225, 0.22);
+  color: #394262;
+  line-height: 1.6;
+}
+
+@media (max-width: 860px) {
+  .heroHeader {
+    flex-direction: column;
+  }
+
+  .heroActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

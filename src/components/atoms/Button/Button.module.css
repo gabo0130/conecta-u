@@ -1,0 +1,42 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.primary {
+  background: #3d5ee1;
+  color: #ffffff;
+}
+
+.secondary {
+  background: #e9edf8;
+  color: #202c4b;
+}
+
+.fullWidth {
+  width: 100%;
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.label,
+.labelWithIcon {
+  display: inline-flex;
+  align-items: center;
+}

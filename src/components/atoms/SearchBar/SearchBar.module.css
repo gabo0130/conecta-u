@@ -1,0 +1,18 @@
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border-radius: 15px;
+  padding: 10px 16px;
+}
+
+.input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: #202c4b;
+  width: 100%;
+  font-family: system-ui, -apple-system, sans-serif;
+}
