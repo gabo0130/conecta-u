@@ -1,0 +1,43 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 100%;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a3a42;
+}
+
+.control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select {
+  width: 100%;
+  height: 46px;
+  border: 1px solid var(--c-line-2);
+  border-radius: var(--r-md);
+  padding: 0 38px 0 14px;
+  background: #ffffff;
+  color: var(--c-ink);
+  font-size: 14.5px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.select:focus {
+  border-color: var(--c-red);
+}
+
+.chevron {
+  position: absolute;
+  right: 14px;
+  color: #9a9aa2;
+  pointer-events: none;
+}

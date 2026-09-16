@@ -3,6 +3,7 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import styles from "./ProtectedRoute.module.css";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -21,7 +22,7 @@ export function ProtectedRoute({
 
     if (!isAuthenticated) {
       // Redirigir al login
-      router.push("/");
+      router.push("/login");
       return;
     }
 
@@ -34,8 +35,8 @@ export function ProtectedRoute({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className={styles.wrap}>
+        <div className={styles.spinner} />
       </div>
     );
   }

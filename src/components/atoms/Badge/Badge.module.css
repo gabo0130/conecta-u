@@ -1,0 +1,32 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 600;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.green {
+  background: var(--c-green-soft);
+  color: var(--c-green);
+}
+.amber {
+  background: var(--c-amber-soft);
+  color: var(--c-amber);
+}
+.red {
+  background: var(--c-red-soft);
+  color: var(--c-red);
+}
+.gray {
+  background: #ededf0;
+  color: #54545c;
+}

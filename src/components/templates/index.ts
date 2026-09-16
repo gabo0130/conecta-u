@@ -1,1 +1,2 @@
-export { DashboardLayout } from "./DashboardLayout/DashboardLayout";
+export { AppShell } from "./AppShell/AppShell";
+export { AuthLayout } from "./AuthLayout/AuthLayout";

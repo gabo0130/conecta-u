@@ -40,3 +40,19 @@ export interface PaginatedResponse<T> {
   data: T[];
   pagination: PaginationResponse;
 }
+
+export type ProjectRole = "LIDER" | "COLABORADOR";
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  role: ProjectRole;
+  program: string;
+}
+
+export interface RegisterResponse {
+  id: string;
+  name: string;
+  email: string;
+}

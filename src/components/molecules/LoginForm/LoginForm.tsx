@@ -27,15 +27,11 @@ export function LoginForm() {
 
     try {
       await login(email, password);
-      // El login fue exitoso, redirigir al dashboard
-      console.log("Login successful, redirecting to dashboard...");
       router.push("/dashboard");
-    } catch (err: any) {
-      // Mostrar error del servidor
+    } catch (err) {
       const errorMessage =
-        err.message || "Error al iniciar sesión. Intenta nuevamente.";
+        err instanceof Error ? err.message : "Error al iniciar sesión. Intenta nuevamente.";
       setError(errorMessage);
-      console.error("Login error:", err);
     }
   };
 
@@ -62,21 +58,7 @@ export function LoginForm() {
         />
       </div>
 
-      {error && (
-        <div
-          style={{
-            color: "#dc2626",
-            fontSize: "0.875rem",
-            marginBottom: "1rem",
-            padding: "0.75rem",
-            backgroundColor: "#fee2e2",
-            borderRadius: "0.375rem",
-            border: "1px solid #fca5a5",
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error ? <div className={styles.formError}>{error}</div> : null}
 
       <div className={styles.row}>
         <label className={styles.remember}>

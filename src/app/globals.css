@@ -2,13 +2,65 @@
   box-sizing: border-box;
 }
 
+:root {
+  /* Marca UFPS */
+  --c-red: #c8102e;
+  --c-red-dark: #9e0c24;
+  --c-red-soft: #fce9ec;
+
+  /* Neutros */
+  --c-ink: #16161a;
+  --c-muted: #6c6c76;
+  --c-muted-2: #8a8a92;
+  --c-line: #eaeaee;
+  --c-line-2: #e0e0e5;
+  --c-bg: #f5f5f7;
+  --c-card: #ffffff;
+
+  /* Estados */
+  --c-green: #1f9d57;
+  --c-green-soft: #e7f6ed;
+  --c-amber: #c98a00;
+  --c-amber-soft: #fef3e2;
+
+  /* Radios */
+  --r-lg: 16px;
+  --r-md: 11px;
+  --r-sm: 9px;
+  --r-pill: 999px;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  color: var(--c-ink);
+  background: var(--c-bg);
+  -webkit-font-smoothing: antialiased;
 }
 
-body {
-  background: #f4f6f9;
-  color: #202c4b;
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  margin: 0;
+}
+
+a {
+  color: var(--c-red);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--c-red-dark);
+}
+
+button {
+  font-family: inherit;
+}
+input,
+textarea,
+select {
+  font-family: inherit;
 }

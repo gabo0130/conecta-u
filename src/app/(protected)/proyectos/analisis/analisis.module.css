@@ -1,0 +1,93 @@
+.breadcrumbSep {
+  color: #c4c4cc;
+}
+.breadcrumbCurrent {
+  color: var(--c-ink);
+  font-weight: 600;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.h1 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.sub {
+  color: var(--c-muted);
+  font-size: 14.5px;
+  margin-top: 6px;
+}
+
+.banner {
+  background: var(--c-red);
+  border-radius: var(--r-lg);
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.bannerPattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.1;
+  background-image: radial-gradient(#fff 1.4px, transparent 1.5px);
+  background-size: 22px 22px;
+}
+.bannerIcon {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.bannerText {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.bannerTitle {
+  font-size: 17px;
+  font-weight: 700;
+}
+.bannerSub {
+  font-size: 13.5px;
+  color: #fbd5db;
+  margin-top: 4px;
+}
+.bannerBtn {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.sectionTitle {
+  font-size: 16.5px;
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .bannerBtn {
+    display: none;
+  }
+}

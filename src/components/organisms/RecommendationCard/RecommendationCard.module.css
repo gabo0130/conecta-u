@@ -1,0 +1,90 @@
+.person {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+}
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.name {
+  font-size: 16.5px;
+  font-weight: 700;
+}
+.roleTag {
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--c-red-soft);
+  color: var(--c-red);
+}
+.meta {
+  font-size: 13px;
+  color: var(--c-muted-2);
+  margin-top: 4px;
+}
+.reason {
+  font-size: 13px;
+  color: #54545c;
+  line-height: 1.5;
+  margin: 11px 0;
+}
+.reason b {
+  color: var(--c-ink);
+}
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 130px;
+  flex-shrink: 0;
+}
+.scoreWrap {
+  text-align: center;
+}
+.score {
+  font-family: var(--font-display), sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--c-red);
+}
+.scoreLabel {
+  font-size: 11.5px;
+  color: var(--c-muted-2);
+  font-weight: 600;
+}
+.convoke {
+  width: 100%;
+  height: 40px;
+  font-size: 13.5px;
+}
+.viewLink {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+@media (max-width: 760px) {
+  .person {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .aside {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}

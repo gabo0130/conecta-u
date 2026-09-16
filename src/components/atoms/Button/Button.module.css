@@ -3,29 +3,42 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: none;
-  cursor: pointer;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 14px;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: var(--r-md);
   font-weight: 600;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14.5px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .primary {
-  background: #3d5ee1;
+  background: var(--c-red);
   color: #ffffff;
 }
-
-.secondary {
-  background: #e9edf8;
-  color: #202c4b;
+.primary:hover:not(:disabled) {
+  background: var(--c-red-dark);
 }
 
-.fullWidth {
-  width: 100%;
-  border-radius: 14px;
-  padding: 14px 16px;
+.ghost {
+  background: #ffffff;
+  color: var(--c-ink);
+  border-color: var(--c-line-2);
+}
+.ghost:hover:not(:disabled) {
+  background: var(--c-bg);
+}
+
+.white {
+  background: #ffffff;
+  color: var(--c-red);
+  font-weight: 700;
 }
 
 .icon {

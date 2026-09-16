@@ -1,0 +1,43 @@
+.side {
+  width: 248px;
+  background: #fff;
+  border-right: 1px solid var(--c-line);
+  padding: 22px 16px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.brand {
+  padding: 6px 8px 22px;
+}
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  border-radius: var(--r-md);
+  color: #54545c;
+  font-weight: 500;
+  font-size: 14.5px;
+}
+.item:hover {
+  background: #f4f4f6;
+  color: var(--c-ink);
+}
+.on {
+  background: var(--c-red-soft);
+  color: var(--c-red);
+  font-weight: 600;
+}
+.on:hover {
+  background: var(--c-red-soft);
+  color: var(--c-red);
+}
+.footer {
+  margin-top: auto;
+}

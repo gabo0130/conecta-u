@@ -1,0 +1,41 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 100%;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a3a42;
+}
+
+.textarea {
+  border: 1px solid var(--c-line-2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  font-size: 14.5px;
+  color: var(--c-ink);
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  background: #ffffff;
+  transition: border-color 0.15s ease;
+}
+.textarea:focus {
+  border-color: var(--c-red);
+}
+.textareaError {
+  border-color: #d14343;
+}
+
+.message {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-muted-2);
+}
+.messageError {
+  color: #d14343;
+}

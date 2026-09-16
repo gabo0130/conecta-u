@@ -1,0 +1,90 @@
+.wrap {
+  display: flex;
+  min-height: 100vh;
+  background: #fff;
+}
+.panel {
+  width: 46%;
+  max-width: 600px;
+  background: var(--c-red);
+  color: #fff;
+  padding: 56px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.1;
+  background-image: radial-gradient(#fff 1.6px, transparent 1.7px);
+  background-size: 26px 26px;
+}
+.panelTop,
+.panelBody,
+.bullets {
+  position: relative;
+}
+.panelBody {
+  max-width: 430px;
+}
+.title {
+  font-size: 40px;
+  line-height: 1.13;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.subtitle {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #fbd5db;
+  margin-top: 18px;
+}
+.bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 430px;
+}
+.bullet {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14.5px;
+  color: #fce9ec;
+}
+.bulletIcon {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.panelFooter {
+  font-size: 13.5px;
+  color: #fce9ec;
+  margin-top: 6px;
+}
+
+.formSide {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.form {
+  width: 100%;
+  max-width: 400px;
+}
+
+@media (max-width: 860px) {
+  .panel {
+    display: none;
+  }
+}

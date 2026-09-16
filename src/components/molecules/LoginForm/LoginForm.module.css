@@ -23,33 +23,41 @@
   gap: 10px;
   font-size: 13px;
   font-weight: 600;
-  color: #667085;
+  color: var(--c-muted);
   cursor: pointer;
 }
 
 .checkbox {
   width: 16px;
   height: 16px;
-  accent-color: #3d5ee1;
+  accent-color: var(--c-red);
 }
 
 .forgotLink {
-  color: #e50f21;
-  text-decoration: none;
+  color: var(--c-red);
   font-size: 13px;
   font-weight: 700;
 }
 
+.formError {
+  color: #dc2626;
+  font-size: 13.5px;
+  padding: 12px 14px;
+  background: #fee2e2;
+  border-radius: var(--r-md);
+  border: 1px solid #fca5a5;
+}
+
 .submitButton {
   width: 100%;
-  border-radius: 14px;
-  padding: 14px 16px;
+  height: 48px;
+  font-size: 15.5px;
 }
 
 .footerText {
   margin: 0;
   font-size: 12px;
   line-height: 1.6;
-  color: #667085;
+  color: var(--c-muted);
   text-align: center;
 }

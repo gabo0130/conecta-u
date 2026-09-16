@@ -1,0 +1,64 @@
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.subtitle {
+  color: var(--c-muted);
+  font-size: 15px;
+  margin-top: 6px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.listHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 22px;
+  border-bottom: 1px solid #eeeef1;
+}
+.listTitle {
+  font-size: 16.5px;
+  font-weight: 700;
+}
+
+.promo {
+  background: var(--c-red-soft);
+  border-radius: 14px;
+  padding: 16px;
+}
+.promoTitle {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--c-red);
+}
+.promoText {
+  font-size: 12.5px;
+  color: #8a3a45;
+  margin: 6px 0 12px;
+  line-height: 1.45;
+}
+.promoBtn {
+  width: 100%;
+  height: 38px;
+  font-size: 13px;
+}
+
+@media (max-width: 720px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}

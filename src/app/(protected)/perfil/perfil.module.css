@@ -1,0 +1,114 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.headMain {
+  flex: 1;
+  min-width: 0;
+}
+.headTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.name {
+  font-size: 23px;
+  font-weight: 700;
+}
+.meta {
+  color: var(--c-muted);
+  font-size: 14.5px;
+  margin-top: 6px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 20px;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.cardTitle {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.expList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dispList {
+  display: flex;
+  flex-direction: column;
+  margin-top: 16px;
+}
+.dispRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f1f4;
+  font-size: 14px;
+  color: #3a3a42;
+}
+.dispRow[data-last] {
+  border-bottom: none;
+}
+.dispRow b {
+  font-size: 13.5px;
+}
+.green {
+  color: var(--c-green);
+}
+
+.completeText {
+  font-size: 13px;
+  color: var(--c-muted-2);
+  margin: 8px 0 14px;
+}
+.barWrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.bar {
+  flex: 1;
+  height: 9px;
+  border-radius: var(--r-pill);
+  background: #f0f0f3;
+  overflow: hidden;
+}
+.barFill {
+  height: 100%;
+  background: var(--c-red);
+}
+.barPct {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--c-red);
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

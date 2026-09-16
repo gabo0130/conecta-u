@@ -1,0 +1,40 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+}
+.rowBorder {
+  border-bottom: 1px solid #f1f1f4;
+}
+.code {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--c-red-soft);
+  color: var(--c-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+}
+.name {
+  font-weight: 600;
+  font-size: 15px;
+}
+.meta {
+  font-size: 13px;
+  color: var(--c-muted-2);
+  margin-top: 3px;
+}
+.link {
+  font-size: 13.5px;
+  font-weight: 600;
+}

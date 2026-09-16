@@ -1,9 +1,11 @@
+export { Badge } from "./Badge/Badge";
+export type { BadgeTone } from "./Badge/Badge";
 export { Button } from "./Button/Button";
+export { Card } from "./Card/Card";
 export { ChevronRight } from "./ChevronRight/ChevronRight";
+export { Chip } from "./Chip/Chip";
 export { Input } from "./Input/Input";
-export { MetricCard } from "./MetricCard/MetricCard";
-export { NavIcon } from "./NavIcon/NavIcon";
-export { SearchBar } from "./SearchBar/SearchBar";
-export { SidebarDivider } from "./SidebarDivider/SidebarDivider";
-export { SidebarLabel } from "./SidebarLabel/SidebarLabel";
+export { Logo } from "./Logo/Logo";
+export { Select } from "./Select/Select";
+export { Textarea } from "./Textarea/Textarea";
 export { UserAvatar } from "./UserAvatar/UserAvatar";

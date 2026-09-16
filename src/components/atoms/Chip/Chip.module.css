@@ -1,0 +1,19 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 500;
+}
+.neutral {
+  background: var(--c-bg);
+  border: 1px solid var(--c-line);
+  color: #3a3a42;
+}
+.red {
+  background: var(--c-red-soft);
+  color: var(--c-red);
+  font-weight: 600;
+}

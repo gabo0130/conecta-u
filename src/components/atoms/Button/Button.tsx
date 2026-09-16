@@ -1,7 +1,7 @@
 import { ButtonHTMLAttributes, ReactNode } from "react";
 import styles from "./Button.module.css";
 
-type ButtonVariant = "primary" | "secondary";
+type ButtonVariant = "primary" | "ghost" | "white";
 
 type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "style"> & {
   variant?: ButtonVariant;
@@ -14,21 +14,16 @@ export function Button({
   leftIcon,
   rightIcon,
   children,
+  className,
   ...props
 }: ButtonProps) {
-  const isPrimary = variant === "primary";
-  const variantClass = isPrimary ? styles.primary : styles.secondary;
   const hasIcon = Boolean(leftIcon || rightIcon);
-
-  const className = [styles.button, variantClass, props.className]
+  const buttonClassName = [styles.button, styles[variant], className]
     .filter(Boolean)
     .join(" ");
 
   return (
-    <button
-      {...props}
-      className={className}
-    >
+    <button {...props} className={buttonClassName}>
       {leftIcon ? <span className={styles.icon} aria-hidden>{leftIcon}</span> : null}
       <span className={hasIcon ? styles.labelWithIcon : styles.label}>{children}</span>
       {rightIcon ? <span className={styles.icon} aria-hidden>{rightIcon}</span> : null}
