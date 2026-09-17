@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import { getErrorMessage } from "@/utils/get-error-message";
 import { Button, Input } from "../../atoms";
 import styles from "./LoginForm.module.css";
 
@@ -29,9 +30,9 @@ export function LoginForm() {
       await login(email, password);
       router.push("/dashboard");
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Error al iniciar sesión. Intenta nuevamente.";
-      setError(errorMessage);
+      setError(
+        getErrorMessage(err, "Error al iniciar sesión. Intenta nuevamente."),
+      );
     }
   };
 

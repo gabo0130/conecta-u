@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useCreateUser } from "@/modules/auth/hooks/useCreateUser/useCreateUser";
 import type { ProjectRole } from "@/apis/interfaces/auth";
+import { getErrorMessage } from "@/utils/get-error-message";
 import { Button, Input, Select } from "../../atoms";
 import styles from "./RegisterForm.module.css";
 
@@ -51,12 +52,18 @@ export function RegisterForm() {
     }
 
     try {
-      await createUser({ name, email, password, role: role as ProjectRole, program });
+      await createUser({
+        fullName: name,
+        email,
+        password,
+        role: role as ProjectRole,
+        program,
+      });
       router.push("/login");
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Error al crear la cuenta. Intenta nuevamente.";
-      setError(errorMessage);
+      setError(
+        getErrorMessage(err, "Error al crear la cuenta. Intenta nuevamente."),
+      );
     }
   };
 

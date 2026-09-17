@@ -39,7 +39,7 @@ const PROJECTS: ProjectSummary[] = [
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const firstName = user?.name?.split(" ")[0] ?? "";
+  const firstName = user?.fullName?.split(" ")[0] ?? "";
 
   const sidebarFooter = (
     <div className={styles.promo}>

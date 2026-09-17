@@ -42,7 +42,7 @@ function getInitials(name: string) {
 
 export default function PerfilPage() {
   const { user } = useAuth();
-  const name = user?.name ?? "";
+  const name = user?.fullName ?? "";
 
   return (
     <AppShell>

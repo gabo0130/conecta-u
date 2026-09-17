@@ -1,22 +1,22 @@
-export type UserRole = "ADMIN" | "USER";
+export type UserRole = "LIDER" | "COLABORADOR" | "ADMIN";
 
 export interface MenuItem {
   id: string;
   label: string;
-  path: string;
-  icon: string;
-  description: string;
-  is_active: boolean;
+  path?: string;
+  icon?: string;
+  description?: string;
+  isActive?: boolean;
   permissions?: string[];
   children?: MenuItem[];
 }
 
 export interface UserWithMenu {
   id: string;
-  name: string;
+  fullName: string;
   email: string;
   role: UserRole;
-  is_active?: boolean;
+  program?: string | null;
   menu: MenuItem[];
 }
 
@@ -44,15 +44,17 @@ export interface PaginatedResponse<T> {
 export type ProjectRole = "LIDER" | "COLABORADOR";
 
 export interface RegisterPayload {
-  name: string;
+  fullName: string;
   email: string;
   password: string;
   role: ProjectRole;
-  program: string;
+  program?: string;
 }
 
 export interface RegisterResponse {
   id: string;
-  name: string;
+  fullName: string;
   email: string;
+  role: ProjectRole;
+  program?: string | null;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import type { UserRole } from "@/apis/interfaces/auth";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -7,7 +8,7 @@ import styles from "./ProtectedRoute.module.css";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: "ADMIN" | "USER";
+  requiredRole?: UserRole;
 }
 
 export function ProtectedRoute({

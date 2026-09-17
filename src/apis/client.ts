@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 
 const baseURL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4001/api";
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api";
 
 export const apiClient = axios.create({
   baseURL,
@@ -30,15 +30,16 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      // Token inválido o expirado
+    const hadAuthHeader = Boolean(error.config?.headers?.Authorization);
+
+    // Solo forzar logout si la petición llevaba un token (sesión expirada/inválida).
+    // Un 401 sin token es una respuesta normal de /auth/login o /auth/register
+    // con credenciales incorrectas, y debe mostrarse como error en el formulario.
+    if (error.response?.status === 401 && hadAuthHeader) {
       if (typeof window !== "undefined") {
-        // Limpiar localStorage
         localStorage.removeItem("auth_token");
         localStorage.removeItem("auth_user");
-
-        // Redirigir al login
-        window.location.href = "/";
+        window.location.href = "/login";
       }
     }
 

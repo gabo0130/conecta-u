@@ -12,8 +12,9 @@ type TopBarProps = {
 };
 
 const ROLE_LABELS: Record<string, string> = {
+  LIDER: "Líder de proyecto",
+  COLABORADOR: "Colaborador",
   ADMIN: "Administrador",
-  USER: "Usuario",
 };
 
 function getInitials(name: string) {
@@ -43,9 +44,12 @@ export function TopBar({ searchPlaceholder = "Buscar…", breadcrumb }: TopBarPr
         <Bell size={21} />
         {user ? (
           <div className={styles.user}>
-            <UserAvatar initials={getInitials(user.name)} alt={user.name} />
+            <UserAvatar
+              initials={getInitials(user.fullName)}
+              alt={user.fullName}
+            />
             <div className={styles.userText}>
-              <div className={styles.userName}>{user.name}</div>
+              <div className={styles.userName}>{user.fullName}</div>
               <div className={styles.userRole}>{ROLE_LABELS[user.role] ?? user.role}</div>
             </div>
           </div>
