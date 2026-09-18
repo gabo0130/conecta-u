@@ -1,0 +1,46 @@
+.wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.logo {
+  margin-bottom: 4px;
+}
+
+.code {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--c-red);
+  letter-spacing: -1px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--c-muted);
+  max-width: 340px;
+}
+
+.actions {
+  margin-top: 4px;
+}
