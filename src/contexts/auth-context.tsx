@@ -12,7 +12,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -102,16 +102,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
-    // Limpiar localStorage
+  const logout = async () => {
+    try {
+      await apiClient.post("/auth/logout");
+    } catch {
+      // Si el servidor no responde igualmente se cierra la sesión local.
+    }
+
     localStorage.removeItem(STORAGE_KEYS.TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER);
-
-    // Limpiar estado
     setToken(null);
     setUser(null);
-
-    // Redirigir al login (opcional, puede hacerlo el componente)
+    // ProtectedRoute redirige a /login al detectar que ya no hay sesión.
   };
 
   const refreshUser = async () => {

@@ -24,65 +24,7 @@
   font-size: 14.5px;
   margin-top: 6px;
 }
-.formCard {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-.label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #3a3a42;
-}
-
-.chipsInput {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 9px;
-  align-items: center;
-  border: 1px solid var(--c-line-2);
-  border-radius: var(--r-md);
-  padding: 11px 12px;
-}
-.removeSkill {
-  border: none;
-  background: transparent;
-  color: inherit;
-  font-weight: 700;
-  margin-left: 2px;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-}
-.skillInput {
-  flex: 1;
-  min-width: 140px;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  background: transparent;
-  color: var(--c-ink);
-}
-
-.row {
-  display: flex;
-  gap: 16px;
-}
-.row > * {
-  flex: 1;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+.form {
   margin-top: 20px;
 }
 
@@ -92,26 +34,6 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
-}
-.iaCard {
-  background: var(--c-red-soft);
-  border-color: #f6d3da;
-}
-.iaHead {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--c-red);
-}
-.iaTitle {
-  font-size: 15.5px;
-  font-weight: 700;
-}
-.iaText {
-  font-size: 13.5px;
-  color: #8a3a45;
-  line-height: 1.55;
-  margin: 12px 0 0;
 }
 
 .tipsTitle {

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useCreateUser } from "@/modules/auth/hooks/useCreateUser/useCreateUser";
-import type { ProjectRole } from "@/apis/interfaces/auth";
+import type { RegisterRole } from "@/apis/interfaces/auth";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { Button, Input, Select } from "../../atoms";
 import styles from "./RegisterForm.module.css";
@@ -42,6 +42,14 @@ export function RegisterForm() {
       setError("Por favor completa todos los campos");
       return;
     }
+    if (name.trim().length < 2) {
+      setError("El nombre debe tener al menos 2 caracteres");
+      return;
+    }
+    if (password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres");
+      return;
+    }
     if (password !== confirmPassword) {
       setError("Las contraseñas no coinciden");
       return;
@@ -53,10 +61,10 @@ export function RegisterForm() {
 
     try {
       await createUser({
-        fullName: name,
+        fullName: name.trim(),
         email,
         password,
-        role: role as ProjectRole,
+        role: role as RegisterRole,
         program,
       });
       router.push("/login");

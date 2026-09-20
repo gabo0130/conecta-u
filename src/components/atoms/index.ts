@@ -6,6 +6,7 @@ export { ChevronRight } from "./ChevronRight/ChevronRight";
 export { Chip } from "./Chip/Chip";
 export { Input } from "./Input/Input";
 export { Logo } from "./Logo/Logo";
+export { Modal } from "./Modal/Modal";
 export { Select } from "./Select/Select";
 export { Textarea } from "./Textarea/Textarea";
 export { UserAvatar } from "./UserAvatar/UserAvatar";

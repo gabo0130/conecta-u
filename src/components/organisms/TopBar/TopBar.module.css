@@ -51,3 +51,12 @@
   font-size: 12px;
   color: var(--c-muted-2);
 }
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--c-ink);
+  font-size: 14px;
+}

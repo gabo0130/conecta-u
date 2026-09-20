@@ -1,0 +1,63 @@
+.formCard {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a3a42;
+}
+.chipsInput {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+  border: 1px solid var(--c-line-2);
+  border-radius: var(--r-md);
+  padding: 11px 12px;
+}
+.removeSkill {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+  margin-left: 2px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.skillInput {
+  flex: 1;
+  min-width: 140px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+  color: var(--c-ink);
+}
+.row {
+  display: flex;
+  gap: 16px;
+}
+.row > * {
+  flex: 1;
+}
+.error {
+  background: var(--c-red-soft);
+  color: var(--c-red-dark);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  font-size: 13.5px;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}

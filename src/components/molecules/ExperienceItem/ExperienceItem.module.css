@@ -22,3 +22,28 @@
   color: var(--c-muted-2);
   margin-top: 3px;
 }
+.text {
+  flex: 1;
+  min-width: 0;
+}
+.actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.action {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--c-muted);
+  cursor: pointer;
+}
+.action:hover {
+  background: var(--c-bg);
+  color: var(--c-red);
+}

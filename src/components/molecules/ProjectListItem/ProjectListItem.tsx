@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge, BadgeTone } from "../../atoms";
 import styles from "./ProjectListItem.module.css";
 
@@ -7,6 +8,7 @@ export type ProjectSummary = {
   meta: string;
   status: string;
   tone: BadgeTone;
+  href: string;
 };
 
 type ProjectListItemProps = {
@@ -25,9 +27,9 @@ export function ProjectListItem({ project, bordered = true }: ProjectListItemPro
         <div className={styles.meta}>{project.meta}</div>
       </div>
       <Badge tone={project.tone}>{project.status}</Badge>
-      <a href="#" className={styles.link}>
+      <Link href={project.href} className={styles.link}>
         Abrir
-      </a>
+      </Link>
     </div>
   );
 }

@@ -112,3 +112,22 @@
     grid-template-columns: 1fr;
   }
 }
+
+.linkBtn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--c-red);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+.linkBtn:hover {
+  color: var(--c-red-dark);
+}
+.chipBtn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}

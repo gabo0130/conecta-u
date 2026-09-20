@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
@@ -14,7 +13,6 @@ export function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -23,6 +21,11 @@ export function LoginForm() {
 
     if (!email || !password) {
       setError("Por favor completa todos los campos");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres");
       return;
     }
 
@@ -60,23 +63,6 @@ export function LoginForm() {
       </div>
 
       {error ? <div className={styles.formError}>{error}</div> : null}
-
-      <div className={styles.row}>
-        <label className={styles.remember}>
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(event) => setRemember(event.target.checked)}
-            className={styles.checkbox}
-            disabled={isLoading}
-          />
-          Recordarme
-        </label>
-
-        <Link href="#" className={styles.forgotLink}>
-          ¿Olvidaste tu contraseña?
-        </Link>
-      </div>
 
       <Button
         type="submit"

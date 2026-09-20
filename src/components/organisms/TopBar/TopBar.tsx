@@ -1,13 +1,19 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { ReactNode } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { UserAvatar } from "../../atoms";
 import styles from "./TopBar.module.css";
 
+export type TopBarSearch = {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+};
+
 type TopBarProps = {
-  searchPlaceholder?: string;
+  search?: TopBarSearch;
   breadcrumb?: ReactNode;
 };
 
@@ -27,21 +33,25 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-export function TopBar({ searchPlaceholder = "Buscar…", breadcrumb }: TopBarProps) {
+export function TopBar({ search, breadcrumb }: TopBarProps) {
   const { user } = useAuth();
 
   return (
     <header className={styles.top}>
-      {breadcrumb ? (
-        <div className={styles.breadcrumb}>{breadcrumb}</div>
-      ) : (
-        <div className={styles.search}>
+      {breadcrumb ? <div className={styles.breadcrumb}>{breadcrumb}</div> : null}
+      {search ? (
+        <label className={styles.search}>
           <Search size={18} />
-          {searchPlaceholder}
-        </div>
-      )}
+          <input
+            className={styles.searchInput}
+            type="search"
+            value={search.value}
+            placeholder={search.placeholder ?? "Buscar…"}
+            onChange={(event) => search.onChange(event.target.value)}
+          />
+        </label>
+      ) : null}
       <div className={styles.right}>
-        <Bell size={21} />
         {user ? (
           <div className={styles.user}>
             <UserAvatar
