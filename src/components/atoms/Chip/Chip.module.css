@@ -17,3 +17,13 @@
   color: var(--c-red);
   font-weight: 600;
 }
+.green {
+  background: var(--c-green-soft);
+  color: var(--c-green);
+  font-weight: 600;
+}
+.blue {
+  background: var(--c-info-soft);
+  color: var(--c-info);
+  font-weight: 600;
+}

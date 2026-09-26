@@ -1,10 +1,12 @@
 import axios, { AxiosError } from "axios";
+import { reportUnreachable } from "@/utils/service-status";
+import { API_BASE_URL } from "./client-config";
 
-const baseURL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api";
+// Respuestas del proxy del hosting mientras el servidor arranca o está caído.
+const WAKING_STATUSES = new Set([502, 503, 504]);
 
 export const apiClient = axios.create({
-  baseURL,
+  baseURL: API_BASE_URL,
   timeout: 15000,
   headers: {
     "Content-Type": "application/json",
@@ -30,6 +32,13 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
+    // Sin respuesta (red caída o timeout) o 502/503/504: el servidor puede estar apagándose o
+    // arrancando; se muestra el aviso global y se reintenta /health hasta que responda.
+    const status = error.response?.status;
+    if (!error.response || (status !== undefined && WAKING_STATUSES.has(status))) {
+      reportUnreachable();
+    }
+
     const hadAuthHeader = Boolean(error.config?.headers?.Authorization);
 
     // Solo forzar logout si la petición llevaba un token (sesión expirada/inválida).

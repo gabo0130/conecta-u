@@ -4,6 +4,7 @@ import { Menu, Search } from "lucide-react";
 import { ReactNode } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { IconButton, UserAvatar } from "../../atoms";
+import { ServiceStatusButton } from "../ServiceStatusButton/ServiceStatusButton";
 import styles from "./TopBar.module.css";
 
 export type TopBarSearch = {
@@ -65,6 +66,7 @@ export function TopBar({ search, breadcrumb, isMenuOpen = false, onMenuClick }: 
         </label>
       ) : null}
       <div className={styles.right}>
+        <ServiceStatusButton />
         {user ? (
           <div className={styles.user}>
             <UserAvatar

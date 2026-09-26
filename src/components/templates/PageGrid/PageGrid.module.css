@@ -1,0 +1,49 @@
+/* Móvil y tablet: una columna centrada; el orden visual es encabezado → contenido → lateral. */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "header"
+    "main"
+    "aside";
+  gap: 20px;
+  width: 100%;
+  max-width: 820px;
+  margin-inline: auto;
+}
+
+.header {
+  grid-area: header;
+  min-width: 0;
+}
+.main {
+  grid-area: main;
+  min-width: 0;
+}
+.aside {
+  grid-area: aside;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* xl: más ancho para repartir en columnas; con lateral, contenido + columna de 340px. */
+@media (min-width: 1280px) {
+  .wide {
+    max-width: 1180px;
+  }
+  .withAside {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-areas:
+      "header header"
+      "main aside";
+    align-items: start;
+    column-gap: 24px;
+  }
+  /* La columna lateral acompaña al hacer scroll en formularios largos. */
+  .withAside .aside {
+    position: sticky;
+    top: 24px;
+  }
+}

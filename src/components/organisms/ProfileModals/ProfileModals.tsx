@@ -313,7 +313,7 @@ export function SkillModal({ skill, onSubmit, onDelete, onClose }: SkillModalPro
 
   return (
     <Modal
-      title={skill ? "Editar conocimiento o competencia" : "Agregar conocimiento o competencia"}
+      title={skill ? "Editar habilidad" : "Agregar habilidad"}
       onClose={onClose}
       isSubmitting={isSubmitting}
       error={error}

@@ -4,7 +4,7 @@ import { Public_Sans, Sora } from "next/font/google";
 // @ts-ignore - Next permite importar CSS global en el layout raíz
 import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
-import { NotificationHost } from "@/components/organisms";
+import { LoadingHost, NotificationHost, ServiceStatusHost } from "@/components/organisms";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -33,6 +33,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="es" className={`${sora.variable} ${publicSans.variable}`}>
       <body>
         <AuthProvider>{children}</AuthProvider>
+        {/* Servicios globales: estado del servidor (/health al entrar), carga y notificaciones. */}
+        <ServiceStatusHost />
+        <LoadingHost />
         <NotificationHost />
       </body>
     </html>

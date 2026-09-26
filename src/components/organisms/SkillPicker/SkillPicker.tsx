@@ -5,12 +5,20 @@ import { X } from "lucide-react";
 import type { Skill, SkillType } from "@/apis/interfaces/catalogs";
 import { useSkillsCatalog } from "@/modules/catalogs/hooks/useSkillsCatalog/useSkillsCatalog";
 import { Chip } from "../../atoms";
-import type { ControlSize } from "../../atoms";
+import type { ChipTone, ControlSize } from "../../atoms";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { notify } from "@/utils/notify";
+import { SKILL_TYPE_OPTIONS, SKILL_TYPE_TONE } from "./skill-type";
 import styles from "./SkillPicker.module.css";
 
 export type SkillRef = { id: string; name: string };
+
+/** Las opciones que trae `useSkillsCatalog` siempre son `Skill` completos; los ya seleccionados
+ * (`value`) pueden ser algo más recortado (p. ej. `ExperienceTechnology`, sin `type`). */
+function getSkillTone(skill: SkillRef): ChipTone {
+  const type = (skill as Partial<Skill>).type;
+  return type ? SKILL_TYPE_TONE[type] : "neutral";
+}
 
 type SkillPickerProps<T extends SkillRef> = {
   label?: string;
@@ -39,7 +47,11 @@ export function SkillPicker<T extends SkillRef = Skill>({
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isProposing, setIsProposing] = useState(false);
-  const blurTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Tipo elegido para una habilidad que aún no existe en el catálogo; solo importa al proponerla.
+  const [proposeTypeChoice, setProposeTypeChoice] = useState<SkillType>(
+    proposeType ?? typeFilter ?? "CONOCIMIENTO",
+  );
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (query.trim().length < 2) return;
@@ -49,12 +61,18 @@ export function SkillPicker<T extends SkillRef = Skill>({
     return () => clearTimeout(timeout);
   }, [query, typeFilter, search]);
 
-  useEffect(
-    () => () => {
-      if (blurTimeout.current) clearTimeout(blurTimeout.current);
-    },
-    [],
-  );
+  // Cierra el dropdown solo con un clic fuera del control, no al perder el foco: el selector de
+  // tipo (nativo) y los botones internos mueven el foco sin que el usuario "salga" del picker.
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
 
   const selectedIds = new Set(value.map((skill) => skill.id));
   const results = skills.filter((skill) => !selectedIds.has(skill.id));
@@ -82,7 +100,7 @@ export function SkillPicker<T extends SkillRef = Skill>({
     if (!name) return;
     setIsProposing(true);
     try {
-      const skill = await proposeSkill({ name, type: proposeType ?? typeFilter ?? "CONOCIMIENTO" });
+      const skill = await proposeSkill({ name, type: proposeTypeChoice });
       selectSkill(skill);
       void notify.info(
         `"${skill.name}" se agregó como habilidad nueva. Quedará pendiente hasta que un administrador la revise, pero ya puedes usarla.`,
@@ -103,7 +121,7 @@ export function SkillPicker<T extends SkillRef = Skill>({
       {value.length > 0 ? (
         <div className={styles.chips}>
           {value.map((skill) => (
-            <Chip key={skill.id} className={styles.chip}>
+            <Chip key={skill.id} tone={getSkillTone(skill)} className={styles.chip}>
               {skill.name}
               {!disabled ? (
                 <button
@@ -120,7 +138,7 @@ export function SkillPicker<T extends SkillRef = Skill>({
         </div>
       ) : null}
       {showInput ? (
-        <div className={styles.control}>
+        <div className={styles.control} ref={containerRef}>
           <input
             className={styles.input}
             placeholder={placeholder}
@@ -130,9 +148,6 @@ export function SkillPicker<T extends SkillRef = Skill>({
               setIsOpen(true);
             }}
             onFocus={() => setIsOpen(true)}
-            onBlur={() => {
-              blurTimeout.current = setTimeout(() => setIsOpen(false), 150);
-            }}
           />
           {isOpen && query.trim().length >= 2 ? (
             <div className={styles.dropdown}>
@@ -153,15 +168,34 @@ export function SkillPicker<T extends SkillRef = Skill>({
                 <div className={styles.hint}>Ya está en la lista.</div>
               ) : null}
               {isUpToDate && !isLoading && !exactMatch ? (
-                <button
-                  type="button"
-                  className={styles.propose}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => void handlePropose()}
-                  disabled={isProposing}
-                >
-                  {isProposing ? "Proponiendo..." : `+ Proponer "${query.trim()}" como nueva habilidad`}
-                </button>
+                <div className={styles.proposePanel}>
+                  <p className={styles.proposeHint}>¿No existe todavía? Proponla como nueva habilidad:</p>
+                  <div className={styles.proposeControls}>
+                    {!typeFilter && !proposeType ? (
+                      <select
+                        className={styles.proposeType}
+                        value={proposeTypeChoice}
+                        onChange={(event) => setProposeTypeChoice(event.target.value as SkillType)}
+                        aria-label="Tipo de la nueva habilidad"
+                      >
+                        {SKILL_TYPE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : null}
+                    <button
+                      type="button"
+                      className={styles.propose}
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => void handlePropose()}
+                      disabled={isProposing}
+                    >
+                      {isProposing ? "Proponiendo..." : `+ Proponer "${query.trim()}"`}
+                    </button>
+                  </div>
+                </div>
               ) : null}
             </div>
           ) : null}

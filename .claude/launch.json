@@ -4,13 +4,21 @@
     {
       "name": "conecta-u-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000
     },
     {
       "name": "conecta-u-back-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "C:/Proyectos/conecta-u-back", "run", "start:dev"],
+      "runtimeArgs": [
+        "--prefix",
+        "C:/Proyectos/conecta-u-back",
+        "run",
+        "start:dev"
+      ],
       "port": 3001
     }
   ]

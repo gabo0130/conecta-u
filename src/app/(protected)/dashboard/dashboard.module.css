@@ -73,3 +73,23 @@
 .empty > button {
   margin-left: 22px;
 }
+
+/* ADMIN: últimos proyectos + accesos de gestión (columna lateral desde xl). */
+.adminGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.quickActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+@media (min-width: 1280px) {
+  .adminGrid {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+}

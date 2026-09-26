@@ -73,21 +73,38 @@
 }
 
 .formSide {
+  position: relative;
   flex: 1;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 32px 16px;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 16px 32px;
 }
 .form {
   width: 100%;
   max-width: 400px;
 }
+/* Móvil: el botón de estado va arriba, alineado con el formulario; sm+: esquina superior derecha. */
+.status {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  justify-content: flex-end;
+}
 
 @media (min-width: 640px) {
   .formSide {
-    align-items: center;
+    justify-content: center;
     padding: 40px;
+  }
+  .status {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    width: auto;
+    max-width: none;
   }
 }
 

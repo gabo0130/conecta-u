@@ -9,7 +9,11 @@
   flex-direction: column;
   min-width: 0;
 }
+/* En pantallas muy anchas el contenido no se estira: queda centrado (1280px + padding). */
 .content {
+  width: 100%;
+  max-width: 1336px;
+  margin-inline: auto;
   padding: 16px;
   display: flex;
   flex-direction: column;

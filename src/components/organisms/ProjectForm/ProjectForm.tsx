@@ -158,7 +158,7 @@ export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel
         ) : null}
 
         <SkillPicker
-          label="Habilidades técnicas conocidas"
+          label="Habilidades técnicas y blandas conocidas"
           mode="multi"
           value={knownSkills}
           onChange={setKnownSkills}

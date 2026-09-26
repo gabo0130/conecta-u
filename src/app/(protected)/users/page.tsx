@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { AppShell } from "@/components/templates";
 import { Badge, Button, Card } from "@/components/atoms";
+import { Pagination } from "@/components/molecules";
 import { UserModal } from "@/components/organisms";
 import { useAuth } from "@/contexts/auth-context";
 import { useUsers } from "@/modules/admin/hooks/useUsers/useUsers";
@@ -18,7 +19,7 @@ const ROLE_LABEL: Record<AdminUser["role"], string> = {
 
 export default function UsersPage() {
   const { user } = useAuth();
-  const { users, isLoading, error, createUser, updateUser, deleteUser } = useUsers();
+  const { users, meta, setPage, isLoading, error, createUser, updateUser, deleteUser } = useUsers();
   const [modal, setModal] = useState<{ user?: AdminUser } | null>(null);
 
   if (user?.role !== "ADMIN") {
@@ -79,6 +80,7 @@ export default function UsersPage() {
         {!isLoading && !error && users.length === 0 ? (
           <p className={styles.state}>Aún no hay usuarios registrados.</p>
         ) : null}
+        {!isLoading && !error && meta ? <Pagination meta={meta} onPageChange={setPage} /> : null}
       </Card>
 
       {modal ? (

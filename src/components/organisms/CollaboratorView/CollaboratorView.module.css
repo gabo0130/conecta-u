@@ -1,0 +1,157 @@
+/* Móvil y tablet: columnas con display: contents y `order` para el orden de lectura.
+   xl: principal + lateral de 340px (mismo esquema que ProjectView). */
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.primary,
+.secondary {
+  display: contents;
+}
+.o1 { order: 1; }
+.o2 { order: 2; }
+.o3 { order: 3; }
+.o4 { order: 4; }
+.o5 { order: 5; }
+.o6 { order: 6; }
+.o7 { order: 7; }
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--c-muted-2);
+  margin-bottom: 12px;
+}
+
+.text {
+  margin: 0 0 16px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px 24px;
+  margin: 0;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+}
+.field {
+  min-width: 0;
+}
+.field dt {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--c-muted);
+}
+.field dd {
+  margin: 3px 0 0;
+  font-size: 14.5px;
+  color: var(--c-ink);
+  overflow-wrap: anywhere;
+}
+
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.skillRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+.rowMeta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--c-muted);
+}
+
+.experience {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--c-line-soft);
+}
+.experience:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.expTitle {
+  margin: 0 0 3px;
+  font-size: 14.5px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.expType {
+  font-weight: 500;
+  color: var(--c-muted);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.availability {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.projectRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.projectLink {
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--c-muted);
+}
+
+@media (min-width: 640px) {
+  .fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .view {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: start;
+    gap: 20px 24px;
+  }
+  .primary,
+  .secondary {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+}

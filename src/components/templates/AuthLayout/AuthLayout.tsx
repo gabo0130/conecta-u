@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Check } from "lucide-react";
 import { Logo } from "../../atoms";
+import { ServiceStatusButton } from "../../organisms/ServiceStatusButton/ServiceStatusButton";
 import styles from "./AuthLayout.module.css";
 
 type AuthLayoutProps = {
@@ -36,6 +37,10 @@ export function AuthLayout({ title, subtitle, bullets = [], footer, children }: 
         </div>
       </div>
       <div className={styles.formSide}>
+        {/* En login y registro el servidor es imprescindible: su estado queda a la vista. */}
+        <div className={styles.status}>
+          <ServiceStatusButton variant="full" />
+        </div>
         <div className={styles.form}>{children}</div>
       </div>
     </div>

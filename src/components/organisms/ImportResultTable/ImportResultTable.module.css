@@ -1,0 +1,124 @@
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+.tile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.tileIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--r-md);
+}
+.ok {
+  background: var(--c-green-soft);
+  color: var(--c-green);
+}
+.bad {
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
+}
+.warn {
+  background: var(--c-amber-soft);
+  color: var(--c-amber);
+}
+.tileValue {
+  font-family: var(--font-display), sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.tileLabel {
+  font-size: 13px;
+  color: var(--c-muted);
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-line);
+}
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--c-muted-2);
+}
+.file {
+  font-size: 12.5px;
+  color: var(--c-muted);
+  overflow-wrap: anywhere;
+}
+.empty {
+  margin: 0;
+  padding: 18px 20px;
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+}
+.table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--c-muted-2);
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--c-line);
+}
+.table td {
+  padding: 12px 20px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--c-line-soft);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.table tr:last-child td {
+  border-bottom: none;
+}
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.warnings {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--c-ink-3);
+}
+
+@media (min-width: 640px) {
+  .summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

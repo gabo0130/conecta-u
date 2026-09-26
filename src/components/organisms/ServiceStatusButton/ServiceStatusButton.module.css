@@ -1,0 +1,86 @@
+.button {
+  --dot: var(--c-muted-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: #ffffff;
+  color: var(--c-ink-3);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.button:hover:not(:disabled) {
+  background: var(--c-bg);
+  color: var(--c-ink);
+}
+.button:disabled {
+  cursor: progress;
+}
+.button:focus-visible {
+  outline: 2px solid var(--c-red);
+  outline-offset: 2px;
+}
+.button[data-status="online"] {
+  --dot: var(--c-green);
+}
+.button[data-status="checking"],
+.button[data-status="waking"] {
+  --dot: var(--c-amber);
+}
+.button[data-status="offline"] {
+  --dot: var(--c-danger);
+}
+
+/* compact: cuadrado de 40px (objetivo táctil); full: con texto. */
+.compact {
+  width: 40px;
+  height: 40px;
+}
+.full {
+  height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.iconWrap {
+  position: relative;
+  display: inline-flex;
+  line-height: 0;
+}
+.iconWrap svg {
+  width: 18px;
+  height: 18px;
+}
+.dot {
+  position: absolute;
+  top: -3px;
+  right: -4px;
+  width: 9px;
+  height: 9px;
+  border-radius: var(--r-pill);
+  background: var(--dot);
+  box-shadow: 0 0 0 2px #ffffff;
+}
+.button[data-status="waking"] .dot {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.text {
+  white-space: nowrap;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button[data-status="waking"] .dot {
+    animation: none;
+  }
+}

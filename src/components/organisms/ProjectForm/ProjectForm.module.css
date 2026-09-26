@@ -17,9 +17,18 @@
   font-weight: 600;
   color: var(--field-label);
 }
+/* Móvil: botones a lo ancho, el principal arriba. */
 .actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+  flex-direction: column-reverse;
+  gap: 10px;
   margin-top: 20px;
+}
+
+@media (min-width: 640px) {
+  .actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 12px;
+  }
 }

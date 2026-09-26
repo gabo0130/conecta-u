@@ -98,17 +98,63 @@
   background: var(--c-bg);
 }
 
+.optionChip {
+  font-size: var(--option-font);
+  padding: 2px 10px;
+}
+
 .optionMeta {
   font-size: calc(var(--option-font) - 3px);
   color: var(--c-muted-2);
   white-space: nowrap;
 }
 
+/* Panel destacado: agrupa visualmente el selector de tipo y el botón de proponer, para que se
+   lea como una sola acción compuesta ("elige el tipo" + "proponla") en vez de dos controles sueltos. */
+.proposePanel {
+  margin: 4px 2px 0;
+  padding: 8px calc(var(--field-px) * 0.75);
+  border: 1px dashed var(--c-line-2);
+  border-radius: var(--r-sm);
+  background: var(--c-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.proposeHint {
+  margin: 0;
+  font-size: calc(var(--option-font) - 2px);
+  color: var(--c-muted);
+}
+
+.proposeControls {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--c-line-2);
+  border-radius: var(--r-sm);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.proposeType {
+  flex-shrink: 0;
+  border: none;
+  border-right: 1px solid var(--c-line-2);
+  border-radius: 0;
+  padding: 8px 10px;
+  font-size: calc(var(--option-font) - 1px);
+  color: var(--c-ink);
+  background: var(--c-bg);
+}
+
 .propose {
+  flex: 1;
+  min-width: 0;
   border: none;
   background: transparent;
-  border-radius: var(--r-sm);
-  padding: var(--option-py) calc(var(--field-px) * 0.75);
+  border-radius: 0;
+  padding: 8px 10px;
   font-size: calc(var(--option-font) - 1px);
   font-weight: 600;
   color: var(--c-red);

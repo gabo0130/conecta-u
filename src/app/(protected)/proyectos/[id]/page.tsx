@@ -1,80 +1,171 @@
 "use client";
 
+import { ReactNode, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { AppShell } from "@/components/templates";
+import { ArrowLeft, Pencil } from "lucide-react";
+import type { Project } from "@/apis/interfaces/projects";
+import { AppShell, PageGrid } from "@/components/templates";
 import { Badge, Button, Card } from "@/components/atoms";
-import { ProjectForm } from "@/components/organisms";
+import { AdminProjectInfo, ProjectForm, ProjectFormTips, ProjectView } from "@/components/organisms";
+import { useAuth } from "@/contexts/auth-context";
+import { useAdminProject } from "@/modules/admin/hooks/useAdminProject/useAdminProject";
 import { useProjectDetail } from "@/modules/projects/hooks/useProject/useProjectDetail";
 import { useUpdateProject } from "@/modules/projects/hooks/useProject/useProject";
 import { formatDate, getStatusView } from "@/modules/projects/utils/project-view";
 import { getErrorMessage } from "@/utils/get-error-message";
+import { loading } from "@/utils/loading";
 import { notify } from "@/utils/notify";
 import styles from "./detalle.module.css";
 
-export default function ProyectoDetallePage() {
-  const router = useRouter();
-  const { id } = useParams<{ id: string }>();
-  const { project, setProject, isLoading, error: loadError } = useProjectDetail(id);
-  const { updateProject, isSaving } = useUpdateProject(id);
-
-  const breadcrumb = (
+function Breadcrumb({ title }: { title?: string }) {
+  return (
     <>
       Proyectos <span className={styles.breadcrumbSep}>/</span>{" "}
-      <span className={styles.breadcrumbCurrent}>{project?.title ?? "Detalle"}</span>
+      <span className={styles.breadcrumbCurrent}>{title ?? "Detalle"}</span>
     </>
   );
+}
 
-  if (isLoading) {
-    return (
-      <AppShell breadcrumb={breadcrumb}>
-        <p className={styles.state}>Cargando proyecto…</p>
-      </AppShell>
-    );
-  }
+/** Estados de carga y "no encontrado", comunes a la vista del líder y del ADMIN. */
+function DetailState({ isLoading, error }: { isLoading: boolean; error: string }) {
+  const router = useRouter();
 
-  if (!project) {
-    return (
-      <AppShell breadcrumb={breadcrumb}>
-        <Card padding={24}>
-          <p className={styles.state}>{loadError || "No se encontró el proyecto."}</p>
-          <div className={styles.content}>
-            <Button variant="ghost" onClick={() => router.push("/proyectos")}>
-              Volver a proyectos
-            </Button>
-          </div>
-        </Card>
-      </AppShell>
-    );
-  }
+  return (
+    <AppShell breadcrumb={<Breadcrumb />}>
+      <PageGrid>
+        {isLoading ? (
+          <p className={styles.state}>Cargando proyecto…</p>
+        ) : (
+          <Card padding={24}>
+            <p className={styles.state}>{error || "No se encontró el proyecto."}</p>
+            <div className={styles.stateAction}>
+              <Button variant="ghost" onClick={() => router.push("/proyectos")}>
+                Volver a proyectos
+              </Button>
+            </div>
+          </Card>
+        )}
+      </PageGrid>
+    </AppShell>
+  );
+}
 
+type DetailHeaderProps = {
+  project: Project;
+  subtitle: string;
+  actions?: ReactNode;
+};
+
+function DetailHeader({ project, subtitle, actions }: DetailHeaderProps) {
   const status = getStatusView(project.status);
 
   return (
-    <AppShell breadcrumb={breadcrumb}>
-      <div className={styles.head}>
-        <div>
+    <div className={styles.head}>
+      <div className={styles.headText}>
+        <div className={styles.titleRow}>
           <h1 className={styles.h1}>{project.title}</h1>
-          <p className={styles.sub}>Registrado el {formatDate(project.createdAt)}</p>
+          <Badge tone={status.tone}>{status.label}</Badge>
         </div>
-        <Badge tone={status.tone}>{status.label}</Badge>
+        <p className={styles.sub}>{subtitle}</p>
       </div>
+      {actions ? <div className={styles.headActions}>{actions}</div> : null}
+    </div>
+  );
+}
 
-      <div className={styles.content}>
-        <ProjectForm
-          initial={project}
-          submitLabel="Guardar cambios"
-          isSaving={isSaving}
-          onCancel={() => router.push("/proyectos")}
-          onSubmit={async (payload) => {
-            try {
-              setProject(await updateProject(payload));
-              void notify.success("Los cambios del proyecto se guardaron.");
-            } catch (err) {
-              void notify.error(getErrorMessage(err, "No se pudieron guardar los cambios."));
+function LeaderProjectDetail({ id }: { id: string }) {
+  const router = useRouter();
+  const { project, setProject, isLoading, error } = useProjectDetail(id);
+  const { updateProject, isSaving } = useUpdateProject(id);
+  // Se abre en modo vista; los campos solo se pueden cambiar tras pulsar "Editar proyecto".
+  const [isEditing, setIsEditing] = useState(false);
+
+  if (isLoading || !project) return <DetailState isLoading={isLoading} error={error} />;
+
+  return (
+    <AppShell breadcrumb={<Breadcrumb title={project.title} />}>
+      {/* Vista: ancha para repartir las tarjetas en dos columnas desde xl.
+          Edición: formulario + consejos en la columna lateral, igual que al crear. */}
+      <PageGrid
+        width="wide"
+        aside={isEditing ? <ProjectFormTips /> : undefined}
+        header={
+          <DetailHeader
+            project={project}
+            subtitle={isEditing ? "Editando el proyecto" : `Registrado el ${formatDate(project.createdAt)}`}
+            actions={
+              !isEditing ? (
+                <>
+                  <Button variant="ghost" leftIcon={<ArrowLeft />} onClick={() => router.push("/proyectos")}>
+                    Volver
+                  </Button>
+                  <Button leftIcon={<Pencil />} onClick={() => setIsEditing(true)}>
+                    Editar proyecto
+                  </Button>
+                </>
+              ) : undefined
             }
-          }}
-        />
-      </div>
+          />
+        }
+      >
+        {isEditing ? (
+          <ProjectForm
+            initial={project}
+            submitLabel="Guardar cambios"
+            isSaving={isSaving}
+            onCancel={() => setIsEditing(false)}
+            onSubmit={async (payload) => {
+              try {
+                setProject(await loading.run(updateProject(payload), "Guardando cambios…"));
+                setIsEditing(false);
+                void notify.success("Los cambios del proyecto se guardaron.");
+              } catch (err) {
+                void notify.error(getErrorMessage(err, "No se pudieron guardar los cambios."));
+              }
+            }}
+          />
+        ) : (
+          <ProjectView project={project} />
+        )}
+      </PageGrid>
     </AppShell>
   );
+}
+
+/** ADMIN: cualquier proyecto en solo lectura, con la información de su líder. */
+function AdminProjectDetail({ id }: { id: string }) {
+  const router = useRouter();
+  const { project, isLoading, error } = useAdminProject(id);
+
+  if (isLoading || !project) return <DetailState isLoading={isLoading} error={error} />;
+
+  const leaderName = project.leader?.fullName ?? "cuenta eliminada";
+
+  return (
+    <AppShell breadcrumb={<Breadcrumb title={project.title} />}>
+      <PageGrid
+        width="wide"
+        header={
+          <DetailHeader
+            project={project}
+            subtitle={`Liderado por ${leaderName} · registrado el ${formatDate(project.createdAt)}`}
+            actions={
+              <Button variant="ghost" leftIcon={<ArrowLeft />} onClick={() => router.push("/proyectos")}>
+                Volver
+              </Button>
+            }
+          />
+        }
+      >
+        <ProjectView project={project} asideTop={<AdminProjectInfo project={project} />} />
+      </PageGrid>
+    </AppShell>
+  );
+}
+
+export default function ProyectoDetallePage() {
+  const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+
+  return user?.role === "ADMIN" ? <AdminProjectDetail id={id} /> : <LeaderProjectDetail id={id} />;
 }

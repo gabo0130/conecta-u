@@ -2,4 +2,12 @@
   background: var(--c-card);
   border: 1px solid var(--c-line);
   border-radius: var(--r-lg);
+  padding: min(var(--card-padding), 16px);
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .card {
+    padding: var(--card-padding);
+  }
 }

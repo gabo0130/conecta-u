@@ -1,0 +1,68 @@
+/* Borde de marca para distinguir a simple vista la información exclusiva del ADMIN. */
+.card {
+  border-color: var(--c-red-soft);
+  box-shadow: inset 3px 0 0 var(--c-red);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--c-muted-2);
+}
+
+.only {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--c-red-soft);
+  color: var(--c-red);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+}
+.field {
+  min-width: 0;
+}
+.field dt {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--c-muted);
+}
+.field dd {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--c-ink);
+  overflow-wrap: anywhere;
+}
+
+.strong {
+  font-weight: 600;
+}
+.muted {
+  color: var(--c-muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}

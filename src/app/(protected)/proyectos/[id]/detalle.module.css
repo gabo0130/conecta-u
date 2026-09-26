@@ -1,31 +1,79 @@
 .breadcrumbSep {
   color: var(--c-muted-3);
 }
+/* Títulos largos no empujan la barra superior: se recortan con "…". */
 .breadcrumbCurrent {
+  display: inline-block;
+  max-width: 32ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
   color: var(--c-ink);
   font-weight: 600;
 }
+
+/* Móvil: título arriba y acciones debajo, a lo ancho. */
 .head {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
+  flex-direction: column;
+  gap: 14px;
+}
+.headText {
+  min-width: 0;
+}
+.titleRow {
+  display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
 }
 .h1 {
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 700;
   letter-spacing: -0.3px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 .sub {
   color: var(--c-muted);
   font-size: 14.5px;
   margin-top: 6px;
 }
-.content {
-  max-width: 760px;
+/* Móvil: los botones se reparten el ancho (uno solo ocupa todo). */
+.headActions {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 10px;
 }
+
 .state {
   color: var(--c-muted);
   font-size: 14.5px;
+  margin: 0;
+}
+.stateAction {
+  margin-top: 16px;
+}
+
+@media (min-width: 640px) {
+  .h1 {
+    font-size: 24px;
+  }
+}
+
+/* md+: acciones a la derecha del título. */
+@media (min-width: 768px) {
+  .head {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .headActions {
+    display: flex;
+    flex-shrink: 0;
+    gap: 10px;
+  }
 }

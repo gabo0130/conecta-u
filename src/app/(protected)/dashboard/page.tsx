@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarPlus, FileText, Folder, Plus, Wrench } from "lucide-react";
+import { CalendarPlus, Contact, FileText, FileUp, Folder, Plus, Users, Wrench } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { AppShell } from "@/components/templates";
 import { Button, Card } from "@/components/atoms";
 import { ProjectListItem, StatCard } from "@/components/molecules";
+import { useAdminCollaborators } from "@/modules/admin/hooks/useAdminCollaborators/useAdminCollaborators";
+import { useAdminProjects } from "@/modules/admin/hooks/useAdminProjects/useAdminProjects";
+import { useUsers } from "@/modules/admin/hooks/useUsers/useUsers";
 import { useCollaborator } from "@/modules/collaborator/hooks/useCollaborator/useCollaborator";
 import { useProjectCategoriesCatalog } from "@/modules/catalogs/hooks/useProjectCategoriesCatalog/useProjectCategoriesCatalog";
 import { useProjectTypesCatalog } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
@@ -19,7 +22,7 @@ const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 function LeaderDashboard() {
   const router = useRouter();
-  const { projects, isLoading, error } = useProjects();
+  const { projects, meta, isLoading, error } = useProjects();
   const { projectTypes } = useProjectTypesCatalog();
   const { projectCategories } = useProjectCategoriesCatalog();
   const [now] = useState(() => Date.now());
@@ -34,7 +37,7 @@ function LeaderDashboard() {
   const recent = projects.slice(0, 3);
 
   const stats = [
-    { label: "Proyectos registrados", value: String(projects.length), hint: "en total", icon: Folder },
+    { label: "Proyectos registrados", value: String(meta?.total ?? projects.length), hint: "en total", icon: Folder },
     { label: "En borrador", value: String(drafts), hint: "por completar", icon: FileText },
     {
       label: "Registrados esta semana",
@@ -128,12 +131,110 @@ function CollaboratorDashboard() {
   );
 }
 
+/** ADMIN: vista global de la plataforma (proyectos, perfiles y cuentas) y accesos a su gestión. */
+function AdminDashboard() {
+  const router = useRouter();
+  const { projects, meta: projectsMeta, isLoading: isLoadingProjects, error: projectsError } = useAdminProjects();
+  const { collaborators, meta: collaboratorsMeta, isLoading: isLoadingCollaborators } = useAdminCollaborators();
+  const { users, meta: usersMeta, isLoading: isLoadingUsers } = useUsers();
+  const { projectTypes } = useProjectTypesCatalog();
+  const { projectCategories } = useProjectCategoriesCatalog();
+
+  const typeNameById = Object.fromEntries(projectTypes.map((type) => [type.id, type.name]));
+  const categoryNameById = Object.fromEntries(projectCategories.map((category) => [category.id, category.name]));
+  const count = (isLoading: boolean, value: number) => (isLoading ? "…" : String(value));
+  // Los conteos por página (borrador, sin usuario, líderes) son aproximados: solo miran la
+  // página cargada, no el total real. Los totales sí vienen del backend (`meta.total`).
+  const withoutUser = collaborators.filter((collaborator) => !collaborator.user).length;
+  const leaders = users.filter((user) => user.role === "LIDER").length;
+  const recent = projects.slice(0, 5);
+
+  const stats = [
+    {
+      label: "Proyectos",
+      value: count(isLoadingProjects, projectsMeta?.total ?? projects.length),
+      hint: `${projects.filter((project) => project.status === "BORRADOR").length} en borrador`,
+      icon: Folder,
+    },
+    {
+      label: "Colaboradores",
+      value: count(isLoadingCollaborators, collaboratorsMeta?.total ?? collaborators.length),
+      hint: `${withoutUser} sin usuario`,
+      icon: Contact,
+    },
+    {
+      label: "Usuarios",
+      value: count(isLoadingUsers, usersMeta?.total ?? users.length),
+      hint: `${leaders} líderes de proyecto`,
+      icon: Users,
+    },
+  ];
+
+  return (
+    <>
+      <div className={styles.stats}>
+        {stats.map((stat) => (
+          <StatCard key={stat.label} {...stat} />
+        ))}
+      </div>
+
+      <div className={styles.adminGrid}>
+        <Card padding={0}>
+          <div className={styles.listHead}>
+            <h3 className={styles.listTitle}>Últimos proyectos</h3>
+            <Link href="/proyectos">Ver todos</Link>
+          </div>
+          {isLoadingProjects ? <p className={styles.state}>Cargando proyectos…</p> : null}
+          {!isLoadingProjects && projectsError ? <p className={styles.state}>{projectsError}</p> : null}
+          {!isLoadingProjects && !projectsError && recent.length === 0 ? (
+            <p className={styles.state}>Todavía no hay proyectos registrados.</p>
+          ) : null}
+          {recent.map((project, index) => {
+            const status = getStatusView(project.status);
+            const meta = getProjectMeta(project, { typeNameById, categoryNameById });
+            return (
+              <ProjectListItem
+                key={project.id}
+                project={{
+                  code: getProjectCode(project.title),
+                  name: project.title,
+                  meta: `${meta} · Líder: ${project.leader?.fullName ?? "cuenta eliminada"}`,
+                  status: status.label,
+                  tone: status.tone,
+                  href: `/proyectos/${project.id}`,
+                }}
+                bordered={index < recent.length - 1}
+              />
+            );
+          })}
+        </Card>
+
+        <Card padding={20}>
+          <h3 className={styles.listTitle}>Gestión</h3>
+          <div className={styles.quickActions}>
+            <Button leftIcon={<FileUp />} fullWidth onClick={() => router.push("/importar")}>
+              Importar colaboradores
+            </Button>
+            <Button variant="ghost" leftIcon={<Contact />} fullWidth onClick={() => router.push("/colaboradores")}>
+              Ver colaboradores
+            </Button>
+            <Button variant="ghost" leftIcon={<Users />} fullWidth onClick={() => router.push("/users")}>
+              Gestionar usuarios
+            </Button>
+          </div>
+        </Card>
+      </div>
+    </>
+  );
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useAuth();
   const firstName = user?.fullName?.split(" ")[0] ?? "";
   const isLeader = user?.role === "LIDER";
   const isCollaborator = user?.role === "COLABORADOR";
+  const isAdmin = user?.role === "ADMIN";
 
   const sidebarFooter = isLeader ? (
     <div className={styles.promo}>
@@ -151,7 +252,11 @@ export default function DashboardPage() {
         <div>
           <h1 className={styles.h1}>Hola{firstName ? `, ${firstName}` : ""} 👋</h1>
           <p className={styles.subtitle}>
-            {isLeader ? "Este es el estado de tus proyectos e investigaciones." : "Este es el resumen de tu perfil."}
+            {isLeader
+              ? "Este es el estado de tus proyectos e investigaciones."
+              : isAdmin
+                ? "Este es el estado general de la plataforma."
+                : "Este es el resumen de tu perfil."}
           </p>
         </div>
         {isLeader ? (
@@ -163,6 +268,7 @@ export default function DashboardPage() {
 
       {isLeader ? <LeaderDashboard /> : null}
       {isCollaborator ? <CollaboratorDashboard /> : null}
+      {isAdmin ? <AdminDashboard /> : null}
     </AppShell>
   );
 }

@@ -4,6 +4,7 @@ import type { UserRole } from "@/apis/interfaces/auth";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Spinner } from "../../atoms";
 import styles from "./ProtectedRoute.module.css";
 
 interface ProtectedRouteProps {
@@ -37,7 +38,7 @@ export function ProtectedRoute({
   if (isLoading) {
     return (
       <div className={styles.wrap}>
-        <div className={styles.spinner} />
+        <Spinner size="xl" label="Cargando sesión" />
       </div>
     );
   }

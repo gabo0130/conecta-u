@@ -1,4 +1,5 @@
 import type { Skill } from "./catalogs";
+import type { PageMeta } from "./pagination";
 
 export type ProjectStatus = "BORRADOR" | "EN_ANALISIS" | "ANALIZADO";
 
@@ -39,4 +40,5 @@ export interface ProjectPayload {
 
 export interface ProjectListResponse {
   projects: Project[];
+  meta: PageMeta;
 }

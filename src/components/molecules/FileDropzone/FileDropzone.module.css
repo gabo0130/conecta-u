@@ -1,0 +1,107 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--field-gap);
+}
+
+.zone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: calc(var(--field-h) * 3.2);
+  padding: 20px 16px;
+  border: 2px dashed var(--field-border);
+  border-radius: var(--r-lg);
+  background: var(--c-bg);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.zone:hover,
+.dragging {
+  border-color: var(--c-red);
+  background: var(--c-red-soft);
+}
+/* El foco del input oculto se muestra en la zona completa. */
+.zone:focus-within {
+  outline: 2px solid var(--c-red);
+  outline-offset: 2px;
+}
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.zoneIcon {
+  color: var(--c-red);
+  line-height: 0;
+}
+.zoneTitle {
+  font-size: var(--field-font-base);
+  font-weight: 600;
+  color: var(--c-ink);
+}
+.link {
+  color: var(--c-red);
+  text-decoration: underline;
+}
+.zoneHint {
+  font-size: var(--field-msg-font);
+  color: var(--c-muted);
+}
+
+/* Visualmente oculto pero accesible por teclado y lector de pantalla. */
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.error {
+  font-size: var(--field-msg-font);
+  font-weight: 500;
+  color: var(--c-danger);
+}
+
+.selected {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--field-border);
+  border-radius: var(--field-radius);
+  background: #ffffff;
+}
+.fileIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--r-md);
+  background: var(--c-green-soft);
+  color: var(--c-green);
+}
+.fileText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.fileName {
+  font-size: 14.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fileSize {
+  font-size: 12.5px;
+  color: var(--c-muted);
+}

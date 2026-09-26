@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { AvailabilityStatus, Collaborator, CollaboratorSkill, Experience } from "@/apis/interfaces/collaborator";
+import type { Collaborator, CollaboratorSkill, Experience } from "@/apis/interfaces/collaborator";
 import { AppShell } from "@/components/templates";
-import { Badge, BadgeTone, Button, Card, Chip, UserAvatar } from "@/components/atoms";
+import { Badge, Button, Card, Chip, UserAvatar } from "@/components/atoms";
 import { ExperienceItem } from "@/components/molecules";
 import {
   AvailabilityModal,
@@ -12,24 +12,20 @@ import {
   ExperienceModal,
   SkillModal,
 } from "@/components/organisms";
+import { SKILL_TYPE_LABEL, SKILL_TYPE_TONE } from "@/components/organisms/SkillPicker/skill-type";
 import { useAuth } from "@/contexts/auth-context";
 import { useCollaborator } from "@/modules/collaborator/hooks/useCollaborator/useCollaborator";
 import { useCreateCollaboratorProfile } from "@/modules/collaborator/hooks/useCreateCollaboratorProfile/useCreateCollaboratorProfile";
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
+import {
+  AVAILABILITY_VIEW,
+  PERSON_TYPE_LABEL,
+  getExperienceMeta,
+  getInitials,
+} from "@/modules/collaborator/utils/collaborator-view";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { notify } from "@/utils/notify";
 import styles from "./perfil.module.css";
-
-const AVAILABILITY_VIEW: Record<AvailabilityStatus, { label: string; tone: BadgeTone }> = {
-  DISPONIBLE: { label: "Disponible", tone: "green" },
-  PARCIAL: { label: "Parcial", tone: "amber" },
-  NO_DISPONIBLE: { label: "No disponible", tone: "gray" },
-};
-
-const PERSON_TYPE_LABEL: Record<Collaborator["personType"], string> = {
-  ESTUDIANTE: "Estudiante",
-  DOCENTE: "Docente",
-};
 
 type ModalState =
   | { kind: "profile" }
@@ -38,16 +34,6 @@ type ModalState =
   | { kind: "experience"; experience?: Experience }
   | { kind: "create" }
   | null;
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-}
 
 function getCompleteness(collaborator: Collaborator) {
   const checks = [
@@ -59,16 +45,6 @@ function getCompleteness(collaborator: Collaborator) {
     collaborator.experiences.length > 0,
   ];
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-}
-
-function formatDate(iso?: string | null) {
-  if (!iso) return "";
-  return new Date(iso).toLocaleDateString("es-CO", { month: "short", year: "numeric" });
-}
-
-function getExperienceMeta(experience: Experience) {
-  const period = `${formatDate(experience.startDate)} – ${experience.current ? "actual" : formatDate(experience.endDate)}`;
-  return [experience.organization, period, `${experience.durationMonths} meses`].filter(Boolean).join(" · ");
 }
 
 export default function PerfilPage() {
@@ -182,13 +158,13 @@ export default function PerfilPage() {
         <div className={styles.col}>
           <Card padding={22}>
             <div className={styles.cardHead}>
-              <h3 className={styles.cardTitle}>Conocimientos y competencias</h3>
+              <h3 className={styles.cardTitle}>Conocimientos, competencias y habilidades blandas</h3>
               <Button variant="link" size="sm" onClick={() => setModal({ kind: "skill" })}>
                 + Agregar
               </Button>
             </div>
             {collaborator.skills.length === 0 ? (
-              <p className={styles.completeText}>Aún no has agregado conocimientos.</p>
+              <p className={styles.completeText}>Aún no has agregado conocimientos, competencias ni habilidades blandas.</p>
             ) : (
               <div className={styles.chips}>
                 {collaborator.skills.map((skill) => (
@@ -196,10 +172,10 @@ export default function PerfilPage() {
                     key={skill.id}
                     type="button"
                     className={styles.chipBtn}
-                    title={`${skill.level}${skill.lastUsedYear ? ` · usado en ${skill.lastUsedYear}` : ""} — clic para editar`}
+                    title={`${SKILL_TYPE_LABEL[skill.skill.type]} · ${skill.level}${skill.lastUsedYear ? ` · usado en ${skill.lastUsedYear}` : ""} — clic para editar`}
                     onClick={() => setModal({ kind: "skill", skill })}
                   >
-                    <Chip tone={skill.skill.type === "CONOCIMIENTO" ? "neutral" : "red"}>{skill.skill.name}</Chip>
+                    <Chip tone={SKILL_TYPE_TONE[skill.skill.type]}>{skill.skill.name}</Chip>
                   </button>
                 ))}
               </div>

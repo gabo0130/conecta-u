@@ -1,0 +1,26 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--c-line);
+}
+
+.count {
+  font-size: 13px;
+  color: var(--c-muted);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page {
+  font-size: 13px;
+  color: var(--c-muted);
+  white-space: nowrap;
+}

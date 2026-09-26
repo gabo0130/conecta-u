@@ -1,7 +1,7 @@
 import { HTMLAttributes } from "react";
 import styles from "./Chip.module.css";
 
-type ChipTone = "neutral" | "red";
+export type ChipTone = "neutral" | "red" | "green" | "blue";
 
 type ChipProps = HTMLAttributes<HTMLSpanElement> & {
   tone?: ChipTone;
