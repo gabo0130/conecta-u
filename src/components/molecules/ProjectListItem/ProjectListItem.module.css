@@ -5,7 +5,7 @@
   padding: 18px 22px;
 }
 .rowBorder {
-  border-bottom: 1px solid #f1f1f4;
+  border-bottom: 1px solid var(--c-line-soft);
 }
 .code {
   width: 44px;

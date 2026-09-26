@@ -3,11 +3,12 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 44px;
-  padding: 0 20px;
-  border-radius: var(--r-md);
+  height: var(--field-h);
+  padding: 0 var(--btn-px);
+  border-radius: var(--field-radius);
   font-weight: 600;
-  font-size: 14.5px;
+  font-size: var(--btn-font);
+  white-space: nowrap;
   cursor: pointer;
   border: 1px solid transparent;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
@@ -16,6 +17,15 @@
 .button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--c-red);
+  outline-offset: 2px;
+}
+
+.full {
+  width: 100%;
 }
 
 .primary {
@@ -41,11 +51,28 @@
   font-weight: 700;
 }
 
+/* Botón con aspecto de enlace: sin caja, alto según el texto. */
+.link {
+  height: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--c-red);
+}
+.link:hover:not(:disabled) {
+  color: var(--c-red-dark);
+}
+
 .icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   line-height: 0;
+}
+
+.icon svg {
+  width: calc(var(--field-icon) - 3px);
+  height: calc(var(--field-icon) - 3px);
 }
 
 .label,

@@ -1,0 +1,8 @@
+.error {
+  background: var(--c-red-soft);
+  color: var(--c-red-dark);
+  border-radius: var(--field-radius);
+  padding: calc(var(--field-px) * 0.7) var(--field-px);
+  font-size: calc(var(--field-font-base) - 1px);
+  line-height: 1.45;
+}

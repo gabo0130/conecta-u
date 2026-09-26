@@ -1,8 +1,10 @@
 import { TextareaHTMLAttributes } from "react";
+import type { ControlSize } from "../types";
 import styles from "./Textarea.module.css";
 
 type TextareaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "style"> & {
   label?: string;
+  size?: ControlSize;
   helperText?: string;
   error?: string;
 };
@@ -11,6 +13,7 @@ export function Textarea({
   label,
   helperText,
   error,
+  size,
   id,
   className,
   ...props
@@ -25,7 +28,7 @@ export function Textarea({
     .join(" ");
 
   return (
-    <label htmlFor={textareaId} className={[styles.field, className].filter(Boolean).join(" ")}>
+    <label htmlFor={textareaId} data-size={size} className={[styles.field, className].filter(Boolean).join(" ")}>
       {label ? <span className={styles.label}>{label}</span> : null}
       <textarea id={textareaId} {...props} className={textareaClassName} />
       {message ? <span className={messageClassName}>{message}</span> : null}

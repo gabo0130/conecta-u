@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { AppShell } from "@/components/templates";
@@ -8,6 +7,7 @@ import { Card } from "@/components/atoms";
 import { ProjectForm } from "@/components/organisms";
 import { useCreateProject } from "@/modules/projects/hooks/useProject/useProject";
 import { getErrorMessage } from "@/utils/get-error-message";
+import { notify } from "@/utils/notify";
 import styles from "./nuevo.module.css";
 
 const TIPS = [
@@ -26,7 +26,6 @@ const breadcrumb = (
 export default function NuevoProyectoPage() {
   const router = useRouter();
   const { createProject, isSaving } = useCreateProject();
-  const [error, setError] = useState("");
 
   return (
     <AppShell breadcrumb={breadcrumb}>
@@ -41,15 +40,14 @@ export default function NuevoProyectoPage() {
             <ProjectForm
               submitLabel="Guardar proyecto"
               isSaving={isSaving}
-              error={error}
               onCancel={() => router.push("/proyectos")}
               onSubmit={async (payload) => {
-                setError("");
                 try {
                   const project = await createProject(payload);
                   router.push(`/proyectos/${project.id}`);
+                  void notify.success(`"${project.title}" quedó registrado.`, { title: "Proyecto registrado" });
                 } catch (err) {
-                  setError(getErrorMessage(err, "No se pudo guardar el proyecto."));
+                  void notify.error(getErrorMessage(err, "No se pudo guardar el proyecto."));
                 }
               }}
             />

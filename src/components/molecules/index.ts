@@ -1,6 +1,8 @@
+export { DeliverablesEditor } from "./DeliverablesEditor/DeliverablesEditor";
 export { ExperienceItem } from "./ExperienceItem/ExperienceItem";
 export type { Experience } from "./ExperienceItem/ExperienceItem";
 export { LoginForm } from "./LoginForm/LoginForm";
+export { NotificationDialog } from "./NotificationDialog/NotificationDialog";
 export { ProjectListItem } from "./ProjectListItem/ProjectListItem";
 export type { ProjectSummary } from "./ProjectListItem/ProjectListItem";
 export { RegisterForm } from "./RegisterForm/RegisterForm";

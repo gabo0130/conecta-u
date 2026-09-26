@@ -1,0 +1,60 @@
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.h1 {
+  font-size: 21px;
+  font-weight: 700;
+}
+.subtitle {
+  color: var(--c-muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.state {
+  padding: 24px;
+  color: var(--c-muted);
+  font-size: 14px;
+}
+
+/* En pantallas angostas la tabla se desplaza dentro de la tarjeta en vez de desbordar la página. */
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+}
+.table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-muted-2);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--c-line);
+}
+.table td {
+  padding: 14px 20px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--c-line);
+}
+.row {
+  cursor: pointer;
+}
+.row:hover {
+  background: var(--c-bg);
+}
+.editCol {
+  color: var(--c-red);
+  font-weight: 600;
+  text-align: right;
+}

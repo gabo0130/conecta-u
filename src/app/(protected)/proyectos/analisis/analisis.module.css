@@ -1,5 +1,5 @@
 .breadcrumbSep {
-  color: #c4c4cc;
+  color: var(--c-muted-3);
 }
 .breadcrumbCurrent {
   color: var(--c-ink);
@@ -64,10 +64,12 @@
 }
 .bannerSub {
   font-size: 13.5px;
-  color: #fbd5db;
+  color: var(--c-on-red-muted);
   margin-top: 4px;
 }
-.bannerBtn {
+/* .banner .bannerBtn gana en especificidad al display del átomo Button. */
+.banner .bannerBtn {
+  display: none;
   position: relative;
   flex-shrink: 0;
 }
@@ -79,15 +81,15 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
 }
 
-@media (max-width: 860px) {
+@media (min-width: 768px) {
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .bannerBtn {
-    display: none;
+  .banner .bannerBtn {
+    display: inline-flex;
   }
 }

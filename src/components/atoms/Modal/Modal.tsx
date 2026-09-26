@@ -2,6 +2,8 @@
 
 import { FormEvent, ReactNode, useEffect } from "react";
 import { Button } from "../Button/Button";
+import { FormError } from "../FormError/FormError";
+import type { ControlSize } from "../types";
 import styles from "./Modal.module.css";
 
 type ModalProps = {
@@ -12,6 +14,8 @@ type ModalProps = {
   isSubmitting?: boolean;
   error?: string;
   dangerAction?: { label: string; onClick: () => void };
+  /** Tamaño de todos los campos y botones del diálogo. */
+  size?: ControlSize;
   children: ReactNode;
 };
 
@@ -23,6 +27,7 @@ export function Modal({
   isSubmitting = false,
   error,
   dangerAction,
+  size,
   children,
 }: ModalProps) {
   useEffect(() => {
@@ -42,6 +47,7 @@ export function Modal({
     <div className={styles.overlay} onMouseDown={onClose}>
       <form
         className={styles.dialog}
+        data-size={size}
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -50,12 +56,12 @@ export function Modal({
       >
         <h3 className={styles.title}>{title}</h3>
         <div className={styles.body}>{children}</div>
-        {error ? <div className={styles.error}>{error}</div> : null}
+        {error ? <FormError>{error}</FormError> : null}
         <div className={styles.footer}>
           {dangerAction ? (
-            <button type="button" className={styles.danger} onClick={dangerAction.onClick} disabled={isSubmitting}>
+            <Button variant="link" className={styles.danger} onClick={dangerAction.onClick} disabled={isSubmitting}>
               {dangerAction.label}
-            </button>
+            </Button>
           ) : null}
           <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
             Cancelar

@@ -29,7 +29,7 @@
 }
 .reason {
   font-size: 13.5px;
-  color: #54545c;
+  color: var(--c-ink-3);
   line-height: 1.55;
   margin: 14px 0;
 }

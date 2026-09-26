@@ -1,9 +1,9 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { ReactNode } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { UserAvatar } from "../../atoms";
+import { IconButton, UserAvatar } from "../../atoms";
 import styles from "./TopBar.module.css";
 
 export type TopBarSearch = {
@@ -15,6 +15,8 @@ export type TopBarSearch = {
 type TopBarProps = {
   search?: TopBarSearch;
   breadcrumb?: ReactNode;
+  isMenuOpen?: boolean;
+  onMenuClick?: () => void;
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -33,11 +35,22 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-export function TopBar({ search, breadcrumb }: TopBarProps) {
+export function TopBar({ search, breadcrumb, isMenuOpen = false, onMenuClick }: TopBarProps) {
   const { user } = useAuth();
 
   return (
     <header className={styles.top}>
+      {onMenuClick ? (
+        <IconButton
+          size="sm"
+          label="Abrir menú"
+          icon={<Menu />}
+          onClick={onMenuClick}
+          aria-controls="app-sidebar"
+          aria-expanded={isMenuOpen}
+          className={styles.menu}
+        />
+      ) : null}
       {breadcrumb ? <div className={styles.breadcrumb}>{breadcrumb}</div> : null}
       {search ? (
         <label className={styles.search}>

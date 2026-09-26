@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/templates";
 import { Badge, Button, Card } from "@/components/atoms";
@@ -9,6 +8,7 @@ import { useProjectDetail } from "@/modules/projects/hooks/useProject/useProject
 import { useUpdateProject } from "@/modules/projects/hooks/useProject/useProject";
 import { formatDate, getStatusView } from "@/modules/projects/utils/project-view";
 import { getErrorMessage } from "@/utils/get-error-message";
+import { notify } from "@/utils/notify";
 import styles from "./detalle.module.css";
 
 export default function ProyectoDetallePage() {
@@ -16,8 +16,6 @@ export default function ProyectoDetallePage() {
   const { id } = useParams<{ id: string }>();
   const { project, setProject, isLoading, error: loadError } = useProjectDetail(id);
   const { updateProject, isSaving } = useUpdateProject(id);
-  const [saveError, setSaveError] = useState("");
-  const [saved, setSaved] = useState(false);
 
   const breadcrumb = (
     <>
@@ -62,21 +60,17 @@ export default function ProyectoDetallePage() {
       </div>
 
       <div className={styles.content}>
-        {saved ? <div className={styles.success}>Cambios guardados.</div> : null}
         <ProjectForm
           initial={project}
           submitLabel="Guardar cambios"
           isSaving={isSaving}
-          error={saveError}
           onCancel={() => router.push("/proyectos")}
           onSubmit={async (payload) => {
-            setSaveError("");
-            setSaved(false);
             try {
               setProject(await updateProject(payload));
-              setSaved(true);
+              void notify.success("Los cambios del proyecto se guardaron.");
             } catch (err) {
-              setSaveError(getErrorMessage(err, "No se pudieron guardar los cambios."));
+              void notify.error(getErrorMessage(err, "No se pudieron guardar los cambios."));
             }
           }}
         />

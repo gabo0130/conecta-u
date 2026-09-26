@@ -3,13 +3,14 @@
   min-height: 100vh;
   background: #fff;
 }
+/* El panel rojo solo aparece desde lg; en móvil y tablet el formulario ocupa toda la pantalla. */
 .panel {
+  display: none;
   width: 46%;
   max-width: 600px;
   background: var(--c-red);
   color: #fff;
   padding: 56px 52px;
-  display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
@@ -39,7 +40,7 @@
 .subtitle {
   font-size: 16px;
   line-height: 1.6;
-  color: #fbd5db;
+  color: var(--c-on-red-muted);
   margin-top: 18px;
 }
 .bullets {
@@ -53,7 +54,7 @@
   align-items: center;
   gap: 12px;
   font-size: 14.5px;
-  color: #fce9ec;
+  color: var(--c-red-soft);
 }
 .bulletIcon {
   width: 26px;
@@ -67,24 +68,31 @@
 }
 .panelFooter {
   font-size: 13.5px;
-  color: #fce9ec;
+  color: var(--c-red-soft);
   margin-top: 6px;
 }
 
 .formSide {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 40px;
+  padding: 32px 16px;
 }
 .form {
   width: 100%;
   max-width: 400px;
 }
 
-@media (max-width: 860px) {
+@media (min-width: 640px) {
+  .formSide {
+    align-items: center;
+    padding: 40px;
+  }
+}
+
+@media (min-width: 1024px) {
   .panel {
-    display: none;
+    display: flex;
   }
 }

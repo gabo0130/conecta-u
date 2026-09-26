@@ -1,12 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import type { AvailabilityStatus, Profile, ProfileExperience, ProfileSkill } from "@/apis/interfaces/profile";
+import type { AvailabilityStatus, Collaborator, CollaboratorSkill, Experience } from "@/apis/interfaces/collaborator";
 import { AppShell } from "@/components/templates";
 import { Badge, BadgeTone, Button, Card, Chip, UserAvatar } from "@/components/atoms";
 import { ExperienceItem } from "@/components/molecules";
-import { AvailabilityModal, EditProfileModal, ExperienceModal, SkillModal } from "@/components/organisms";
-import { useProfile } from "@/modules/profile/hooks/useProfile/useProfile";
+import {
+  AvailabilityModal,
+  CreateProfileModal,
+  EditProfileModal,
+  ExperienceModal,
+  SkillModal,
+} from "@/components/organisms";
+import { useAuth } from "@/contexts/auth-context";
+import { useCollaborator } from "@/modules/collaborator/hooks/useCollaborator/useCollaborator";
+import { useCreateCollaboratorProfile } from "@/modules/collaborator/hooks/useCreateCollaboratorProfile/useCreateCollaboratorProfile";
+import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
+import { getErrorMessage } from "@/utils/get-error-message";
+import { notify } from "@/utils/notify";
 import styles from "./perfil.module.css";
 
 const AVAILABILITY_VIEW: Record<AvailabilityStatus, { label: string; tone: BadgeTone }> = {
@@ -15,11 +26,17 @@ const AVAILABILITY_VIEW: Record<AvailabilityStatus, { label: string; tone: Badge
   NO_DISPONIBLE: { label: "No disponible", tone: "gray" },
 };
 
+const PERSON_TYPE_LABEL: Record<Collaborator["personType"], string> = {
+  ESTUDIANTE: "Estudiante",
+  DOCENTE: "Docente",
+};
+
 type ModalState =
   | { kind: "profile" }
   | { kind: "availability" }
-  | { kind: "skill"; skill?: ProfileSkill }
-  | { kind: "experience"; experience?: ProfileExperience }
+  | { kind: "skill"; skill?: CollaboratorSkill }
+  | { kind: "experience"; experience?: Experience }
+  | { kind: "create" }
   | null;
 
 function getInitials(name: string) {
@@ -32,27 +49,34 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-function getCompleteness(profile: Profile) {
+function getCompleteness(collaborator: Collaborator) {
   const checks = [
-    profile.headline,
-    profile.studyGroup,
-    profile.program,
-    profile.weeklyHours,
-    profile.modality,
-    profile.skills.length > 0,
-    profile.experiences.length > 0,
+    collaborator.summary,
+    collaborator.researchGroup,
+    collaborator.profileUrl,
+    collaborator.weeklyHours > 0,
+    collaborator.skills.length > 0,
+    collaborator.experiences.length > 0,
   ];
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }
 
-function getExperienceMeta(experience: ProfileExperience) {
-  return [experience.organization, experience.period, experience.description].filter(Boolean).join(" · ");
+function formatDate(iso?: string | null) {
+  if (!iso) return "";
+  return new Date(iso).toLocaleDateString("es-CO", { month: "short", year: "numeric" });
+}
+
+function getExperienceMeta(experience: Experience) {
+  const period = `${formatDate(experience.startDate)} – ${experience.current ? "actual" : formatDate(experience.endDate)}`;
+  return [experience.organization, period, `${experience.durationMonths} meses`].filter(Boolean).join(" · ");
 }
 
 export default function PerfilPage() {
+  const { user } = useAuth();
   const {
-    profile,
+    collaborator,
     isLoading,
+    notFound,
     error,
     updateProfile,
     updateAvailability,
@@ -62,9 +86,27 @@ export default function PerfilPage() {
     addExperience,
     updateExperience,
     deleteExperience,
-  } = useProfile();
+    reload,
+  } = useCollaborator();
+  const { createProfile } = useCreateCollaboratorProfile();
+  const { programs } = useProgramsCatalog();
   const [modal, setModal] = useState<ModalState>(null);
   const closeModal = () => setModal(null);
+
+  const handleDeleteExperience = async (experience: Experience) => {
+    const accepted = await notify.confirm({
+      title: "¿Eliminar experiencia?",
+      message: `Se quitará "${experience.role}" en ${experience.organization} de tu perfil. Esta acción no se puede deshacer.`,
+      tone: "danger",
+    });
+    if (!accepted) return;
+    try {
+      await deleteExperience(experience.id);
+      void notify.success("La experiencia se eliminó de tu perfil.");
+    } catch (err) {
+      void notify.error(getErrorMessage(err, "No se pudo eliminar la experiencia."));
+    }
+  };
 
   if (isLoading) {
     return (
@@ -74,28 +116,57 @@ export default function PerfilPage() {
     );
   }
 
-  if (!profile) {
+  if (notFound) {
+    return (
+      <AppShell>
+        <Card padding={24}>
+          <p className={styles.completeText}>
+            {user?.role === "LIDER"
+              ? "Aún no tienes un perfil de colaborador. Puedes crear uno para aparecer también como colaborador técnico."
+              : "No se encontró tu perfil de colaborador."}
+          </p>
+          {user?.role === "LIDER" ? (
+            <Button onClick={() => setModal({ kind: "create" })}>Crear mi perfil</Button>
+          ) : null}
+        </Card>
+        {modal?.kind === "create" ? (
+          <CreateProfileModal
+            onSubmit={async (payload) => {
+              await createProfile(payload);
+              await reload();
+            }}
+            onClose={closeModal}
+          />
+        ) : null}
+      </AppShell>
+    );
+  }
+
+  if (!collaborator) {
     return (
       <AppShell>
         <Card padding={24}>
           <p className={styles.completeText}>{error || "No se pudo cargar el perfil."}</p>
-          <p className={styles.completeText}>Solo los usuarios con rol Colaborador tienen perfil técnico.</p>
         </Card>
       </AppShell>
     );
   }
 
-  const availability = AVAILABILITY_VIEW[profile.availabilityStatus];
-  const meta = [profile.headline, profile.program, profile.studyGroup].filter(Boolean).join(" · ");
-  const completeness = getCompleteness(profile);
+  const availability = AVAILABILITY_VIEW[collaborator.availabilityStatus];
+  const programName = programs.find((program) => program.id === collaborator.programId)?.name;
+  const fullName = `${collaborator.firstName} ${collaborator.lastName}`;
+  const meta = [PERSON_TYPE_LABEL[collaborator.personType], programName, collaborator.researchGroup]
+    .filter(Boolean)
+    .join(" · ");
+  const completeness = getCompleteness(collaborator);
 
   return (
     <AppShell>
       <Card padding={24} className={styles.header}>
-        <UserAvatar initials={getInitials(profile.fullName)} alt={profile.fullName} size={76} radius={20} />
+        <UserAvatar initials={getInitials(fullName)} alt={fullName} size={76} radius={20} />
         <div className={styles.headMain}>
           <div className={styles.headTop}>
-            <h1 className={styles.name}>{profile.fullName}</h1>
+            <h1 className={styles.name}>{fullName}</h1>
             <Badge tone={availability.tone} dot>
               {availability.label}
             </Badge>
@@ -112,23 +183,23 @@ export default function PerfilPage() {
           <Card padding={22}>
             <div className={styles.cardHead}>
               <h3 className={styles.cardTitle}>Conocimientos y competencias</h3>
-              <button type="button" className={styles.linkBtn} onClick={() => setModal({ kind: "skill" })}>
+              <Button variant="link" size="sm" onClick={() => setModal({ kind: "skill" })}>
                 + Agregar
-              </button>
+              </Button>
             </div>
-            {profile.skills.length === 0 ? (
+            {collaborator.skills.length === 0 ? (
               <p className={styles.completeText}>Aún no has agregado conocimientos.</p>
             ) : (
               <div className={styles.chips}>
-                {profile.skills.map((skill) => (
+                {collaborator.skills.map((skill) => (
                   <button
                     key={skill.id}
                     type="button"
                     className={styles.chipBtn}
-                    title={`${skill.type === "CONOCIMIENTO" ? "Conocimiento" : "Competencia"}${skill.level ? ` · ${skill.level}` : ""} — clic para editar`}
+                    title={`${skill.level}${skill.lastUsedYear ? ` · usado en ${skill.lastUsedYear}` : ""} — clic para editar`}
                     onClick={() => setModal({ kind: "skill", skill })}
                   >
-                    <Chip tone={skill.type === "CONOCIMIENTO" ? "neutral" : "red"}>{skill.name}</Chip>
+                    <Chip tone={skill.skill.type === "CONOCIMIENTO" ? "neutral" : "red"}>{skill.skill.name}</Chip>
                   </button>
                 ))}
               </div>
@@ -138,20 +209,20 @@ export default function PerfilPage() {
           <Card padding={22}>
             <div className={styles.cardHead}>
               <h3 className={styles.cardTitle}>Experiencia</h3>
-              <button type="button" className={styles.linkBtn} onClick={() => setModal({ kind: "experience" })}>
+              <Button variant="link" size="sm" onClick={() => setModal({ kind: "experience" })}>
                 + Agregar
-              </button>
+              </Button>
             </div>
-            {profile.experiences.length === 0 ? (
+            {collaborator.experiences.length === 0 ? (
               <p className={styles.completeText}>Aún no has agregado experiencia.</p>
             ) : (
               <div className={styles.expList}>
-                {profile.experiences.map((experience) => (
+                {collaborator.experiences.map((experience) => (
                   <ExperienceItem
                     key={experience.id}
-                    experience={{ title: experience.title, meta: getExperienceMeta(experience) }}
+                    experience={{ title: experience.role, meta: getExperienceMeta(experience) }}
                     onEdit={() => setModal({ kind: "experience", experience })}
-                    onDelete={() => void deleteExperience(experience.id)}
+                    onDelete={() => void handleDeleteExperience(experience)}
                   />
                 ))}
               </div>
@@ -163,22 +234,18 @@ export default function PerfilPage() {
           <Card padding={22}>
             <div className={styles.cardHead}>
               <h3 className={styles.cardTitle}>Disponibilidad</h3>
-              <button type="button" className={styles.linkBtn} onClick={() => setModal({ kind: "availability" })}>
+              <Button variant="link" size="sm" onClick={() => setModal({ kind: "availability" })}>
                 Editar
-              </button>
+              </Button>
             </div>
             <div className={styles.dispList}>
               <div className={styles.dispRow}>
                 <span>Estado</span>
                 <b className={availability.tone === "green" ? styles.green : undefined}>{availability.label}</b>
               </div>
-              <div className={styles.dispRow}>
-                <span>Dedicación semanal</span>
-                <b>{profile.weeklyHours || "Sin definir"}</b>
-              </div>
               <div className={styles.dispRow} data-last="">
-                <span>Modalidad</span>
-                <b>{profile.modality || "Sin definir"}</b>
+                <span>Dedicación semanal</span>
+                <b>{collaborator.weeklyHours ? `${collaborator.weeklyHours} horas` : "Sin definir"}</b>
               </div>
             </div>
           </Card>
@@ -197,10 +264,10 @@ export default function PerfilPage() {
       </div>
 
       {modal?.kind === "profile" ? (
-        <EditProfileModal profile={profile} onSubmit={updateProfile} onClose={closeModal} />
+        <EditProfileModal collaborator={collaborator} onSubmit={updateProfile} onClose={closeModal} />
       ) : null}
       {modal?.kind === "availability" ? (
-        <AvailabilityModal profile={profile} onSubmit={updateAvailability} onClose={closeModal} />
+        <AvailabilityModal collaborator={collaborator} onSubmit={updateAvailability} onClose={closeModal} />
       ) : null}
       {modal?.kind === "skill" ? (
         <SkillModal
@@ -216,6 +283,7 @@ export default function PerfilPage() {
           onSubmit={(payload) =>
             modal.experience ? updateExperience(modal.experience.id, payload) : addExperience(payload)
           }
+          onDelete={modal.experience ? () => deleteExperience(modal.experience!.id) : undefined}
           onClose={closeModal}
         />
       ) : null}

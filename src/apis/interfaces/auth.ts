@@ -16,7 +16,6 @@ export interface UserWithMenu {
   fullName: string;
   email: string;
   role: UserRole;
-  program: string | null;
   menu: MenuItem[];
 }
 
@@ -29,13 +28,21 @@ export interface LoginSuccessResponse {
 
 // El registro público solo admite estos roles; ADMIN lo gestiona el backend.
 export type RegisterRole = "LIDER" | "COLABORADOR";
+export type PersonType = "ESTUDIANTE" | "DOCENTE";
+
+export interface RegisterCollaboratorPayload {
+  firstName: string;
+  lastName: string;
+  personType: PersonType;
+  programId: string;
+}
 
 export interface RegisterPayload {
   fullName: string;
   email: string;
   password: string;
   role: RegisterRole;
-  program?: string;
+  collaborator?: RegisterCollaboratorPayload;
 }
 
 export interface RegisterResponse {
@@ -43,7 +50,6 @@ export interface RegisterResponse {
   fullName: string;
   email: string;
   role: RegisterRole;
-  program: string | null;
 }
 
 export interface RefreshResponse {

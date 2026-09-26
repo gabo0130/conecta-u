@@ -1,5 +1,5 @@
 .breadcrumbSep {
-  color: #c4c4cc;
+  color: var(--c-muted-3);
 }
 .breadcrumbCurrent {
   color: var(--c-ink);
@@ -34,7 +34,7 @@
   cursor: pointer;
   background: #fff;
   border: 1px solid var(--c-line-2);
-  color: #54545c;
+  color: var(--c-ink-3);
 }
 .filterOn {
   background: var(--c-red);

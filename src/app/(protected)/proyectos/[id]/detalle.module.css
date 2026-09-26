@@ -1,5 +1,5 @@
 .breadcrumbSep {
-  color: #c4c4cc;
+  color: var(--c-muted-3);
 }
 .breadcrumbCurrent {
   color: var(--c-ink);
@@ -24,15 +24,6 @@
 }
 .content {
   max-width: 760px;
-}
-.success {
-  background: var(--c-green-soft);
-  color: var(--c-green);
-  border-radius: var(--r-sm);
-  padding: 10px 12px;
-  font-size: 13.5px;
-  font-weight: 600;
-  margin-bottom: 16px;
 }
 .state {
   color: var(--c-muted);

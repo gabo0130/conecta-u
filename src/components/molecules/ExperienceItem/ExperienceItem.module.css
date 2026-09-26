@@ -5,7 +5,7 @@
 .icon {
   width: 40px;
   height: 40px;
-  border-radius: 11px;
+  border-radius: var(--r-md);
   background: var(--c-red-soft);
   color: var(--c-red);
   display: flex;
@@ -30,20 +30,4 @@
   display: flex;
   gap: 4px;
   flex-shrink: 0;
-}
-.action {
-  width: 32px;
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: var(--r-sm);
-  background: transparent;
-  color: var(--c-muted);
-  cursor: pointer;
-}
-.action:hover {
-  background: var(--c-bg);
-  color: var(--c-red);
 }

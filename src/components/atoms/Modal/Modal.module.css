@@ -1,21 +1,22 @@
+/* Móvil: el diálogo sale desde abajo y ocupa casi todo el ancho. */
 .overlay {
   position: fixed;
   inset: 0;
   z-index: 50;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: 24px;
+  padding: 12px;
   background: rgba(22, 22, 26, 0.45);
 }
 .dialog {
   width: 100%;
   max-width: 480px;
-  max-height: 90vh;
+  max-height: 92vh;
   overflow-y: auto;
   background: var(--c-card);
   border-radius: var(--r-lg);
-  padding: 26px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -27,30 +28,26 @@
 .body {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-}
-.error {
-  background: var(--c-red-soft);
-  color: var(--c-red-dark);
-  border-radius: var(--r-sm);
-  padding: 10px 12px;
-  font-size: 13.5px;
+  gap: var(--field-stack-gap);
 }
 .footer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
 }
 .danger {
   margin-right: auto;
-  border: none;
-  background: transparent;
-  color: var(--c-red);
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
 }
-.danger:hover {
-  color: var(--c-red-dark);
+
+@media (min-width: 640px) {
+  .overlay {
+    align-items: center;
+    padding: 24px;
+  }
+  .dialog {
+    max-height: 90vh;
+    padding: 26px;
+  }
 }

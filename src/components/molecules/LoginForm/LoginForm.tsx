@@ -1,18 +1,27 @@
 "use client";
 
+import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { getErrorMessage } from "@/utils/get-error-message";
-import { Button, Input } from "../../atoms";
+import { notify } from "@/utils/notify";
+import { Button, FormError, Input } from "../../atoms";
+import type { ControlSize } from "../../atoms";
 import styles from "./LoginForm.module.css";
 
-export function LoginForm() {
+type LoginFormProps = {
+  /** Tamaño de todos los campos y botones del formulario. */
+  size?: ControlSize;
+};
+
+export function LoginForm({ size }: LoginFormProps) {
   const router = useRouter();
   const { login, isLoading } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -33,14 +42,14 @@ export function LoginForm() {
       await login(email, password);
       router.push("/dashboard");
     } catch (err) {
-      setError(
-        getErrorMessage(err, "Error al iniciar sesión. Intenta nuevamente."),
-      );
+      void notify.error(getErrorMessage(err, "No se pudo iniciar sesión. Intenta nuevamente."), {
+        title: "No pudimos iniciar tu sesión",
+      });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
+    <form onSubmit={handleSubmit} className={styles.form} data-size={size}>
       <div className={styles.inputs}>
         <Input
           label="Correo"
@@ -53,22 +62,21 @@ export function LoginForm() {
         />
         <Input
           label="Contraseña"
-          type="password"
+          type={showPassword ? "text" : "password"}
           placeholder="Ingresa tu contraseña"
           autoComplete="current-password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           disabled={isLoading}
+          rightIcon={showPassword ? <EyeOff /> : <Eye />}
+          rightIconLabel={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+          onRightIconClick={() => setShowPassword((value) => !value)}
         />
       </div>
 
-      {error ? <div className={styles.formError}>{error}</div> : null}
+      {error ? <FormError>{error}</FormError> : null}
 
-      <Button
-        type="submit"
-        className={styles.submitButton}
-        disabled={isLoading}
-      >
+      <Button type="submit" size={size ?? "lg"} fullWidth disabled={isLoading}>
         {isLoading ? "Ingresando..." : "Ingresar al sistema"}
       </Button>
 

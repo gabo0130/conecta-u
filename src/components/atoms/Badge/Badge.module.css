@@ -27,6 +27,6 @@
   color: var(--c-red);
 }
 .gray {
-  background: #ededf0;
-  color: #54545c;
+  background: var(--c-line-soft);
+  color: var(--c-ink-3);
 }

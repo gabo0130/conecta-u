@@ -10,8 +10,15 @@
   min-width: 0;
 }
 .content {
-  padding: 28px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .content {
+    padding: 28px;
+    gap: 22px;
+  }
 }

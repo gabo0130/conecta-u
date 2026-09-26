@@ -1,31 +1,36 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: var(--field-gap);
   width: 100%;
+  min-width: 0;
 }
 
 .label {
-  font-size: 13px;
+  font-size: var(--field-label-font);
   font-weight: 600;
-  color: #3a3a42;
+  color: var(--field-label);
 }
 
 .control {
   position: relative;
   display: flex;
   align-items: center;
+  min-width: 0;
 }
 
 .select {
   width: 100%;
-  height: 46px;
-  border: 1px solid var(--c-line-2);
-  border-radius: var(--r-md);
-  padding: 0 38px 0 14px;
+  min-width: 0;
+  height: var(--field-h);
+  border: 1px solid var(--field-border);
+  border-radius: var(--field-radius);
+  /* Reserva a la derecha el espacio del chevron para que el texto no quede debajo. */
+  padding: 0 calc(var(--field-px) + var(--field-icon) + 4px) 0 var(--field-px);
   background: #ffffff;
   color: var(--c-ink);
-  font-size: 14.5px;
+  font-size: var(--field-font);
+  text-overflow: ellipsis;
   outline: none;
   appearance: none;
   cursor: pointer;
@@ -34,10 +39,29 @@
 .select:focus {
   border-color: var(--c-red);
 }
+.select:disabled {
+  cursor: not-allowed;
+  color: var(--c-muted);
+  background: var(--c-bg);
+}
+.selectError {
+  border-color: var(--c-danger);
+}
 
 .chevron {
+  width: calc(var(--field-icon) - 4px);
+  height: calc(var(--field-icon) - 4px);
   position: absolute;
-  right: 14px;
-  color: #9a9aa2;
+  right: var(--field-px);
+  color: var(--c-muted-2);
   pointer-events: none;
+}
+
+.message {
+  font-size: var(--field-msg-font);
+  font-weight: 500;
+  color: var(--c-muted-2);
+}
+.messageError {
+  color: var(--c-danger);
 }

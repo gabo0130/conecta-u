@@ -1,51 +1,53 @@
 "use client";
 
-import { KeyboardEvent, useState } from "react";
-import type { Project, ProjectPayload } from "@/apis/interfaces/projects";
-import { Button, Card, Chip, Input, Select, Textarea } from "../../atoms";
+import { useState } from "react";
+import type { Skill } from "@/apis/interfaces/catalogs";
+import type { Deliverable, Project, ProjectPayload } from "@/apis/interfaces/projects";
+import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
+import { useProjectCategoriesCatalog } from "@/modules/catalogs/hooks/useProjectCategoriesCatalog/useProjectCategoriesCatalog";
+import { useProjectTypesCatalog } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
+import { DeliverablesEditor } from "../../molecules/DeliverablesEditor/DeliverablesEditor";
+import { Button, Card, FormError, FormRow, Input, Select, Textarea } from "../../atoms";
+import type { ControlSize } from "../../atoms";
+import { DynamicTypeFields } from "../DynamicTypeFields/DynamicTypeFields";
+import { SkillPicker } from "../SkillPicker/SkillPicker";
 import styles from "./ProjectForm.module.css";
 
-const SEMILLERO_OPTIONS = ["Semillero de Software", "Semillero de Datos", "Semillero de Investigación"];
-const PROGRAMA_OPTIONS = ["Ing. de Sistemas", "Ing. Electrónica", "Ing. Industrial"];
-
-function toOptions(base: string[], current?: string | null) {
-  const values = current && !base.includes(current) ? [...base, current] : base;
-  return values.map((value) => ({ value, label: value }));
-}
+const EMPTY_DELIVERABLES: Deliverable[] = [{ name: "", scope: "" }];
 
 type ProjectFormProps = {
   initial?: Project;
   submitLabel: string;
   isSaving: boolean;
-  error?: string;
   onSubmit: (payload: ProjectPayload) => void;
   onCancel: () => void;
+  /** Tamaño de todos los campos y botones del formulario. */
+  size?: ControlSize;
 };
 
-export function ProjectForm({ initial, submitLabel, isSaving, error, onSubmit, onCancel }: ProjectFormProps) {
+export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel, size }: ProjectFormProps) {
+  const { projectTypes, isLoading: isLoadingTypes } = useProjectTypesCatalog();
+  const { projectCategories, isLoading: isLoadingCategories } = useProjectCategoriesCatalog();
+  const { programs, isLoading: isLoadingPrograms } = useProgramsCatalog();
+
   const [title, setTitle] = useState(initial?.title ?? "");
   const [summary, setSummary] = useState(initial?.summary ?? "");
   const [objectives, setObjectives] = useState(initial?.objectives ?? "");
-  const [skills, setSkills] = useState<string[]>(initial?.knownSkills ?? []);
-  const [skillDraft, setSkillDraft] = useState("");
-  const [semillero, setSemillero] = useState(initial?.semillero ?? SEMILLERO_OPTIONS[0]);
-  const [programa, setPrograma] = useState(initial?.program ?? PROGRAMA_OPTIONS[0]);
+  const [typeId, setTypeId] = useState(initial?.typeId ?? "");
+  const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
+  const [programId, setProgramId] = useState(initial?.programId ?? "");
+  const [typeData, setTypeData] = useState<Record<string, unknown>>(initial?.typeData ?? {});
+  const [knownSkills, setKnownSkills] = useState<Skill[]>(initial?.knownSkills ?? []);
+  const [deliverables, setDeliverables] = useState<Deliverable[]>(
+    initial?.deliverables && initial.deliverables.length > 0 ? initial.deliverables : EMPTY_DELIVERABLES,
+  );
   const [validation, setValidation] = useState("");
 
-  const addSkill = () => {
-    const trimmed = skillDraft.trim();
-    if (trimmed && !skills.includes(trimmed)) {
-      setSkills([...skills, trimmed]);
-    }
-    setSkillDraft("");
-  };
+  // En creación, antes de que el usuario elija, se preselecciona el primer tipo/categoría del catálogo.
+  const effectiveTypeId = typeId || (!initial ? (projectTypes[0]?.id ?? "") : "");
+  const effectiveCategoryId = categoryId || (!initial ? (projectCategories[0]?.id ?? "") : "");
 
-  const handleSkillKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      addSkill();
-    }
-  };
+  const selectedType = projectTypes.find((type) => type.id === effectiveTypeId);
 
   const handleSubmit = () => {
     const trimmedTitle = title.trim();
@@ -57,25 +59,35 @@ export function ProjectForm({ initial, submitLabel, isSaving, error, onSubmit, o
       setValidation("El resumen y los objetivos son obligatorios.");
       return;
     }
+    if (!effectiveTypeId || !effectiveCategoryId) {
+      setValidation("Selecciona el tipo y la categoría del proyecto.");
+      return;
+    }
+    const cleanDeliverables = deliverables
+      .map((deliverable) => ({ name: deliverable.name.trim(), scope: deliverable.scope.trim() }))
+      .filter((deliverable) => deliverable.name && deliverable.scope);
+    if (cleanDeliverables.length === 0) {
+      setValidation("Agrega al menos un entregable con nombre y alcance.");
+      return;
+    }
     setValidation("");
-
-    const pending = skillDraft.trim();
-    const knownSkills = pending && !skills.includes(pending) ? [...skills, pending] : skills;
 
     onSubmit({
       title: trimmedTitle,
       summary: summary.trim(),
       objectives: objectives.trim(),
-      knownSkills,
-      semillero,
-      program: programa,
+      typeId: effectiveTypeId,
+      categoryId: effectiveCategoryId,
+      programId: programId || undefined,
+      typeData,
+      knownSkillIds: knownSkills.map((skill) => skill.id),
+      deliverables: cleanDeliverables,
     });
   };
 
-  const message = validation || error;
 
   return (
-    <>
+    <div data-size={size} className={styles.root}>
       <Card padding={24} className={styles.formCard}>
         <Input
           label="Título del proyecto"
@@ -101,49 +113,60 @@ export function ProjectForm({ initial, submitLabel, isSaving, error, onSubmit, o
           onChange={(event) => setObjectives(event.target.value)}
         />
 
-        <div className={styles.field}>
-          <label className={styles.label}>Habilidades técnicas conocidas</label>
-          <div className={styles.chipsInput}>
-            {skills.map((skill) => (
-              <Chip key={skill} tone="red">
-                {skill}
-                <button
-                  type="button"
-                  className={styles.removeSkill}
-                  onClick={() => setSkills(skills.filter((item) => item !== skill))}
-                  aria-label={`Quitar ${skill}`}
-                >
-                  ×
-                </button>
-              </Chip>
-            ))}
-            <input
-              className={styles.skillInput}
-              value={skillDraft}
-              onChange={(event) => setSkillDraft(event.target.value)}
-              onKeyDown={handleSkillKeyDown}
-              onBlur={addSkill}
-              placeholder="Escribe y presiona Enter…"
-            />
-          </div>
-        </div>
-
-        <div className={styles.row}>
+        <FormRow>
           <Select
-            label="Semillero"
-            options={toOptions(SEMILLERO_OPTIONS, initial?.semillero)}
-            value={semillero}
-            onChange={(event) => setSemillero(event.target.value)}
+            label="Tipo de proyecto"
+            options={
+              isLoadingTypes
+                ? [{ value: "", label: "Cargando..." }]
+                : projectTypes.map((type) => ({ value: type.id, label: type.name }))
+            }
+            value={effectiveTypeId}
+            onChange={(event) => setTypeId(event.target.value)}
+            disabled={isLoadingTypes}
           />
           <Select
-            label="Programa"
-            options={toOptions(PROGRAMA_OPTIONS, initial?.program)}
-            value={programa}
-            onChange={(event) => setPrograma(event.target.value)}
+            label="Categoría"
+            options={
+              isLoadingCategories
+                ? [{ value: "", label: "Cargando..." }]
+                : projectCategories.map((category) => ({ value: category.id, label: category.name }))
+            }
+            value={effectiveCategoryId}
+            onChange={(event) => setCategoryId(event.target.value)}
+            disabled={isLoadingCategories}
           />
-        </div>
+        </FormRow>
 
-        {message ? <div className={styles.error}>{message}</div> : null}
+        <Select
+          label="Programa (opcional)"
+          options={[
+            { value: "", label: isLoadingPrograms ? "Cargando..." : "Sin programa asociado" },
+            ...programs.map((program) => ({ value: program.id, label: program.name })),
+          ]}
+          value={programId}
+          onChange={(event) => setProgramId(event.target.value)}
+          disabled={isLoadingPrograms}
+        />
+
+        {selectedType && selectedType.templateFields.length > 0 ? (
+          <DynamicTypeFields
+            templateFields={selectedType.templateFields}
+            typeData={typeData}
+            onChange={setTypeData}
+          />
+        ) : null}
+
+        <SkillPicker
+          label="Habilidades técnicas conocidas"
+          mode="multi"
+          value={knownSkills}
+          onChange={setKnownSkills}
+        />
+
+        <DeliverablesEditor value={deliverables} onChange={setDeliverables} />
+
+        {validation ? <FormError>{validation}</FormError> : null}
       </Card>
 
       <div className={styles.actions}>
@@ -154,6 +177,6 @@ export function ProjectForm({ initial, submitLabel, isSaving, error, onSubmit, o
           {isSaving ? "Guardando..." : submitLabel}
         </Button>
       </div>
-    </>
+    </div>
   );
 }

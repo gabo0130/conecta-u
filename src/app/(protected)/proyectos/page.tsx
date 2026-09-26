@@ -6,6 +6,8 @@ import { Plus } from "lucide-react";
 import { AppShell } from "@/components/templates";
 import { Button, Card } from "@/components/atoms";
 import { ProjectListItem } from "@/components/molecules";
+import { useProjectCategoriesCatalog } from "@/modules/catalogs/hooks/useProjectCategoriesCatalog/useProjectCategoriesCatalog";
+import { useProjectTypesCatalog } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
 import { useProjects } from "@/modules/projects/hooks/useProjects/useProjects";
 import { getProjectCode, getProjectMeta, getStatusView } from "@/modules/projects/utils/project-view";
 import styles from "./proyectos.module.css";
@@ -13,7 +15,12 @@ import styles from "./proyectos.module.css";
 export default function ProyectosPage() {
   const router = useRouter();
   const { projects, isLoading, error } = useProjects();
+  const { projectTypes } = useProjectTypesCatalog();
+  const { projectCategories } = useProjectCategoriesCatalog();
   const [query, setQuery] = useState("");
+
+  const typeNameById = Object.fromEntries(projectTypes.map((type) => [type.id, type.name]));
+  const categoryNameById = Object.fromEntries(projectCategories.map((category) => [category.id, category.name]));
 
   const normalized = query.trim().toLowerCase();
   const visible = normalized
@@ -49,7 +56,7 @@ export default function ProyectosPage() {
               project={{
                 code: getProjectCode(project.title),
                 name: project.title,
-                meta: getProjectMeta(project),
+                meta: getProjectMeta(project, { typeNameById, categoryNameById }),
                 status: status.label,
                 tone: status.tone,
                 href: `/proyectos/${project.id}`,

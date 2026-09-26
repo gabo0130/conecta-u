@@ -1,0 +1,35 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--field-gap);
+}
+
+.label {
+  font-size: var(--field-label-font);
+  font-weight: 600;
+  color: var(--field-label);
+}
+
+/* Móvil: el nombre ocupa toda la fila y debajo van el alcance y el botón de quitar. */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--field-h);
+  gap: calc(var(--field-stack-gap) * 0.6);
+  align-items: center;
+}
+.row > :first-child {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 640px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) var(--field-h);
+  }
+  .row > :first-child {
+    grid-column: auto;
+  }
+}
+
+.add {
+  align-self: flex-start;
+}

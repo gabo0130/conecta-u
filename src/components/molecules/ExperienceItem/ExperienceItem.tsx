@@ -1,4 +1,5 @@
 import { Briefcase, Pencil, Trash2 } from "lucide-react";
+import { IconButton } from "../../atoms";
 import styles from "./ExperienceItem.module.css";
 
 export type Experience = {
@@ -25,14 +26,17 @@ export function ExperienceItem({ experience, onEdit, onDelete }: ExperienceItemP
       {onEdit || onDelete ? (
         <div className={styles.actions}>
           {onEdit ? (
-            <button type="button" className={styles.action} onClick={onEdit} aria-label="Editar experiencia">
-              <Pencil size={16} />
-            </button>
+            <IconButton variant="plain" size="sm" label="Editar experiencia" icon={<Pencil />} onClick={onEdit} />
           ) : null}
           {onDelete ? (
-            <button type="button" className={styles.action} onClick={onDelete} aria-label="Eliminar experiencia">
-              <Trash2 size={16} />
-            </button>
+            <IconButton
+              variant="plain"
+              size="sm"
+              tone="danger"
+              label="Eliminar experiencia"
+              icon={<Trash2 />}
+              onClick={onDelete}
+            />
           ) : null}
         </div>
       ) : null}

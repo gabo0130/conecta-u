@@ -1,14 +1,35 @@
+/* Móvil y tablet (< lg): panel deslizable que se abre desde la izquierda con el botón de menú. */
 .side {
-  width: 248px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 40;
+  width: min(280px, 85vw);
+  overflow-y: auto;
   background: #fff;
   border-right: 1px solid var(--c-line);
   padding: 22px 16px;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+}
+.open {
+  transform: translateX(0);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.18);
+}
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  background: rgba(22, 22, 26, 0.45);
 }
 .brand {
   padding: 6px 8px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 .nav {
   display: flex;
@@ -21,12 +42,12 @@
   gap: 12px;
   padding: 11px 13px;
   border-radius: var(--r-md);
-  color: #54545c;
+  color: var(--c-ink-3);
   font-weight: 500;
   font-size: 14.5px;
 }
 .item:hover {
-  background: #f4f4f6;
+  background: var(--c-hover);
   color: var(--c-ink);
 }
 .on {
@@ -51,13 +72,32 @@
   border: none;
   border-radius: var(--r-md);
   background: transparent;
-  color: #54545c;
+  color: var(--c-ink-3);
   font-weight: 500;
   font-size: 14.5px;
   cursor: pointer;
   text-align: left;
 }
 .logout:hover {
-  background: #f4f4f6;
+  background: var(--c-hover);
   color: var(--c-red);
+}
+
+/* lg+: sidebar fijo en la columna izquierda. */
+@media (min-width: 1024px) {
+  .side {
+    position: static;
+    z-index: auto;
+    width: 248px;
+    flex-shrink: 0;
+    overflow-y: visible;
+    transform: none;
+    transition: none;
+    box-shadow: none;
+  }
+  /* .brand .close gana en especificidad al display del átomo IconButton. */
+  .brand .close,
+  .backdrop {
+    display: none;
+  }
 }

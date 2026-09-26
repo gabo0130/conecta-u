@@ -8,7 +8,9 @@ import { useAuth } from "@/contexts/auth-context";
 import { AppShell } from "@/components/templates";
 import { Button, Card } from "@/components/atoms";
 import { ProjectListItem, StatCard } from "@/components/molecules";
-import { useProfile } from "@/modules/profile/hooks/useProfile/useProfile";
+import { useCollaborator } from "@/modules/collaborator/hooks/useCollaborator/useCollaborator";
+import { useProjectCategoriesCatalog } from "@/modules/catalogs/hooks/useProjectCategoriesCatalog/useProjectCategoriesCatalog";
+import { useProjectTypesCatalog } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
 import { useProjects } from "@/modules/projects/hooks/useProjects/useProjects";
 import { getProjectCode, getProjectMeta, getStatusView } from "@/modules/projects/utils/project-view";
 import styles from "./dashboard.module.css";
@@ -18,7 +20,12 @@ const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 function LeaderDashboard() {
   const router = useRouter();
   const { projects, isLoading, error } = useProjects();
+  const { projectTypes } = useProjectTypesCatalog();
+  const { projectCategories } = useProjectCategoriesCatalog();
   const [now] = useState(() => Date.now());
+
+  const typeNameById = Object.fromEntries(projectTypes.map((type) => [type.id, type.name]));
+  const categoryNameById = Object.fromEntries(projectCategories.map((category) => [category.id, category.name]));
 
   const drafts = projects.filter((project) => project.status === "BORRADOR").length;
   const thisWeek = projects.filter(
@@ -69,7 +76,7 @@ function LeaderDashboard() {
               project={{
                 code: getProjectCode(project.title),
                 name: project.title,
-                meta: getProjectMeta(project),
+                meta: getProjectMeta(project, { typeNameById, categoryNameById }),
                 status: status.label,
                 tone: status.tone,
                 href: `/proyectos/${project.id}`,
@@ -85,14 +92,21 @@ function LeaderDashboard() {
 
 function CollaboratorDashboard() {
   const router = useRouter();
-  const { profile, isLoading, error } = useProfile();
+  const { collaborator, isLoading, notFound, error } = useCollaborator();
 
   if (isLoading) return <p className={styles.state}>Cargando tu perfil…</p>;
-  if (!profile) return <p className={styles.state}>{error || "No se pudo cargar tu perfil."}</p>;
+  if (notFound || !collaborator) {
+    return <p className={styles.state}>{error || "No se pudo cargar tu perfil."}</p>;
+  }
 
   const stats = [
-    { label: "Conocimientos y competencias", value: String(profile.skills.length), hint: "en tu perfil", icon: Wrench },
-    { label: "Experiencias", value: String(profile.experiences.length), hint: "registradas", icon: FileText },
+    {
+      label: "Conocimientos y competencias",
+      value: String(collaborator.skills.length),
+      hint: "en tu perfil",
+      icon: Wrench,
+    },
+    { label: "Experiencias", value: String(collaborator.experiences.length), hint: "registradas", icon: FileText },
   ];
 
   return (
@@ -125,7 +139,7 @@ export default function DashboardPage() {
     <div className={styles.promo}>
       <div className={styles.promoTitle}>¿Nuevo proyecto?</div>
       <p className={styles.promoText}>Regístralo con su resumen, objetivos y habilidades.</p>
-      <Button className={styles.promoBtn} onClick={() => router.push("/proyectos/nuevo")}>
+      <Button size="sm" fullWidth onClick={() => router.push("/proyectos/nuevo")}>
         + Registrar
       </Button>
     </div>

@@ -1,0 +1,131 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--field-gap);
+  width: 100%;
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--field-label-font);
+  font-weight: 600;
+  color: var(--field-label);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  gap: 6px;
+}
+
+.remove svg {
+  width: calc(var(--field-icon) * 0.6);
+  height: calc(var(--field-icon) * 0.6);
+}
+.remove {
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.6;
+}
+.remove:hover {
+  opacity: 1;
+}
+
+.control {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  height: var(--field-h);
+  border: 1px solid var(--field-border);
+  border-radius: var(--field-radius);
+  padding: 0 var(--field-px);
+  font-size: var(--field-font);
+  color: var(--c-ink);
+  background: #ffffff;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.input:focus {
+  border-color: var(--c-red);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: calc(var(--field-h) * 5.2);
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid var(--c-line-2);
+  border-radius: var(--r-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--r-sm);
+  padding: var(--option-py) calc(var(--field-px) * 0.75);
+  font-size: var(--option-font);
+  color: var(--c-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.option:hover {
+  background: var(--c-bg);
+}
+
+.optionMeta {
+  font-size: calc(var(--option-font) - 3px);
+  color: var(--c-muted-2);
+  white-space: nowrap;
+}
+
+.propose {
+  border: none;
+  background: transparent;
+  border-radius: var(--r-sm);
+  padding: var(--option-py) calc(var(--field-px) * 0.75);
+  font-size: calc(var(--option-font) - 1px);
+  font-weight: 600;
+  color: var(--c-red);
+  text-align: left;
+  cursor: pointer;
+}
+.propose:hover {
+  background: var(--c-red-soft);
+}
+.propose:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.hint {
+  padding: var(--option-py) calc(var(--field-px) * 0.75);
+  font-size: calc(var(--option-font) - 1px);
+  color: var(--c-muted-2);
+}
+

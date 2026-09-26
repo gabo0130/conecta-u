@@ -2,18 +2,35 @@
   box-sizing: border-box;
 }
 
+/* ==========================================================================
+   Breakpoints (mobile-first). Los media queries no aceptan variables CSS,
+   así que se escriben con estos valores exactos y siempre con min-width:
+     sm  → @media (min-width: 640px)    teléfono grande / horizontal
+     md  → @media (min-width: 768px)    tablet
+     lg  → @media (min-width: 1024px)   laptop: aparece el sidebar fijo
+     xl  → @media (min-width: 1280px)   escritorio amplio
+   Los estilos sin media query son los de móvil (< 640px).
+   ========================================================================== */
+
 :root {
   /* Marca UFPS */
   --c-red: #c8102e;
   --c-red-dark: #9e0c24;
   --c-red-soft: #fce9ec;
+  --c-red-ink: #8a3a45; /* texto sobre fondo --c-red-soft */
+  --c-on-red-muted: #fbd5db; /* texto secundario sobre fondo --c-red */
 
-  /* Neutros */
+  /* Neutros (de más oscuro a más claro) */
   --c-ink: #16161a;
+  --c-ink-2: #3a3a42; /* etiquetas y texto de apoyo fuerte */
+  --c-ink-3: #54545c; /* navegación y texto secundario */
   --c-muted: #6c6c76;
   --c-muted-2: #8a8a92;
+  --c-muted-3: #c4c4cc; /* separadores de texto */
   --c-line: #eaeaee;
   --c-line-2: #e0e0e5;
+  --c-line-soft: #f0f0f3; /* divisores internos y fondos de barra */
+  --c-hover: #f4f4f6;
   --c-bg: #f5f5f7;
   --c-card: #ffffff;
 
@@ -22,12 +39,128 @@
   --c-green-soft: #e7f6ed;
   --c-amber: #c98a00;
   --c-amber-soft: #fef3e2;
+  --c-danger: #d14343;
+  --c-danger-soft: #fdecec;
+  --c-info: #2563eb;
+  --c-info-soft: #e8f0fe;
 
   /* Radios */
   --r-lg: 16px;
   --r-md: 11px;
   --r-sm: 9px;
   --r-pill: 999px;
+
+  /* Escala de tamaños de control (botones y campos) */
+  --control-h-sm: 36px;
+  --control-h-md: 46px;
+  --control-h-lg: 52px;
+  --control-h-xl: 58px;
+
+  --field-border: var(--c-line-2);
+  --field-label: var(--c-ink-2);
+}
+
+/* ==========================================================================
+   Tamaño activo de los controles: sm | md | lg | xl (por defecto md).
+   Todos los controles y contenedores de formulario (Button, IconButton,
+   Input, Select, Textarea, Checkbox, SkillPicker, FormRow, FormError,
+   DynamicTypeFields, DeliverablesEditor, Modal y los formularios) leen estas
+   variables: alto, padding, radio, letras, íconos y separaciones.
+   `data-size` puede ir en el control o en un contenedor
+   (<form data-size="lg">) y todos los controles de adentro lo heredan.
+   ========================================================================== */
+
+:root,
+[data-size="md"] {
+  --field-h: var(--control-h-md);
+  --field-px: 14px;
+  --field-radius: var(--r-md);
+  --field-font-base: 14.5px;
+  --field-label-font: 13px;
+  --field-icon: 20px;
+  --btn-px: 20px;
+  --btn-font: 14.5px;
+  --field-gap: 7px; /* etiqueta ↔ control */
+  --field-stack-gap: 14px; /* entre campos de un formulario o fila */
+  --field-msg-font: 12px; /* ayuda y error bajo el campo */
+  --check-size: 16px;
+  --check-font: 13.5px;
+  --option-py: 8px; /* opciones de desplegables propios */
+  --option-font: 14px;
+}
+
+[data-size="sm"] {
+  --field-h: var(--control-h-sm);
+  --field-px: 12px;
+  --field-radius: var(--r-sm);
+  --field-font-base: 13.5px;
+  --field-label-font: 12.5px;
+  --field-icon: 18px;
+  --btn-px: 14px;
+  --btn-font: 13.5px;
+  --field-gap: 6px;
+  --field-stack-gap: 10px;
+  --field-msg-font: 11.5px;
+  --check-size: 14px;
+  --check-font: 12.5px;
+  --option-py: 6px;
+  --option-font: 13px;
+}
+
+[data-size="lg"] {
+  --field-h: var(--control-h-lg);
+  --field-px: 16px;
+  --field-radius: var(--r-md);
+  --field-font-base: 15.5px;
+  --field-label-font: 13.5px;
+  --field-icon: 22px;
+  --btn-px: 24px;
+  --btn-font: 15.5px;
+  --field-gap: 8px;
+  --field-stack-gap: 16px;
+  --field-msg-font: 12.5px;
+  --check-size: 18px;
+  --check-font: 14.5px;
+  --option-py: 10px;
+  --option-font: 15px;
+}
+
+[data-size="xl"] {
+  --field-h: var(--control-h-xl);
+  --field-px: 18px;
+  --field-radius: var(--r-md);
+  --field-font-base: 16.5px;
+  --field-label-font: 14px;
+  --field-icon: 24px;
+  --btn-px: 28px;
+  --btn-font: 16.5px;
+  --field-gap: 9px;
+  --field-stack-gap: 18px;
+  --field-msg-font: 13px;
+  --check-size: 20px;
+  --check-font: 15.5px;
+  --option-py: 12px;
+  --option-font: 16px;
+}
+
+/* Móvil: letra de campo ≥ 16px (si es menor, iOS hace zoom al enfocar) y los
+   controles sm suben a 40px para que se puedan tocar con el dedo. */
+:root,
+[data-size] {
+  --field-font: max(16px, var(--field-font-base));
+}
+[data-size="sm"] {
+  --field-h: 40px;
+}
+
+@media (min-width: 640px) {
+  :root,
+  [data-size] {
+    --field-font: var(--field-font-base);
+  }
+  [data-size="sm"] {
+    --field-h: var(--control-h-sm);
+  }
 }
 
 html,

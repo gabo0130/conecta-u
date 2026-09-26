@@ -1,0 +1,121 @@
+/* Va por encima de los modales de formulario (z-index 50): una notificación siempre se ve. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(22, 22, 26, 0.5);
+  animation: fadeIn 0.15s ease-out;
+}
+
+.dialog {
+  --tone: var(--c-info);
+  --tone-soft: var(--c-info-soft);
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  background: var(--c-card);
+  border-radius: var(--r-lg);
+  border-top: 4px solid var(--tone);
+  box-shadow: 0 24px 60px rgba(22, 22, 26, 0.22);
+  padding: 28px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: popIn 0.18s ease-out;
+}
+.dialog[data-tone="success"] {
+  --tone: var(--c-green);
+  --tone-soft: var(--c-green-soft);
+}
+.dialog[data-tone="warning"] {
+  --tone: var(--c-amber);
+  --tone-soft: var(--c-amber-soft);
+}
+.dialog[data-tone="error"],
+.dialog[data-tone="danger"] {
+  --tone: var(--c-danger);
+  --tone-soft: var(--c-danger-soft);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--r-pill);
+  background: var(--tone-soft);
+  color: var(--tone);
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+.icon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--c-ink);
+  line-height: 1.3;
+}
+
+.message {
+  margin-top: 8px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--c-muted);
+  overflow-wrap: anywhere;
+}
+
+/* Móvil: botones a lo ancho, el principal arriba. */
+.actions {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  width: 100%;
+  margin-top: 24px;
+}
+.action {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .dialog {
+    padding: 32px 28px 24px;
+  }
+  .actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+  .action {
+    width: auto;
+    min-width: 132px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .dialog {
+    animation: none;
+  }
+}

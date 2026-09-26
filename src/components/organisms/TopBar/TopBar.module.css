@@ -4,8 +4,8 @@
   background: #fff;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 0 28px;
+  gap: 12px;
+  padding: 0 16px;
 }
 .search {
   flex: 1;
@@ -21,9 +21,10 @@
   font-size: 14px;
 }
 .breadcrumb {
+  display: none;
+  min-width: 0;
   font-size: 13.5px;
   color: var(--c-muted-2);
-  display: flex;
   align-items: center;
   gap: 8px;
 }
@@ -32,7 +33,7 @@
   display: flex;
   align-items: center;
   gap: 18px;
-  color: #54545c;
+  color: var(--c-ink-3);
 }
 .user {
   display: flex;
@@ -40,6 +41,7 @@
   gap: 10px;
 }
 .userText {
+  display: none;
   line-height: 1.2;
 }
 .userName {
@@ -58,5 +60,28 @@
   outline: none;
   background: transparent;
   color: var(--c-ink);
-  font-size: 14px;
+  font-size: 16px;
+}
+
+@media (min-width: 640px) {
+  .breadcrumb {
+    display: flex;
+  }
+  .userText {
+    display: block;
+  }
+  .searchInput {
+    font-size: 14px;
+  }
+}
+
+/* lg+: el sidebar es fijo, así que el botón de menú sobra. */
+@media (min-width: 1024px) {
+  .top {
+    gap: 16px;
+    padding: 0 28px;
+  }
+  .top .menu {
+    display: none;
+  }
 }

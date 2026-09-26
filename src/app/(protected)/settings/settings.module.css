@@ -1,0 +1,20 @@
+.h1 {
+  font-size: 21px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.text {
+  color: var(--c-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.badge {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: var(--c-amber-soft);
+  color: var(--c-amber);
+  font-size: 13px;
+  font-weight: 600;
+}

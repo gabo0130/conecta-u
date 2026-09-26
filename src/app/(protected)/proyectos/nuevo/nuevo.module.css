@@ -1,5 +1,5 @@
 .breadcrumbSep {
-  color: #c4c4cc;
+  color: var(--c-muted-3);
 }
 .breadcrumbCurrent {
   color: var(--c-ink);
@@ -8,6 +8,7 @@
 
 .layout {
   display: flex;
+  flex-direction: column;
   gap: 22px;
 }
 .formCol {
@@ -30,7 +31,6 @@
 
 .helper {
   flex: 1;
-  max-width: 330px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -50,7 +50,7 @@
   display: flex;
   gap: 9px;
   font-size: 13px;
-  color: #54545c;
+  color: var(--c-ink-3);
 }
 .tipIcon {
   color: var(--c-green);
@@ -58,11 +58,12 @@
   margin-top: 1px;
 }
 
-@media (max-width: 960px) {
+/* xl: los consejos pasan a una columna lateral (antes el formulario quedaba demasiado angosto). */
+@media (min-width: 1280px) {
   .layout {
-    flex-direction: column;
+    flex-direction: row;
   }
   .helper {
-    max-width: none;
+    max-width: 330px;
   }
 }

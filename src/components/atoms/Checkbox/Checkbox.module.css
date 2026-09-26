@@ -1,0 +1,22 @@
+.field {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--check-size) * 0.6);
+  font-size: var(--check-font);
+  color: var(--c-muted);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+/* La casilla se centra con la primera línea del texto. */
+.checkbox {
+  width: var(--check-size);
+  height: var(--check-size);
+  margin: calc((var(--check-font) * 1.5 - var(--check-size)) / 2) 0 0;
+  flex-shrink: 0;
+  accent-color: var(--c-red);
+  cursor: pointer;
+}
+.checkbox:disabled {
+  cursor: not-allowed;
+}

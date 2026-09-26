@@ -68,7 +68,7 @@ export function RecommendationCard({ collaborator, onConvoke }: RecommendationCa
           <div className={styles.score}>{affinityScore}%</div>
           <div className={styles.scoreLabel}>afinidad</div>
         </div>
-        <Button className={styles.convoke} onClick={onConvoke}>
+        <Button size="sm" fullWidth onClick={onConvoke}>
           Convocar
         </Button>
         <a href="#" className={styles.viewLink}>

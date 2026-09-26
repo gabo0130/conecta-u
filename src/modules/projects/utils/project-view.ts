@@ -21,8 +21,15 @@ export function getProjectCode(title: string) {
     .toUpperCase();
 }
 
-export function getProjectMeta(project: Project) {
-  return [project.semillero, project.program].filter(Boolean).join(" · ") || "Sin semillero ni programa";
+export type ProjectMetaCatalogs = {
+  typeNameById?: Record<string, string>;
+  categoryNameById?: Record<string, string>;
+};
+
+export function getProjectMeta(project: Project, catalogs: ProjectMetaCatalogs = {}) {
+  const typeName = catalogs.typeNameById?.[project.typeId];
+  const categoryName = catalogs.categoryNameById?.[project.categoryId];
+  return [typeName, categoryName].filter(Boolean).join(" · ") || "Sin tipo ni categoría";
 }
 
 export function formatDate(iso?: string) {

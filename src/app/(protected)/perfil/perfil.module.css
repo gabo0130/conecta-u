@@ -1,7 +1,8 @@
 .header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 22px;
+  gap: 16px 22px;
 }
 .headMain {
   flex: 1;
@@ -24,7 +25,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 1.6fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
 }
 .col {
@@ -66,9 +67,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
-  border-bottom: 1px solid #f1f1f4;
+  border-bottom: 1px solid var(--c-line-soft);
   font-size: 14px;
-  color: #3a3a42;
+  color: var(--c-ink-2);
 }
 .dispRow[data-last] {
   border-bottom: none;
@@ -94,7 +95,7 @@
   flex: 1;
   height: 9px;
   border-radius: var(--r-pill);
-  background: #f0f0f3;
+  background: var(--c-line-soft);
   overflow: hidden;
 }
 .barFill {
@@ -107,24 +108,12 @@
   color: var(--c-red);
 }
 
-@media (max-width: 860px) {
+@media (min-width: 768px) {
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   }
 }
 
-.linkBtn {
-  border: none;
-  background: transparent;
-  padding: 0;
-  color: var(--c-red);
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-}
-.linkBtn:hover {
-  color: var(--c-red-dark);
-}
 .chipBtn {
   border: none;
   background: transparent;
