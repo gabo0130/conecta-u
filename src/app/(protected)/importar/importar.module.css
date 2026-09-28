@@ -98,6 +98,18 @@
   color: var(--c-ink-3);
 }
 
+.historyLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--c-line-soft);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-red);
+}
+
 @media (min-width: 640px) {
   .h1 {
     font-size: 24px;

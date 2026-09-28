@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarPlus, Contact, FileText, FileUp, Folder, Plus, Users, Wrench } from "lucide-react";
+import { CalendarPlus, Contact, FileText, FileUp, Folder, History, Plus, Users, Wrench } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { AppShell } from "@/components/templates";
 import { Button, Card } from "@/components/atoms";
@@ -257,6 +257,9 @@ function AdminDashboard() {
             </Button>
             <Button variant="ghost" leftIcon={<Users />} fullWidth onClick={() => router.push("/users")}>
               Gestionar usuarios
+            </Button>
+            <Button variant="ghost" leftIcon={<History />} fullWidth onClick={() => router.push("/importar/historial")}>
+              Historial de importaciones
             </Button>
           </div>
         </Card>

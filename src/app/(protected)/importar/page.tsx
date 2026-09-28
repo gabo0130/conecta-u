@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Upload } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Download, History, Upload } from "lucide-react";
 import type { ImportCollaboratorsResult } from "@/apis/interfaces/admin";
 import { AppShell, PageGrid } from "@/components/templates";
 import { Button, Card } from "@/components/atoms";
@@ -16,15 +18,23 @@ import styles from "./importar.module.css";
 // Mismo límite que valida el backend (MAX_IMPORT_FILE_SIZE_MB).
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 
+// Mismos valores que la hoja "Guía" de la plantilla y que valida el backend
+// (import-collaborators.constants.ts) — si cambian allá, cambian aquí también.
 const SHEETS = [
   {
     name: "Colaboradores",
-    fields: "correo, nombres, apellidos, tipo de persona, programa, disponibilidad, horas por semana y autoriza datos (Sí).",
+    fields:
+      'correo, nombres, apellidos, tipo_persona (Estudiante, Docente), programa (nombre exacto del catálogo), disponibilidad (Disponible, Parcial, No disponible), horas_semana y autoriza_datos ("Sí").',
   },
-  { name: "Habilidades", fields: "correo, habilidad (nombre o sinónimo del catálogo), tipo, nivel y meses de experiencia." },
+  {
+    name: "Habilidades",
+    fields:
+      "correo, habilidad (nombre o sinónimo del catálogo), tipo (Conocimiento, Competencia, Habilidad blanda), nivel (Básico, Intermedio, Avanzado, Experto) y meses_experiencia.",
+  },
   {
     name: "Experiencia",
-    fields: "correo, tipo, rol, organización, fecha de inicio, actual, horas por semana y nivel.",
+    fields:
+      "correo, tipo (Laboral, Práctica, Proyecto académico, Semillero de investigación, Proyecto personal, Voluntariado, Docencia), rol, organización, fecha_inicio (AAAA-MM-DD), actual (Sí/No), horas_semana y nivel.",
   },
 ];
 
@@ -33,7 +43,8 @@ function ImportGuide() {
     <Card padding={20}>
       <h2 className={styles.guideTitle}>Cómo llenar la plantilla</h2>
       <p className={styles.guideText}>
-        La columna <b>correo</b> une las tres hojas. Estos son los campos obligatorios de cada una:
+        La columna <b>correo</b> une las tres hojas. Los desplegables de las columnas de la plantilla ya solo dejan
+        elegir un valor válido; estos son los campos obligatorios de cada hoja:
       </p>
       <dl className={styles.sheets}>
         {SHEETS.map((sheet) => (
@@ -44,16 +55,20 @@ function ImportGuide() {
         ))}
       </dl>
       <ul className={styles.notes}>
-        <li>Niveles: Básico, Intermedio, Avanzado o Experto.</li>
+        <li>Escribe exactamente esos valores (con mayúscula inicial); el desplegable te evita errores de tipeo.</li>
         <li>Una habilidad que no está en el catálogo se crea como pendiente de revisión.</li>
         <li>Las filas con errores se rechazan una a una; las válidas se guardan igual.</li>
         <li>Usa solo datos ficticios en las pruebas.</li>
       </ul>
+      <Link href="/importar/historial" className={styles.historyLink}>
+        <History size={16} /> Ver historial de importaciones
+      </Link>
     </Card>
   );
 }
 
 function CollaboratorImport() {
+  const router = useRouter();
   const { downloadTemplate, importFile, isDownloading, isImporting } = useCollaboratorImport();
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<{ data: ImportCollaboratorsResult; fileName: string } | null>(null);
@@ -147,7 +162,16 @@ function CollaboratorImport() {
           </div>
         </Card>
 
-        {result ? <ImportResultTable result={result.data} fileName={result.fileName} /> : null}
+        {result ? (
+          <>
+            <ImportResultTable result={result.data} fileName={result.fileName} />
+            <div className={styles.stepActions}>
+              <Button variant="ghost" leftIcon={<History />} onClick={() => router.push(`/importar/historial/${result.data.id}`)}>
+                Ver en el historial
+              </Button>
+            </div>
+          </>
+        ) : null}
       </div>
     </PageGrid>
   );

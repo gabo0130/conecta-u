@@ -98,6 +98,33 @@ export interface ImportRejectedRow {
 }
 
 export interface ImportCollaboratorsResult {
+  id: string;
+  created: number;
+  rejected: ImportRejectedRow[];
+  warnings: string[];
+}
+
+/* ---- Historial de importaciones (auditoría de cada carga) ---- */
+
+export interface ImportRunSummary {
+  id: string;
+  fileName: string;
+  createdAt: string;
+  importedBy: AdminLinkedUser | null;
+  created: number;
+  rejectedCount: number;
+}
+
+export interface ImportRunsResponse {
+  runs: ImportRunSummary[];
+  meta: PageMeta;
+}
+
+export interface ImportRunDetail {
+  id: string;
+  fileName: string;
+  createdAt: string;
+  importedBy: AdminLinkedUser | null;
   created: number;
   rejected: ImportRejectedRow[];
   warnings: string[];
