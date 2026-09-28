@@ -5,6 +5,7 @@ import { ReactNode } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { IconButton, UserAvatar } from "../../atoms";
 import { ServiceStatusButton } from "../ServiceStatusButton/ServiceStatusButton";
+import { ROLE_LABEL, getInitials } from "@/modules/collaborator/utils/collaborator-view";
 import styles from "./TopBar.module.css";
 
 export type TopBarSearch = {
@@ -19,22 +20,6 @@ type TopBarProps = {
   isMenuOpen?: boolean;
   onMenuClick?: () => void;
 };
-
-const ROLE_LABELS: Record<string, string> = {
-  LIDER: "Líder de proyecto",
-  COLABORADOR: "Colaborador",
-  ADMIN: "Administrador",
-};
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-}
 
 export function TopBar({ search, breadcrumb, isMenuOpen = false, onMenuClick }: TopBarProps) {
   const { user } = useAuth();
@@ -55,10 +40,11 @@ export function TopBar({ search, breadcrumb, isMenuOpen = false, onMenuClick }: 
       {breadcrumb ? <div className={styles.breadcrumb}>{breadcrumb}</div> : null}
       {search ? (
         <label className={styles.search}>
-          <Search size={18} />
+          <Search size={18} aria-hidden />
           <input
             className={styles.searchInput}
             type="search"
+            aria-label={search.placeholder?.replace(/…$/, "") ?? "Buscar"}
             value={search.value}
             placeholder={search.placeholder ?? "Buscar…"}
             onChange={(event) => search.onChange(event.target.value)}
@@ -75,7 +61,7 @@ export function TopBar({ search, breadcrumb, isMenuOpen = false, onMenuClick }: 
             />
             <div className={styles.userText}>
               <div className={styles.userName}>{user.fullName}</div>
-              <div className={styles.userRole}>{ROLE_LABELS[user.role] ?? user.role}</div>
+              <div className={styles.userRole}>{ROLE_LABEL[user.role] ?? user.role}</div>
             </div>
           </div>
         ) : null}

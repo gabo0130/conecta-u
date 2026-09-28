@@ -10,19 +10,21 @@ import {
   getExperienceMeta,
 } from "@/modules/collaborator/utils/collaborator-view";
 import { formatDate, getStatusView } from "@/modules/projects/utils/project-view";
-import { Badge, Card, Chip } from "../../atoms";
+import { Badge, Card, Chip, Spinner } from "../../atoms";
 import { SKILL_TYPE_LABEL, SKILL_TYPE_TONE } from "../SkillPicker/skill-type";
 import styles from "./CollaboratorView.module.css";
 
 type CollaboratorViewProps = {
   collaborator: AdminCollaboratorDetail;
   programName?: string;
+  /** El catálogo de programas todavía está cargando. */
+  isProgramLoading?: boolean;
 };
 
 const EMPTY = "Sin definir";
 
 /** Perfil técnico de una persona en solo lectura, con los datos de cuenta y registro que ve el ADMIN. */
-export function CollaboratorView({ collaborator, programName }: CollaboratorViewProps) {
+export function CollaboratorView({ collaborator, programName, isProgramLoading = false }: CollaboratorViewProps) {
   const availability = AVAILABILITY_VIEW[collaborator.availabilityStatus];
   const { user } = collaborator;
 
@@ -45,7 +47,7 @@ export function CollaboratorView({ collaborator, programName }: CollaboratorView
             </div>
             <div className={styles.field}>
               <dt>Programa</dt>
-              <dd>{programName ?? EMPTY}</dd>
+              <dd>{isProgramLoading ? <Spinner size="sm" label="Cargando programa" /> : (programName ?? EMPTY)}</dd>
             </div>
             <div className={styles.field}>
               <dt>Semestre</dt>

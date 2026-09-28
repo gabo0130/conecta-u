@@ -8,20 +8,14 @@ import { useCreateUser } from "@/modules/auth/hooks/useCreateUser/useCreateUser"
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
 import type { PersonType, RegisterRole } from "@/apis/interfaces/auth";
 import { getErrorMessage } from "@/utils/get-error-message";
+import {
+  PERSON_TYPE_OPTIONS,
+  REGISTERABLE_ROLE_OPTIONS,
+} from "@/modules/collaborator/utils/collaborator-view";
 import { notify } from "@/utils/notify";
 import { Button, Checkbox, FormError, FormRow, Input, Select } from "../../atoms";
 import type { ControlSize } from "../../atoms";
 import styles from "./RegisterForm.module.css";
-
-const ROLE_OPTIONS = [
-  { value: "LIDER", label: "Líder de proyecto" },
-  { value: "COLABORADOR", label: "Colaborador" },
-];
-
-const PERSON_TYPE_OPTIONS = [
-  { value: "ESTUDIANTE", label: "Estudiante" },
-  { value: "DOCENTE", label: "Docente" },
-];
 
 type RegisterFormProps = {
   /** Tamaño de todos los campos y botones del formulario. */
@@ -31,14 +25,14 @@ type RegisterFormProps = {
 export function RegisterForm({ size }: RegisterFormProps) {
   const router = useRouter();
   const { createUser, isLoading } = useCreateUser();
-  const { programs, isLoading: isLoadingPrograms } = useProgramsCatalog();
+  const { programs, isLoading: isLoadingPrograms, error: programsError } = useProgramsCatalog();
 
   const [fullName, setFullName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<string>(ROLE_OPTIONS[1].value);
-  const [personType, setPersonType] = useState<string>(PERSON_TYPE_OPTIONS[0].value);
+  const [role, setRole] = useState<RegisterRole>("COLABORADOR");
+  const [personType, setPersonType] = useState<PersonType>("ESTUDIANTE");
   const [programId, setProgramId] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -88,13 +82,15 @@ export function RegisterForm({ size }: RegisterFormProps) {
         fullName: isCollaborator ? `${firstName.trim()} ${lastName.trim()}`.trim() : fullName.trim(),
         email,
         password,
-        role: role as RegisterRole,
+        role,
         collaborator: isCollaborator
           ? {
               firstName: firstName.trim(),
               lastName: lastName.trim(),
-              personType: personType as PersonType,
+              personType,
               programId,
+              // La casilla es obligatoria para registrarse; se envía para que quede guardada.
+              dataConsent: acceptsTerms,
             }
           : undefined,
       });
@@ -152,9 +148,9 @@ export function RegisterForm({ size }: RegisterFormProps) {
       <FormRow columns={isCollaborator ? 2 : 1}>
         <Select
           label="Rol"
-          options={ROLE_OPTIONS}
+          options={REGISTERABLE_ROLE_OPTIONS}
           value={role}
-          onChange={(event) => setRole(event.target.value)}
+          onValueChange={setRole}
           disabled={isLoading}
         />
         {isCollaborator ? (
@@ -162,7 +158,7 @@ export function RegisterForm({ size }: RegisterFormProps) {
             label="Tipo de persona"
             options={PERSON_TYPE_OPTIONS}
             value={personType}
-            onChange={(event) => setPersonType(event.target.value)}
+            onValueChange={setPersonType}
             disabled={isLoading}
           />
         ) : null}
@@ -172,12 +168,14 @@ export function RegisterForm({ size }: RegisterFormProps) {
         <Select
           label="Programa"
           options={[
-            { value: "", label: isLoadingPrograms ? "Cargando programas..." : "Selecciona un programa" },
+            { value: "", label: isLoadingPrograms ? "Cargando programas…" : "Selecciona un programa" },
             ...programs.map((program) => ({ value: program.id, label: program.name })),
           ]}
           value={programId}
           onChange={(event) => setProgramId(event.target.value)}
-          disabled={isLoading || isLoadingPrograms}
+          disabled={isLoading}
+          isLoading={isLoadingPrograms}
+          error={programsError || undefined}
         />
       ) : null}
 
@@ -216,7 +214,7 @@ export function RegisterForm({ size }: RegisterFormProps) {
       {error ? <FormError>{error}</FormError> : null}
 
       <Button type="submit" size={size ?? "lg"} fullWidth disabled={isLoading}>
-        {isLoading ? "Creando cuenta..." : "Crear cuenta"}
+        {isLoading ? "Creando cuenta…" : "Crear cuenta"}
       </Button>
 
       <p className={styles.foot}>

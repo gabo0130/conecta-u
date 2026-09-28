@@ -6,6 +6,7 @@ import type { Deliverable, Project, ProjectPayload } from "@/apis/interfaces/pro
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
 import { useProjectCategoriesCatalog } from "@/modules/catalogs/hooks/useProjectCategoriesCatalog/useProjectCategoriesCatalog";
 import { useProjectTypesCatalog } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
+import { missingRequiredFields, pickTemplateData } from "@/modules/projects/utils/type-data";
 import { DeliverablesEditor } from "../../molecules/DeliverablesEditor/DeliverablesEditor";
 import { Button, Card, FormError, FormRow, Input, Select, Textarea } from "../../atoms";
 import type { ControlSize } from "../../atoms";
@@ -26,9 +27,9 @@ type ProjectFormProps = {
 };
 
 export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel, size }: ProjectFormProps) {
-  const { projectTypes, isLoading: isLoadingTypes } = useProjectTypesCatalog();
-  const { projectCategories, isLoading: isLoadingCategories } = useProjectCategoriesCatalog();
-  const { programs, isLoading: isLoadingPrograms } = useProgramsCatalog();
+  const { projectTypes, isLoading: isLoadingTypes, error: typesError } = useProjectTypesCatalog();
+  const { projectCategories, isLoading: isLoadingCategories, error: categoriesError } = useProjectCategoriesCatalog();
+  const { programs, isLoading: isLoadingPrograms, error: programsError } = useProgramsCatalog();
 
   const [title, setTitle] = useState(initial?.title ?? "");
   const [summary, setSummary] = useState(initial?.summary ?? "");
@@ -49,6 +50,14 @@ export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel
 
   const selectedType = projectTypes.find((type) => type.id === effectiveTypeId);
 
+  // Al cambiar de tipo, los campos del tipo anterior se descartan: ya no se ven y el backend los
+  // rechaza como desconocidos. Se conservan los que ambos tipos comparten.
+  const handleTypeChange = (nextTypeId: string) => {
+    const nextType = projectTypes.find((type) => type.id === nextTypeId);
+    setTypeId(nextTypeId);
+    setTypeData((current) => pickTemplateData(nextType?.templateFields ?? [], current));
+  };
+
   const handleSubmit = () => {
     const trimmedTitle = title.trim();
     if (trimmedTitle.length < 3) {
@@ -59,8 +68,15 @@ export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel
       setValidation("El resumen y los objetivos son obligatorios.");
       return;
     }
-    if (!effectiveTypeId || !effectiveCategoryId) {
+    if (!effectiveTypeId || !effectiveCategoryId || !selectedType) {
       setValidation("Selecciona el tipo y la categoría del proyecto.");
+      return;
+    }
+    const missing = missingRequiredFields(selectedType.templateFields, typeData);
+    if (missing.length > 0) {
+      setValidation(
+        `Completa los campos obligatorios de ${selectedType.name}: ${missing.map((field) => field.label).join(", ")}.`,
+      );
       return;
     }
     const cleanDeliverables = deliverables
@@ -78,8 +94,9 @@ export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel
       objectives: objectives.trim(),
       typeId: effectiveTypeId,
       categoryId: effectiveCategoryId,
-      programId: programId || undefined,
-      typeData,
+      // Al editar, quitar el programa envía null para que el backend lo borre.
+      programId: programId || (initial ? null : undefined),
+      typeData: pickTemplateData(selectedType.templateFields, typeData),
       knownSkillIds: knownSkills.map((skill) => skill.id),
       deliverables: cleanDeliverables,
     });
@@ -118,35 +135,38 @@ export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel
             label="Tipo de proyecto"
             options={
               isLoadingTypes
-                ? [{ value: "", label: "Cargando..." }]
+                ? [{ value: "", label: "Cargando…" }]
                 : projectTypes.map((type) => ({ value: type.id, label: type.name }))
             }
             value={effectiveTypeId}
-            onChange={(event) => setTypeId(event.target.value)}
-            disabled={isLoadingTypes}
+            onChange={(event) => handleTypeChange(event.target.value)}
+            isLoading={isLoadingTypes}
+            error={typesError || undefined}
           />
           <Select
             label="Categoría"
             options={
               isLoadingCategories
-                ? [{ value: "", label: "Cargando..." }]
+                ? [{ value: "", label: "Cargando…" }]
                 : projectCategories.map((category) => ({ value: category.id, label: category.name }))
             }
             value={effectiveCategoryId}
             onChange={(event) => setCategoryId(event.target.value)}
-            disabled={isLoadingCategories}
+            isLoading={isLoadingCategories}
+            error={categoriesError || undefined}
           />
         </FormRow>
 
         <Select
           label="Programa (opcional)"
           options={[
-            { value: "", label: isLoadingPrograms ? "Cargando..." : "Sin programa asociado" },
+            { value: "", label: isLoadingPrograms ? "Cargando…" : "Sin programa asociado" },
             ...programs.map((program) => ({ value: program.id, label: program.name })),
           ]}
           value={programId}
           onChange={(event) => setProgramId(event.target.value)}
-          disabled={isLoadingPrograms}
+          isLoading={isLoadingPrograms}
+          error={programsError || undefined}
         />
 
         {selectedType && selectedType.templateFields.length > 0 ? (
@@ -174,7 +194,7 @@ export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel
           Cancelar
         </Button>
         <Button onClick={handleSubmit} disabled={isSaving}>
-          {isSaving ? "Guardando..." : submitLabel}
+          {isSaving ? "Guardando…" : submitLabel}
         </Button>
       </div>
     </div>

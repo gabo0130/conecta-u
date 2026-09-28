@@ -1,5 +1,5 @@
 import { AuthLayout } from "@/components/templates";
-import { RegisterForm } from "@/components/molecules";
+import { RegisterForm } from "@/components/organisms";
 import styles from "./registro.module.css";
 
 export default function RegistroPage() {

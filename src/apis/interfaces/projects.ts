@@ -32,7 +32,7 @@ export interface ProjectPayload {
   objectives: string;
   typeId: string;
   categoryId: string;
-  programId?: string;
+  programId?: string | null;
   typeData?: Record<string, unknown>;
   knownSkillIds?: string[];
   deliverables: Deliverable[];

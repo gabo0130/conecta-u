@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { AppShell, PageGrid } from "@/components/templates";
 import { ProjectForm, ProjectFormTips } from "@/components/organisms";
-import { useCreateProject } from "@/modules/projects/hooks/useProject/useProject";
+import { useCreateProject } from "@/modules/projects/hooks/useCreateProject/useCreateProject";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { loading } from "@/utils/loading";
 import { notify } from "@/utils/notify";
@@ -26,9 +26,9 @@ export default function NuevoProyectoPage() {
         aside={<ProjectFormTips />}
         header={
           <>
-            <h1 className={styles.h1}>Registrar proyecto de investigación</h1>
+            <h1 className={styles.h1}>Registrar proyecto</h1>
             <p className={styles.sub}>
-              Completa la plantilla con el resumen, los objetivos y las habilidades técnicas y blandas conocidas.
+              Elige el tipo y la categoría y completa su plantilla: resumen, objetivos, habilidades conocidas y entregables.
             </p>
           </>
         }

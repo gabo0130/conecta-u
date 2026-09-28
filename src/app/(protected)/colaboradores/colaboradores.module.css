@@ -34,12 +34,6 @@
   font-size: 14.5px;
 }
 
-.searchHint {
-  margin: 0;
-  padding: 10px 20px 0;
-  color: var(--c-muted-2);
-  font-size: 12.5px;
-}
 
 .tableWrap {
   width: 100%;

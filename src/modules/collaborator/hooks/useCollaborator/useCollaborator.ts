@@ -18,8 +18,10 @@ export function useCollaborator() {
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState("");
 
-  const reload = useCallback(async () => {
-    setIsLoading(true);
+  // `silent`: recarga tras guardar sin volver al estado "cargando" (evita que la página parpadee
+  // y que se desmonte el modal abierto).
+  const reload = useCallback(async ({ silent = false }: { silent?: boolean } = {}) => {
+    if (!silent) setIsLoading(true);
     try {
       const response = await apiClient.get<Collaborator>("/collaborators/me");
       setCollaborator(response.data);
@@ -45,7 +47,7 @@ export function useCollaborator() {
   // Tras cada mutación se recarga el perfil completo para reflejar el estado del servidor.
   const mutate = async (request: () => Promise<unknown>) => {
     await request();
-    await reload();
+    await reload({ silent: true });
   };
 
   return {

@@ -45,9 +45,9 @@ export function NotificationDialog({
   // Al abrir, el foco va al botón seguro (Cancelar en acciones destructivas) y al cerrar vuelve
   // al elemento que lo tenía antes.
   useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     (tone === "danger" ? cancelRef.current : confirmRef.current)?.focus();
-    return () => previous?.focus?.();
+    return () => previous?.focus();
   }, [tone]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {

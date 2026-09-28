@@ -35,6 +35,8 @@ export interface RegisterCollaboratorPayload {
   lastName: string;
   personType: PersonType;
   programId: string;
+  /** Autorización de tratamiento de datos (Ley 1581); el backend guarda también la fecha. */
+  dataConsent?: boolean;
 }
 
 export interface RegisterPayload {

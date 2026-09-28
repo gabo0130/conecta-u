@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { AppShell, PageGrid } from "@/components/templates";
 import { Badge, Button, Card, UserAvatar } from "@/components/atoms";
+import { LoadingState } from "@/components/molecules";
 import { CollaboratorView, RoleGuard } from "@/components/organisms";
 import { useAdminCollaborator } from "@/modules/admin/hooks/useAdminCollaborator/useAdminCollaborator";
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
@@ -13,12 +14,12 @@ import styles from "./detalle.module.css";
 function CollaboratorDetail({ id }: { id: string }) {
   const router = useRouter();
   const { collaborator, isLoading, error } = useAdminCollaborator(id);
-  const { programs } = useProgramsCatalog();
+  const { programs, isLoading: isLoadingPrograms } = useProgramsCatalog();
 
   if (isLoading) {
     return (
       <PageGrid>
-        <p className={styles.state}>Cargando perfil…</p>
+        <LoadingState variant="page" message="Cargando perfil…" />
       </PageGrid>
     );
   }
@@ -69,7 +70,7 @@ function CollaboratorDetail({ id }: { id: string }) {
         </div>
       }
     >
-      <CollaboratorView collaborator={collaborator} programName={programName} />
+      <CollaboratorView collaborator={collaborator} programName={programName} isProgramLoading={isLoadingPrograms} />
     </PageGrid>
   );
 }

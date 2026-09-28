@@ -16,6 +16,8 @@ export function useSkillsCatalog() {
   const [resultsQuery, setResultsQuery] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  // Texto cuya búsqueda falló: el picker muestra el error en vez de quedarse en "Buscando…".
+  const [failedQuery, setFailedQuery] = useState<string | null>(null);
   const latestRequestId = useRef(0);
 
   const search = useCallback(async (q: string, type?: SkillType) => {
@@ -29,11 +31,13 @@ export function useSkillsCatalog() {
       if (requestId !== latestRequestId.current) return [];
       setSkills(response.data.skills);
       setResultsQuery(q);
+      setFailedQuery(null);
       setError("");
       return response.data.skills;
     } catch (err) {
       if (requestId !== latestRequestId.current) return [];
       setError(getErrorMessage(err, "No se pudieron buscar las habilidades."));
+      setFailedQuery(q);
       return [];
     } finally {
       if (requestId === latestRequestId.current) setIsLoading(false);
@@ -45,5 +49,5 @@ export function useSkillsCatalog() {
     return response.data;
   }, []);
 
-  return { skills, resultsQuery, isLoading, error, search, proposeSkill };
+  return { skills, resultsQuery, failedQuery, isLoading, error, search, proposeSkill };
 }

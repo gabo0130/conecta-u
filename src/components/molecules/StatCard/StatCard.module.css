@@ -18,7 +18,11 @@
   align-items: center;
   justify-content: center;
 }
+/* Alto fijo: el spinner ocupa lo mismo que el número y la tarjeta no salta al cargar. */
 .value {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
   font-family: var(--font-display), sans-serif;
   font-size: 34px;
   font-weight: 700;

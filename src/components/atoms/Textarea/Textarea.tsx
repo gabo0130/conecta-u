@@ -1,4 +1,4 @@
-import { TextareaHTMLAttributes } from "react";
+import { TextareaHTMLAttributes, useId } from "react";
 import type { ControlSize } from "../types";
 import styles from "./Textarea.module.css";
 
@@ -18,7 +18,9 @@ export function Textarea({
   className,
   ...props
 }: TextareaProps) {
-  const textareaId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
+  const autoId = useId();
+  const textareaId = id ?? autoId;
+  const messageId = `${textareaId}-message`;
   const message = error ?? helperText;
   const textareaClassName = [styles.textarea, error ? styles.textareaError : ""]
     .filter(Boolean)
@@ -30,8 +32,18 @@ export function Textarea({
   return (
     <label htmlFor={textareaId} data-size={size} className={[styles.field, className].filter(Boolean).join(" ")}>
       {label ? <span className={styles.label}>{label}</span> : null}
-      <textarea id={textareaId} {...props} className={textareaClassName} />
-      {message ? <span className={messageClassName}>{message}</span> : null}
+      <textarea
+        id={textareaId}
+        aria-invalid={Boolean(error) || undefined}
+        aria-describedby={message ? messageId : undefined}
+        {...props}
+        className={textareaClassName}
+      />
+      {message ? (
+        <span id={messageId} className={messageClassName}>
+          {message}
+        </span>
+      ) : null}
     </label>
   );
 }

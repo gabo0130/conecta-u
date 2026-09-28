@@ -1,10 +1,12 @@
 "use client";
 
-import { FormEvent, ReactNode, useEffect } from "react";
+import { FormEvent, KeyboardEvent, ReactNode, useEffect, useId, useRef } from "react";
 import { Button } from "../Button/Button";
 import { FormError } from "../FormError/FormError";
 import type { ControlSize } from "../types";
 import styles from "./Modal.module.css";
+
+const FOCUSABLE = 'input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), a[href]';
 
 type ModalProps = {
   title: string;
@@ -30,31 +32,74 @@ export function Modal({
   size,
   children,
 }: ModalProps) {
+  const titleId = useId();
+  const dialogRef = useRef<HTMLFormElement>(null);
+  // Mientras se guarda no se puede cerrar: la petición seguiría y su notificación aparecería sin el formulario.
+  const requestClose = useRef(onClose);
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+    requestClose.current = () => {
+      if (!isSubmitting) onClose();
+    };
+  }, [isSubmitting, onClose]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") requestClose.current();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, []);
+
+  // Al abrir, el foco va al primer campo; al cerrar vuelve al botón que abrió el modal.
+  useEffect(() => {
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const firstField = dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE);
+    (firstField ?? dialogRef.current)?.focus();
+    return () => previous?.focus();
+  }, []);
+
+  // Mantiene el foco dentro del diálogo con Tab / Shift+Tab.
+  const handleKeyDown = (event: KeyboardEvent<HTMLFormElement>) => {
+    if (event.key !== "Tab" || !dialogRef.current) return;
+    const focusables = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSubmit();
+    if (!isSubmitting) onSubmit();
   };
 
   return (
-    <div className={styles.overlay} onMouseDown={onClose}>
+    <div className={styles.overlay} onMouseDown={() => requestClose.current()}>
+      {/* noValidate: la validación la hace cada formulario y la muestra en línea y en español;
+          la nativa del navegador (min/max) bloqueaba el envío con su propio globo. */}
       <form
+        ref={dialogRef}
+        noValidate
+        tabIndex={-1}
         className={styles.dialog}
         data-size={size}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby={titleId}
+        aria-busy={isSubmitting || undefined}
         onMouseDown={(event) => event.stopPropagation()}
+        onKeyDown={handleKeyDown}
         onSubmit={handleSubmit}
       >
-        <h3 className={styles.title}>{title}</h3>
+        <h3 id={titleId} className={styles.title}>
+          {title}
+        </h3>
         <div className={styles.body}>{children}</div>
         {error ? <FormError>{error}</FormError> : null}
         <div className={styles.footer}>
@@ -67,7 +112,7 @@ export function Modal({
             Cancelar
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Guardando..." : submitLabel}
+            {isSubmitting ? "Guardando…" : submitLabel}
           </Button>
         </div>
       </form>

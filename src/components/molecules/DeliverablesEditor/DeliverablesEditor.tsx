@@ -1,6 +1,9 @@
 import { Trash2 } from "lucide-react";
 import type { Deliverable } from "@/apis/interfaces/projects";
 import { Button, IconButton, Input } from "../../atoms";
+
+// Igual que la columna `deliverables.name` del backend.
+const DELIVERABLE_NAME_MAX_LENGTH = 140;
 import type { ControlSize } from "../../atoms";
 import styles from "./DeliverablesEditor.module.css";
 
@@ -29,11 +32,14 @@ export function DeliverablesEditor({ value, onChange, size }: DeliverablesEditor
         <div key={index} className={styles.row}>
           <Input
             placeholder="Nombre del entregable"
+            aria-label={`Nombre del entregable ${index + 1}`}
+            maxLength={DELIVERABLE_NAME_MAX_LENGTH}
             value={row.name}
             onChange={(event) => updateRow(index, { name: event.target.value })}
           />
           <Input
             placeholder="Alcance"
+            aria-label={`Alcance del entregable ${index + 1}`}
             value={row.scope}
             onChange={(event) => updateRow(index, { scope: event.target.value })}
           />

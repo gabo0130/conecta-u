@@ -23,3 +23,5 @@ export { ImportResultTable } from "./ImportResultTable/ImportResultTable";
 export { LoadingHost } from "./LoadingHost/LoadingHost";
 export { ServiceStatusButton } from "./ServiceStatusButton/ServiceStatusButton";
 export { ServiceStatusHost } from "./ServiceStatusHost/ServiceStatusHost";
+export { LoginForm } from "./LoginForm/LoginForm";
+export { RegisterForm } from "./RegisterForm/RegisterForm";

@@ -6,8 +6,9 @@ import type { TemplateField } from "@/apis/interfaces/catalogs";
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
 import { useProjectCategoriesCatalog } from "@/modules/catalogs/hooks/useProjectCategoriesCatalog/useProjectCategoriesCatalog";
 import { useProjectTypesCatalog } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
-import { Card, Chip } from "../../atoms";
+import { Card, Chip, Spinner } from "../../atoms";
 import { SKILL_TYPE_TONE } from "../SkillPicker/skill-type";
+import { formatDate } from "@/utils/dates";
 import styles from "./ProjectView.module.css";
 
 type ProjectViewProps = {
@@ -21,16 +22,19 @@ const EMPTY = "Sin definir";
 function formatTypeValue(field: TemplateField | undefined, value: unknown) {
   if (value === undefined || value === null || value === "") return EMPTY;
   if (field?.kind === "date" && typeof value === "string") {
-    return new Date(`${value}T00:00:00`).toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" });
+    return formatDate(value, { day: "numeric", month: "long", year: "numeric" });
   }
   return String(value);
 }
 
 /** Vista de solo lectura de un proyecto: los mismos datos que el formulario, sin campos editables. */
 export function ProjectView({ project, asideTop }: ProjectViewProps) {
-  const { projectTypes } = useProjectTypesCatalog();
-  const { projectCategories } = useProjectCategoriesCatalog();
-  const { programs } = useProgramsCatalog();
+  const { projectTypes, isLoading: isLoadingTypes } = useProjectTypesCatalog();
+  const { projectCategories, isLoading: isLoadingCategories } = useProjectCategoriesCatalog();
+  const { programs, isLoading: isLoadingPrograms } = useProgramsCatalog();
+  // Los nombres salen de catálogos del backend: mientras llegan, spinner en vez de "Sin definir".
+  const pending = (isLoading: boolean, value: string) =>
+    isLoading ? <Spinner size="sm" label="Cargando" /> : value;
 
   const type = projectTypes.find((item) => item.id === project.typeId);
   const category = projectCategories.find((item) => item.id === project.categoryId);
@@ -88,15 +92,15 @@ export function ProjectView({ project, asideTop }: ProjectViewProps) {
           <dl className={styles.fields}>
             <div className={styles.field}>
               <dt>Tipo de proyecto</dt>
-              <dd>{type?.name ?? EMPTY}</dd>
+              <dd>{pending(isLoadingTypes, type?.name ?? EMPTY)}</dd>
             </div>
             <div className={styles.field}>
               <dt>Categoría</dt>
-              <dd>{category?.name ?? EMPTY}</dd>
+              <dd>{pending(isLoadingCategories, category?.name ?? EMPTY)}</dd>
             </div>
             <div className={styles.field}>
               <dt>Programa</dt>
-              <dd>{program?.name ?? "Sin programa asociado"}</dd>
+              <dd>{pending(isLoadingPrograms, program?.name ?? "Sin programa asociado")}</dd>
             </div>
             {typeFields.map(({ key, label, field }) => (
               <div key={key} className={styles.field}>

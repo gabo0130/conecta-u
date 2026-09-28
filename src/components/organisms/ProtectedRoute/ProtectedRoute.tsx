@@ -1,39 +1,24 @@
 "use client";
 
-import type { UserRole } from "@/apis/interfaces/auth";
-import { useAuth } from "@/contexts/auth-context";
-import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
 import { Spinner } from "../../atoms";
 import styles from "./ProtectedRoute.module.css";
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-  requiredRole?: UserRole;
-}
+type ProtectedRouteProps = {
+  children: ReactNode;
+};
 
-export function ProtectedRoute({
-  children,
-  requiredRole,
-}: ProtectedRouteProps) {
+/** Exige sesión para las rutas privadas. Los permisos por rol los muestra `RoleGuard` en cada página. */
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    if (isLoading) return;
-
-    if (!isAuthenticated) {
-      // Redirigir al login
-      router.push("/login");
-      return;
-    }
-
-    if (requiredRole && user?.role !== requiredRole) {
-      // Usuario no tiene el rol requerido
-      router.push("/unauthorized");
-      return;
-    }
-  }, [isAuthenticated, isLoading, user, requiredRole, router]);
+    if (!isLoading && !isAuthenticated) router.push("/login");
+  }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -43,13 +28,6 @@ export function ProtectedRoute({
     );
   }
 
-  if (!isAuthenticated) {
-    return null; // La redirección se manejará arriba
-  }
-
-  if (requiredRole && user?.role !== requiredRole) {
-    return null;
-  }
-
-  return <>{children}</>;
+  // Sin sesión no se pinta nada mientras el efecto redirige al login.
+  return isAuthenticated ? <>{children}</> : null;
 }

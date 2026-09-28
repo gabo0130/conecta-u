@@ -1,5 +1,5 @@
-import type { BadgeTone } from "@/components/atoms";
-import type { PersonType, UserRole } from "@/apis/interfaces/auth";
+import type { BadgeTone, SelectOption } from "@/components/atoms";
+import type { PersonType, RegisterRole, UserRole } from "@/apis/interfaces/auth";
 import type {
   AvailabilityStatus,
   CollaboratorSource,
@@ -7,6 +7,8 @@ import type {
   ExperienceType,
   SkillLevel,
 } from "@/apis/interfaces/collaborator";
+import { formatDate } from "@/utils/dates";
+import { toOptions } from "@/utils/to-options";
 
 // Etiquetas en español de los enums del perfil técnico: las usan "Mi perfil" y las vistas del ADMIN.
 
@@ -61,11 +63,25 @@ export function getInitials(name: string) {
 }
 
 export function formatMonthYear(iso?: string | null) {
-  if (!iso) return "";
-  return new Date(iso).toLocaleDateString("es-CO", { month: "short", year: "numeric" });
+  return formatDate(iso, { month: "short", year: "numeric" });
 }
 
 export function getExperienceMeta(experience: Experience) {
   const period = `${formatMonthYear(experience.startDate)} – ${experience.current ? "actual" : formatMonthYear(experience.endDate)}`;
   return [experience.organization, period, `${experience.durationMonths} meses`].filter(Boolean).join(" · ");
 }
+
+/* ---- Opciones de selects: se derivan de los mapas de arriba para no repetir las etiquetas ---- */
+
+export const PERSON_TYPE_OPTIONS = toOptions(PERSON_TYPE_LABEL);
+export const LEVEL_OPTIONS = toOptions(LEVEL_LABEL);
+export const EXPERIENCE_TYPE_OPTIONS = toOptions(EXPERIENCE_TYPE_LABEL);
+export const ROLE_OPTIONS = toOptions(ROLE_LABEL);
+/** El registro público solo permite estos roles (el backend rechaza ADMIN). */
+export const REGISTERABLE_ROLE_OPTIONS = ROLE_OPTIONS.filter(
+  (option): option is SelectOption<RegisterRole> => option.value !== "ADMIN",
+);
+export const AVAILABILITY_OPTIONS = toOptions(AVAILABILITY_VIEW, (view) => view.label);
+
+export const DATA_CONSENT_LABEL =
+  "Autorizo el tratamiento de mis datos personales para las recomendaciones y convocatorias de Conecta U (Ley 1581 de 2012).";

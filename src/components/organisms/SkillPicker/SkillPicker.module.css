@@ -94,8 +94,18 @@
   text-align: left;
   cursor: pointer;
 }
-.option:hover {
+.option:hover,
+.optionActive {
   background: var(--c-bg);
+}
+
+.listbox {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .optionChip {
@@ -167,6 +177,31 @@
 .propose:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+.failed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--c-danger);
+}
+.retry {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--c-red);
+  font-weight: 600;
+  font-size: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.searching {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .hint {

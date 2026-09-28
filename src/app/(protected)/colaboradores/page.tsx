@@ -7,12 +7,17 @@ import { FileUp } from "lucide-react";
 import type { AdminCollaboratorSummary } from "@/apis/interfaces/admin";
 import type { AvailabilityStatus, CollaboratorSource } from "@/apis/interfaces/collaborator";
 import { AppShell, PageGrid } from "@/components/templates";
-import { Badge, Button, Card, Input, Select } from "@/components/atoms";
-import { Pagination } from "@/components/molecules";
+import { Badge, Button, Card, Input, Select, Spinner } from "@/components/atoms";
+import type { SelectOption } from "@/components/atoms";
+import { LoadingState, Pagination } from "@/components/molecules";
 import { RoleGuard } from "@/components/organisms";
 import { useAdminCollaborators } from "@/modules/admin/hooks/useAdminCollaborators/useAdminCollaborators";
+import { useAllPages } from "@/hooks/useAllPages";
+import { paginateLocally } from "@/utils/paginate";
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
+import { toOptions } from "@/utils/to-options";
 import {
+  AVAILABILITY_OPTIONS,
   AVAILABILITY_VIEW,
   PERSON_TYPE_LABEL,
   ROLE_LABEL,
@@ -22,53 +27,70 @@ import styles from "./colaboradores.module.css";
 
 type AccountFilter = "ALL" | "WITH_USER" | "WITHOUT_USER";
 
-const ACCOUNT_OPTIONS: { value: AccountFilter; label: string }[] = [
+const ACCOUNT_OPTIONS: SelectOption<AccountFilter>[] = [
   { value: "ALL", label: "Todas las cuentas" },
   { value: "WITH_USER", label: "Con usuario" },
   { value: "WITHOUT_USER", label: "Sin usuario" },
 ];
 
-const SOURCE_OPTIONS = [
+const SOURCE_OPTIONS: SelectOption<CollaboratorSource | "ALL">[] = [
   { value: "ALL", label: "Todos los orígenes" },
-  ...Object.entries(SOURCE_LABEL).map(([value, label]) => ({ value, label })),
+  ...toOptions(SOURCE_LABEL),
 ];
 
-const AVAILABILITY_OPTIONS = [
+const AVAILABILITY_FILTER_OPTIONS: SelectOption<AvailabilityStatus | "ALL">[] = [
   { value: "ALL", label: "Toda disponibilidad" },
-  ...Object.entries(AVAILABILITY_VIEW).map(([value, view]) => ({ value, label: view.label })),
+  ...AVAILABILITY_OPTIONS,
 ];
 
 function matches(
   collaborator: AdminCollaboratorSummary,
   query: string,
   account: AccountFilter,
-  source: string,
-  availability: string,
+  source: CollaboratorSource | "ALL",
+  availability: AvailabilityStatus | "ALL",
 ) {
   const text = `${collaborator.firstName} ${collaborator.lastName} ${collaborator.email}`.toLowerCase();
   if (query && !text.includes(query)) return false;
   if (account === "WITH_USER" && !collaborator.user) return false;
   if (account === "WITHOUT_USER" && collaborator.user) return false;
-  if (source !== "ALL" && collaborator.source !== (source as CollaboratorSource)) return false;
-  if (availability !== "ALL" && collaborator.availabilityStatus !== (availability as AvailabilityStatus)) return false;
+  if (source !== "ALL" && collaborator.source !== source) return false;
+  if (availability !== "ALL" && collaborator.availabilityStatus !== availability) return false;
   return true;
 }
 
 function CollaboratorsList() {
   const router = useRouter();
   const { collaborators, meta, setPage, isLoading, error } = useAdminCollaborators();
-  const { programs } = useProgramsCatalog();
+  const { programs, isLoading: isLoadingPrograms } = useProgramsCatalog();
   const [query, setQuery] = useState("");
   const [account, setAccount] = useState<AccountFilter>("ALL");
-  const [source, setSource] = useState("ALL");
-  const [availability, setAvailability] = useState("ALL");
+  const [source, setSource] = useState<CollaboratorSource | "ALL">("ALL");
+  const [availability, setAvailability] = useState<AvailabilityStatus | "ALL">("ALL");
 
   const programNameById = Object.fromEntries(programs.map((program) => [program.id, program.name]));
   const normalized = query.trim().toLowerCase();
   const hasActiveFilter = Boolean(normalized) || account !== "ALL" || source !== "ALL" || availability !== "ALL";
-  const visible = collaborators.filter((collaborator) =>
-    matches(collaborator, normalized, account, source, availability),
+  // Con búsqueda o filtros se revisan todas las personas (todas las páginas), no solo la cargada.
+  const all = useAllPages<AdminCollaboratorSummary>(
+    "/admin/collaborators",
+    "collaborators",
+    hasActiveFilter,
+    "No se pudieron buscar los colaboradores.",
   );
+  // La página de resultados vuelve a 1 cada vez que cambia la búsqueda o un filtro.
+  const filterKey = [normalized, account, source, availability].join("|");
+  const [filteredPage, setFilteredPage] = useState({ key: "", page: 1 });
+  const filtered = paginateLocally(
+    all.items.filter((collaborator) => matches(collaborator, normalized, account, source, availability)),
+    filteredPage.key === filterKey ? filteredPage.page : 1,
+    20,
+  );
+  const visible = hasActiveFilter ? filtered.pageItems : collaborators;
+  const listMeta = hasActiveFilter ? filtered.meta : meta;
+  const changePage = hasActiveFilter ? (page: number) => setFilteredPage({ key: filterKey, page }) : setPage;
+  const loading = isLoading || (hasActiveFilter && all.isLoading);
+  const listError = error || (hasActiveFilter ? all.error : "");
 
   return (
     <PageGrid
@@ -100,33 +122,32 @@ function CollaboratorsList() {
               label="Cuenta"
               options={ACCOUNT_OPTIONS}
               value={account}
-              onChange={(event) => setAccount(event.target.value as AccountFilter)}
+              onValueChange={setAccount}
             />
-            <Select label="Origen" options={SOURCE_OPTIONS} value={source} onChange={(event) => setSource(event.target.value)} />
+            <Select label="Origen" options={SOURCE_OPTIONS} value={source} onValueChange={setSource} />
             <Select
               label="Disponibilidad"
-              options={AVAILABILITY_OPTIONS}
+              options={AVAILABILITY_FILTER_OPTIONS}
               value={availability}
-              onChange={(event) => setAvailability(event.target.value)}
+              onValueChange={setAvailability}
             />
           </div>
         </Card>
 
         <Card padding={0}>
-          {isLoading ? <p className={styles.state}>Cargando colaboradores…</p> : null}
-          {!isLoading && error ? <p className={styles.state}>{error}</p> : null}
-          {!isLoading && !error && collaborators.length === 0 ? (
+          {loading ? (
+            <LoadingState message={hasActiveFilter ? "Buscando en todos los colaboradores…" : "Cargando colaboradores…"} />
+          ) : null}
+          {!loading && listError ? <p className={styles.state}>{listError}</p> : null}
+          {!loading && !listError && !hasActiveFilter && collaborators.length === 0 ? (
             <p className={styles.state}>
               Aún no hay perfiles técnicos. Puedes cargarlos con la <Link href="/importar">plantilla de Excel</Link>.
             </p>
           ) : null}
-          {!isLoading && !error && hasActiveFilter ? (
-            <p className={styles.searchHint}>Los filtros solo revisan los colaboradores ya cargados en esta página.</p>
-          ) : null}
-          {!isLoading && !error && collaborators.length > 0 && visible.length === 0 ? (
+          {!loading && !listError && hasActiveFilter && visible.length === 0 ? (
             <p className={styles.state}>Ningún colaborador coincide con los filtros.</p>
           ) : null}
-          {!isLoading && !error && visible.length > 0 ? (
+          {!loading && !listError && visible.length > 0 ? (
             // En pantallas angostas la tabla se desplaza dentro de la tarjeta.
             <div className={styles.tableWrap}>
               <table className={styles.table}>
@@ -153,7 +174,7 @@ function CollaboratorsList() {
                           <span className={styles.muted}>{collaborator.email}</span>
                         </td>
                         <td>
-                          <span>{programNameById[collaborator.programId] ?? "—"}</span>
+                          <span>{isLoadingPrograms ? <Spinner size="sm" label="Cargando programa" /> : (programNameById[collaborator.programId] ?? "—")}</span>
                           <span className={styles.muted}>{PERSON_TYPE_LABEL[collaborator.personType]}</span>
                         </td>
                         <td>
@@ -181,9 +202,7 @@ function CollaboratorsList() {
               </table>
             </div>
           ) : null}
-          {!isLoading && !error && !hasActiveFilter && meta ? (
-            <Pagination meta={meta} onPageChange={setPage} />
-          ) : null}
+          {!loading && !listError && listMeta ? <Pagination meta={listMeta} onPageChange={changePage} /> : null}
         </Card>
       </div>
     </PageGrid>

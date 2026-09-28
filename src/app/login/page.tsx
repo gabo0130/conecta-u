@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AuthLayout } from "@/components/templates";
-import { LoginForm } from "@/components/molecules";
+import { LoginForm } from "@/components/organisms";
 import styles from "./login.module.css";
 
 export default function LoginPage() {

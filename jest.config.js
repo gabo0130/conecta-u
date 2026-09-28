@@ -1,3 +1,6 @@
+// Zona horaria de los usuarios (UTC−5): así los tests de fechas detectan desplazamientos de día.
+process.env.TZ = "America/Bogota";
+
 const nextJest = require("next/jest");
 
 const createJestConfig = nextJest({

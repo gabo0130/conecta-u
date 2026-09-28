@@ -77,7 +77,7 @@ export function LoginForm({ size }: LoginFormProps) {
       {error ? <FormError>{error}</FormError> : null}
 
       <Button type="submit" size={size ?? "lg"} fullWidth disabled={isLoading}>
-        {isLoading ? "Ingresando..." : "Ingresar al sistema"}
+        {isLoading ? "Ingresando…" : "Ingresar al sistema"}
       </Button>
 
       <p className={styles.footerText}>

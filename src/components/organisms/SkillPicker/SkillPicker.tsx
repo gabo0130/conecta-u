@@ -1,30 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 import { X } from "lucide-react";
 import type { Skill, SkillType } from "@/apis/interfaces/catalogs";
 import { useSkillsCatalog } from "@/modules/catalogs/hooks/useSkillsCatalog/useSkillsCatalog";
-import { Chip } from "../../atoms";
+import { Chip, Spinner } from "../../atoms";
 import type { ChipTone, ControlSize } from "../../atoms";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { notify } from "@/utils/notify";
-import { SKILL_TYPE_OPTIONS, SKILL_TYPE_TONE } from "./skill-type";
+import { SKILL_CATEGORY_LABEL, SKILL_TYPE_OPTIONS, SKILL_TYPE_TONE } from "./skill-type";
 import styles from "./SkillPicker.module.css";
 
 export type SkillRef = { id: string; name: string };
 
 /** Las opciones que trae `useSkillsCatalog` siempre son `Skill` completos; los ya seleccionados
  * (`value`) pueden ser algo más recortado (p. ej. `ExperienceTechnology`, sin `type`). */
-function getSkillTone(skill: SkillRef): ChipTone {
-  const type = (skill as Partial<Skill>).type;
-  return type ? SKILL_TYPE_TONE[type] : "neutral";
+function getSkillTone(skill: SkillRef & { type?: SkillType }): ChipTone {
+  return skill.type ? SKILL_TYPE_TONE[skill.type] : "neutral";
 }
 
 type SkillPickerProps<T extends SkillRef> = {
   label?: string;
   mode?: "single" | "multi";
   value: T[];
-  onChange: (skills: T[]) => void;
+  /** Las habilidades elegidas en el buscador llegan como `Skill` completos junto a las que ya estaban. */
+  onChange: (skills: (T | Skill)[]) => void;
   typeFilter?: SkillType;
   proposeType?: SkillType;
   disabled?: boolean;
@@ -40,10 +40,10 @@ export function SkillPicker<T extends SkillRef = Skill>({
   typeFilter,
   proposeType,
   disabled = false,
-  placeholder = "Buscar habilidad...",
+  placeholder = "Buscar habilidad…",
   size,
 }: SkillPickerProps<T>) {
-  const { skills, resultsQuery, isLoading, search, proposeSkill } = useSkillsCatalog();
+  const { skills, resultsQuery, failedQuery, isLoading, error: searchError, search, proposeSkill } = useSkillsCatalog();
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isProposing, setIsProposing] = useState(false);
@@ -52,6 +52,11 @@ export function SkillPicker<T extends SkillRef = Skill>({
     proposeType ?? typeFilter ?? "CONOCIMIENTO",
   );
   const containerRef = useRef<HTMLDivElement>(null);
+  // Opción resaltada con las flechas (patrón combobox de WAI-ARIA); -1 = ninguna.
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const inputId = useId();
+  const listboxId = useId();
+  const optionId = (index: number) => `${listboxId}-opcion-${index}`;
 
   useEffect(() => {
     if (query.trim().length < 2) return;
@@ -66,7 +71,7 @@ export function SkillPicker<T extends SkillRef = Skill>({
   useEffect(() => {
     if (!isOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (containerRef.current && event.target instanceof Node && !containerRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
@@ -78,17 +83,46 @@ export function SkillPicker<T extends SkillRef = Skill>({
   const results = skills.filter((skill) => !selectedIds.has(skill.id));
   const normalizedQuery = query.trim().toLowerCase();
   // Mientras llega la búsqueda nueva se siguen mostrando los resultados anteriores: si se
-  // reemplazaran por "Buscando...", la lista se encogería y crecería con cada tecla.
+  // reemplazaran por "Buscando…", la lista se encogería y crecería con cada tecla.
   const isUpToDate = resultsQuery === query.trim();
+  const searchFailed = !isUpToDate && !isLoading && failedQuery === query.trim();
   const exactMatch =
     results.some((skill) => skill.name.trim().toLowerCase() === normalizedQuery) ||
     value.some((skill) => skill.name.trim().toLowerCase() === normalizedQuery);
 
+  const isListOpen = isOpen && query.trim().length >= 2;
+  const active = activeIndex < results.length ? activeIndex : -1;
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      setIsOpen(true);
+      if (results.length === 0) return;
+      const step = event.key === "ArrowDown" ? 1 : -1;
+      setActiveIndex((current) => {
+        const from = current < results.length ? current : -1;
+        return Math.min(Math.max(from + step, 0), results.length - 1);
+      });
+    } else if (event.key === "Enter") {
+      // Enter elige la opción resaltada y nunca envía el formulario del modal.
+      event.preventDefault();
+      if (isListOpen && active >= 0) selectSkill(results[active]);
+    } else if (event.key === "Escape" && isListOpen) {
+      // Escape cierra solo la lista; sin stopPropagation también cerraría el modal que la contiene.
+      event.preventDefault();
+      event.stopPropagation();
+      setIsOpen(false);
+      setActiveIndex(-1);
+    } else if (event.key === "Tab") {
+      setIsOpen(false);
+    }
+  };
+
   const selectSkill = (skill: Skill) => {
-    const asValue = skill as unknown as T;
-    onChange(mode === "single" ? [asValue] : [...value, asValue]);
+    onChange(mode === "single" ? [skill] : [...value, skill]);
     setQuery("");
     setIsOpen(false);
+    setActiveIndex(-1);
   };
 
   const removeSkill = (id: string) => {
@@ -117,7 +151,15 @@ export function SkillPicker<T extends SkillRef = Skill>({
 
   return (
     <div className={styles.field} data-size={size}>
-      {label ? <span className={styles.label}>{label}</span> : null}
+      {label ? (
+        showInput ? (
+          <label htmlFor={inputId} className={styles.label}>
+            {label}
+          </label>
+        ) : (
+          <span className={styles.label}>{label}</span>
+        )
+      ) : null}
       {value.length > 0 ? (
         <div className={styles.chips}>
           {value.map((skill) => (
@@ -140,30 +182,62 @@ export function SkillPicker<T extends SkillRef = Skill>({
       {showInput ? (
         <div className={styles.control} ref={containerRef}>
           <input
+            id={inputId}
             className={styles.input}
             placeholder={placeholder}
             value={query}
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={isListOpen}
+            aria-controls={listboxId}
+            aria-activedescendant={isListOpen && active >= 0 ? optionId(active) : undefined}
+            autoComplete="off"
             onChange={(event) => {
               setQuery(event.target.value);
               setIsOpen(true);
+              setActiveIndex(-1);
             }}
             onFocus={() => setIsOpen(true)}
+            onKeyDown={handleKeyDown}
           />
-          {isOpen && query.trim().length >= 2 ? (
+          {isListOpen ? (
             <div className={styles.dropdown}>
-              {results.map((skill) => (
-                <button
-                  key={skill.id}
-                  type="button"
-                  className={styles.option}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => selectSkill(skill)}
-                >
-                  {skill.name}
-                  <span className={styles.optionMeta}>{skill.category}</span>
-                </button>
-              ))}
-              {!isUpToDate && results.length === 0 ? <div className={styles.hint}>Buscando...</div> : null}
+              <ul id={listboxId} role="listbox" aria-label={label ?? "Habilidades"} className={styles.listbox}>
+                {results.map((skill, index) => (
+                  <li
+                    key={skill.id}
+                    id={optionId(index)}
+                    role="option"
+                    aria-selected={index === active}
+                    className={[styles.option, index === active ? styles.optionActive : ""].filter(Boolean).join(" ")}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    onClick={() => selectSkill(skill)}
+                  >
+                    {skill.name}
+                    <span className={styles.optionMeta}>{SKILL_CATEGORY_LABEL[skill.category] ?? skill.category}</span>
+                  </li>
+                ))}
+              </ul>
+              {searchFailed ? (
+                <div className={`${styles.hint} ${styles.failed}`} role="alert">
+                  <span>{searchError}</span>
+                  <button
+                    type="button"
+                    className={styles.retry}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => void search(query.trim(), typeFilter)}
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              ) : null}
+              {!isUpToDate && !searchFailed && results.length === 0 ? (
+                <div className={`${styles.hint} ${styles.searching}`} role="status">
+                  <Spinner size="sm" label="" />
+                  Buscando…
+                </div>
+              ) : null}
               {isUpToDate && results.length === 0 && exactMatch ? (
                 <div className={styles.hint}>Ya está en la lista.</div>
               ) : null}
@@ -175,7 +249,10 @@ export function SkillPicker<T extends SkillRef = Skill>({
                       <select
                         className={styles.proposeType}
                         value={proposeTypeChoice}
-                        onChange={(event) => setProposeTypeChoice(event.target.value as SkillType)}
+                        onChange={(event) => {
+                          const option = SKILL_TYPE_OPTIONS.find((candidate) => candidate.value === event.target.value);
+                          if (option) setProposeTypeChoice(option.value);
+                        }}
                         aria-label="Tipo de la nueva habilidad"
                       >
                         {SKILL_TYPE_OPTIONS.map((option) => (
@@ -192,7 +269,7 @@ export function SkillPicker<T extends SkillRef = Skill>({
                       onClick={() => void handlePropose()}
                       disabled={isProposing}
                     >
-                      {isProposing ? "Proponiendo..." : `+ Proponer "${query.trim()}"`}
+                      {isProposing ? "Proponiendo…" : `+ Proponer "${query.trim()}"`}
                     </button>
                   </div>
                 </div>

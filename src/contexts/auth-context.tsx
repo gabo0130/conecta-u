@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Validar que el token siga siendo válido
           await validateToken(storedToken);
         }
-      } catch (error) {
+      } catch {
         // Si hay error al validar, limpiar todo
         localStorage.removeItem(STORAGE_KEYS.TOKEN);
         localStorage.removeItem(STORAGE_KEYS.USER);
@@ -83,10 +83,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         password,
       });
-      console.log("Login response:", response.data);
-
+      // No se registra la respuesta en consola: trae los tokens de sesión.
       const { access_token: newToken, user: userData } = response.data;
-      
+
       // Guardar en localStorage
       localStorage.setItem(STORAGE_KEYS.TOKEN, newToken);
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
@@ -94,9 +93,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Actualizar estado
       setToken(newToken);
       setUser(userData);
-    } catch (error) {
-      console.error("Login error:", error);
-      throw error;
     } finally {
       setIsLoading(false);
     }

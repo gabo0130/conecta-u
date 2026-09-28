@@ -7,8 +7,10 @@
   gap: 12px;
   padding: 0 16px;
 }
+/* min-width: 0 deja que el buscador se encoja: sin él la barra desborda en pantallas angostas. */
 .search {
   flex: 1;
+  min-width: 0;
   max-width: 440px;
   display: flex;
   align-items: center;
@@ -31,8 +33,9 @@
 .right {
   margin-left: auto;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
-  gap: 18px;
+  gap: 10px;
   color: var(--c-ink-3);
 }
 .user {
@@ -72,6 +75,9 @@
   }
   .searchInput {
     font-size: 14px;
+  }
+  .right {
+    gap: 18px;
   }
 }
 

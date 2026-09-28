@@ -7,41 +7,67 @@ import { CalendarPlus, Contact, FileText, FileUp, Folder, Plus, Users, Wrench } 
 import { useAuth } from "@/contexts/auth-context";
 import { AppShell } from "@/components/templates";
 import { Button, Card } from "@/components/atoms";
-import { ProjectListItem, StatCard } from "@/components/molecules";
+import { LoadingState, ProjectListItem, StatCard } from "@/components/molecules";
 import { useAdminCollaborators } from "@/modules/admin/hooks/useAdminCollaborators/useAdminCollaborators";
 import { useAdminProjects } from "@/modules/admin/hooks/useAdminProjects/useAdminProjects";
 import { useUsers } from "@/modules/admin/hooks/useUsers/useUsers";
 import { useCollaborator } from "@/modules/collaborator/hooks/useCollaborator/useCollaborator";
-import { useProjectCategoriesCatalog } from "@/modules/catalogs/hooks/useProjectCategoriesCatalog/useProjectCategoriesCatalog";
-import { useProjectTypesCatalog } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
 import { useProjects } from "@/modules/projects/hooks/useProjects/useProjects";
-import { getProjectCode, getProjectMeta, getStatusView } from "@/modules/projects/utils/project-view";
+import { useProjectMeta } from "@/modules/projects/hooks/useProjectMeta/useProjectMeta";
+import { getProjectCode, getStatusView } from "@/modules/projects/utils/project-view";
+import { useAllPages } from "@/hooks/useAllPages";
+import type { PageMeta } from "@/apis/interfaces/pagination";
 import styles from "./dashboard.module.css";
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
+/**
+ * Elementos para calcular conteos exactos (en borrador, sin usuario, líderes…): si el listado cabe
+ * en una página se usa esa; si tiene más, se traen todas. Antes se contaba solo la primera página.
+ */
+function useCountSource<T>(pageItems: T[], meta: PageMeta | null, url: string, key: string) {
+  const needsAll = (meta?.totalPages ?? 1) > 1;
+  const all = useAllPages<T>(url, key, needsAll, "No se pudieron calcular los conteos.");
+  return needsAll ? all : { items: pageItems, isLoading: false, error: "" };
+}
+
 function LeaderDashboard() {
   const router = useRouter();
   const { projects, meta, isLoading, error } = useProjects();
-  const { projectTypes } = useProjectTypesCatalog();
-  const { projectCategories } = useProjectCategoriesCatalog();
+  const projectMeta = useProjectMeta();
   const [now] = useState(() => Date.now());
 
-  const typeNameById = Object.fromEntries(projectTypes.map((type) => [type.id, type.name]));
-  const categoryNameById = Object.fromEntries(projectCategories.map((category) => [category.id, category.name]));
-
-  const drafts = projects.filter((project) => project.status === "BORRADOR").length;
-  const thisWeek = projects.filter(
+  const counted = useCountSource(projects, meta, "/projects", "projects");
+  const countsLoading = isLoading || counted.isLoading;
+  const countsError = Boolean(error || counted.error);
+  const drafts = counted.items.filter((project) => project.status === "BORRADOR").length;
+  const thisWeek = counted.items.filter(
     (project) => project.createdAt && now - new Date(project.createdAt).getTime() < WEEK_MS,
   ).length;
   const recent = projects.slice(0, 3);
 
   const stats = [
-    { label: "Proyectos registrados", value: String(meta?.total ?? projects.length), hint: "en total", icon: Folder },
-    { label: "En borrador", value: String(drafts), hint: "por completar", icon: FileText },
+    {
+      label: "Proyectos registrados",
+      value: String(meta?.total ?? projects.length),
+      hint: "en total",
+      icon: Folder,
+      isLoading,
+      hasError: Boolean(error),
+    },
+    {
+      label: "En borrador",
+      value: String(drafts),
+      hint: "por completar",
+      icon: FileText,
+      isLoading: countsLoading,
+      hasError: countsError,
+    },
     {
       label: "Registrados esta semana",
       value: String(thisWeek),
+      isLoading: countsLoading,
+      hasError: countsError,
       hint: "últimos 7 días",
       hintTone: thisWeek > 0 ? ("up" as const) : undefined,
       icon: CalendarPlus,
@@ -61,7 +87,7 @@ function LeaderDashboard() {
           <h3 className={styles.listTitle}>Mis proyectos</h3>
           <Link href="/proyectos">Ver todos</Link>
         </div>
-        {isLoading ? <p className={styles.state}>Cargando proyectos…</p> : null}
+        {isLoading ? <LoadingState message="Cargando proyectos…" /> : null}
         {!isLoading && error ? <p className={styles.state}>{error}</p> : null}
         {!isLoading && !error && recent.length === 0 ? (
           <div className={styles.empty}>
@@ -79,7 +105,8 @@ function LeaderDashboard() {
               project={{
                 code: getProjectCode(project.title),
                 name: project.title,
-                meta: getProjectMeta(project, { typeNameById, categoryNameById }),
+                meta: projectMeta.isLoading ? "" : projectMeta.describe(project),
+                isMetaLoading: projectMeta.isLoading,
                 status: status.label,
                 tone: status.tone,
                 href: `/proyectos/${project.id}`,
@@ -97,7 +124,7 @@ function CollaboratorDashboard() {
   const router = useRouter();
   const { collaborator, isLoading, notFound, error } = useCollaborator();
 
-  if (isLoading) return <p className={styles.state}>Cargando tu perfil…</p>;
+  if (isLoading) return <LoadingState variant="page" message="Cargando tu perfil…" />;
   if (notFound || !collaborator) {
     return <p className={styles.state}>{error || "No se pudo cargar tu perfil."}</p>;
   }
@@ -135,36 +162,45 @@ function CollaboratorDashboard() {
 function AdminDashboard() {
   const router = useRouter();
   const { projects, meta: projectsMeta, isLoading: isLoadingProjects, error: projectsError } = useAdminProjects();
-  const { collaborators, meta: collaboratorsMeta, isLoading: isLoadingCollaborators } = useAdminCollaborators();
-  const { users, meta: usersMeta, isLoading: isLoadingUsers } = useUsers();
-  const { projectTypes } = useProjectTypesCatalog();
-  const { projectCategories } = useProjectCategoriesCatalog();
-
-  const typeNameById = Object.fromEntries(projectTypes.map((type) => [type.id, type.name]));
-  const categoryNameById = Object.fromEntries(projectCategories.map((category) => [category.id, category.name]));
-  const count = (isLoading: boolean, value: number) => (isLoading ? "…" : String(value));
-  // Los conteos por página (borrador, sin usuario, líderes) son aproximados: solo miran la
-  // página cargada, no el total real. Los totales sí vienen del backend (`meta.total`).
-  const withoutUser = collaborators.filter((collaborator) => !collaborator.user).length;
-  const leaders = users.filter((user) => user.role === "LIDER").length;
+  const {
+    collaborators,
+    meta: collaboratorsMeta,
+    isLoading: isLoadingCollaborators,
+    error: collaboratorsError,
+  } = useAdminCollaborators();
+  const { users, meta: usersMeta, isLoading: isLoadingUsers, error: usersError } = useUsers();
+  const projectMeta = useProjectMeta();
+  // Totales desde `meta.total`; los desgloses se cuentan sobre todos los elementos, no sobre la página.
+  const allProjects = useCountSource(projects, projectsMeta, "/admin/projects", "projects");
+  const allCollaborators = useCountSource(collaborators, collaboratorsMeta, "/admin/collaborators", "collaborators");
+  const allUsers = useCountSource(users, usersMeta, "/users", "users");
+  const drafts = allProjects.items.filter((project) => project.status === "BORRADOR").length;
+  const withoutUser = allCollaborators.items.filter((collaborator) => !collaborator.user).length;
+  const leaders = allUsers.items.filter((user) => user.role === "LIDER").length;
   const recent = projects.slice(0, 5);
 
   const stats = [
     {
       label: "Proyectos",
-      value: count(isLoadingProjects, projectsMeta?.total ?? projects.length),
-      hint: `${projects.filter((project) => project.status === "BORRADOR").length} en borrador`,
+      value: String(projectsMeta?.total ?? projects.length),
+      isLoading: isLoadingProjects || allProjects.isLoading,
+      hasError: Boolean(projectsError || allProjects.error),
+      hint: `${drafts} en borrador`,
       icon: Folder,
     },
     {
       label: "Colaboradores",
-      value: count(isLoadingCollaborators, collaboratorsMeta?.total ?? collaborators.length),
+      value: String(collaboratorsMeta?.total ?? collaborators.length),
+      isLoading: isLoadingCollaborators || allCollaborators.isLoading,
+      hasError: Boolean(collaboratorsError || allCollaborators.error),
       hint: `${withoutUser} sin usuario`,
       icon: Contact,
     },
     {
       label: "Usuarios",
-      value: count(isLoadingUsers, usersMeta?.total ?? users.length),
+      value: String(usersMeta?.total ?? users.length),
+      isLoading: isLoadingUsers || allUsers.isLoading,
+      hasError: Boolean(usersError || allUsers.error),
       hint: `${leaders} líderes de proyecto`,
       icon: Users,
     },
@@ -184,21 +220,22 @@ function AdminDashboard() {
             <h3 className={styles.listTitle}>Últimos proyectos</h3>
             <Link href="/proyectos">Ver todos</Link>
           </div>
-          {isLoadingProjects ? <p className={styles.state}>Cargando proyectos…</p> : null}
+          {isLoadingProjects ? <LoadingState message="Cargando proyectos…" /> : null}
           {!isLoadingProjects && projectsError ? <p className={styles.state}>{projectsError}</p> : null}
           {!isLoadingProjects && !projectsError && recent.length === 0 ? (
             <p className={styles.state}>Todavía no hay proyectos registrados.</p>
           ) : null}
           {recent.map((project, index) => {
             const status = getStatusView(project.status);
-            const meta = getProjectMeta(project, { typeNameById, categoryNameById });
+            const leader = `Líder: ${project.leader?.fullName ?? "cuenta eliminada"}`;
             return (
               <ProjectListItem
                 key={project.id}
                 project={{
                   code: getProjectCode(project.title),
                   name: project.title,
-                  meta: `${meta} · Líder: ${project.leader?.fullName ?? "cuenta eliminada"}`,
+                  meta: projectMeta.isLoading ? leader : `${projectMeta.describe(project)} · ${leader}`,
+                  isMetaLoading: projectMeta.isLoading,
                   status: status.label,
                   tone: status.tone,
                   href: `/proyectos/${project.id}`,

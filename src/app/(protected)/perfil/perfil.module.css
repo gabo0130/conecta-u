@@ -119,4 +119,14 @@
   background: transparent;
   padding: 0;
   cursor: pointer;
+  border-radius: var(--r-pill);
+}
+.chipBtn:focus-visible {
+  outline: 2px solid var(--c-red);
+  outline-offset: 2px;
+}
+.chipMeta {
+  margin-left: 6px;
+  font-weight: 500;
+  opacity: 0.75;
 }

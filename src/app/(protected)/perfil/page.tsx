@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { Collaborator, CollaboratorSkill, Experience } from "@/apis/interfaces/collaborator";
 import { AppShell } from "@/components/templates";
 import { Badge, Button, Card, Chip, UserAvatar } from "@/components/atoms";
-import { ExperienceItem } from "@/components/molecules";
+import { ExperienceItem, LoadingState } from "@/components/molecules";
 import {
   AvailabilityModal,
   CreateProfileModal,
@@ -19,6 +19,7 @@ import { useCreateCollaboratorProfile } from "@/modules/collaborator/hooks/useCr
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
 import {
   AVAILABILITY_VIEW,
+  LEVEL_LABEL,
   PERSON_TYPE_LABEL,
   getExperienceMeta,
   getInitials,
@@ -87,7 +88,7 @@ export default function PerfilPage() {
   if (isLoading) {
     return (
       <AppShell>
-        <p className={styles.completeText}>Cargando perfil…</p>
+        <LoadingState variant="page" message="Cargando perfil…" />
       </AppShell>
     );
   }
@@ -172,10 +173,16 @@ export default function PerfilPage() {
                     key={skill.id}
                     type="button"
                     className={styles.chipBtn}
-                    title={`${SKILL_TYPE_LABEL[skill.skill.type]} · ${skill.level}${skill.lastUsedYear ? ` · usado en ${skill.lastUsedYear}` : ""} — clic para editar`}
+                    aria-label={`Editar ${skill.skill.name}: ${SKILL_TYPE_LABEL[skill.skill.type]}, nivel ${LEVEL_LABEL[skill.level]}, ${skill.experienceMonths} meses${skill.lastUsedYear ? `, usado en ${skill.lastUsedYear}` : ""}`}
                     onClick={() => setModal({ kind: "skill", skill })}
                   >
-                    <Chip tone={SKILL_TYPE_TONE[skill.skill.type]}>{skill.skill.name}</Chip>
+                    {/* Nivel y meses a la vista: antes solo salían en el tooltip (invisible en móvil). */}
+                    <Chip tone={SKILL_TYPE_TONE[skill.skill.type]}>
+                      {skill.skill.name}
+                      <span className={styles.chipMeta}>
+                        {LEVEL_LABEL[skill.level]} · {skill.experienceMonths} m
+                      </span>
+                    </Chip>
                   </button>
                 ))}
               </div>

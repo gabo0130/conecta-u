@@ -1,5 +1,6 @@
 import type { BadgeTone } from "@/components/atoms";
 import type { Project, ProjectStatus } from "@/apis/interfaces/projects";
+import { formatDate as formatDateValue } from "@/utils/dates";
 
 const STATUS_VIEW: Record<ProjectStatus, { label: string; tone: BadgeTone }> = {
   BORRADOR: { label: "Borrador", tone: "gray" },
@@ -26,13 +27,12 @@ export type ProjectMetaCatalogs = {
   categoryNameById?: Record<string, string>;
 };
 
-export function getProjectMeta(project: Project, catalogs: ProjectMetaCatalogs = {}) {
+export function getProjectMeta(project: Pick<Project, "typeId" | "categoryId">, catalogs: ProjectMetaCatalogs = {}) {
   const typeName = catalogs.typeNameById?.[project.typeId];
   const categoryName = catalogs.categoryNameById?.[project.categoryId];
   return [typeName, categoryName].filter(Boolean).join(" · ") || "Sin tipo ni categoría";
 }
 
-export function formatDate(iso?: string) {
-  if (!iso) return "";
-  return new Date(iso).toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });
+export function formatDate(iso?: string | null) {
+  return formatDateValue(iso, { day: "numeric", month: "short", year: "numeric" });
 }

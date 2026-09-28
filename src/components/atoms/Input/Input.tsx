@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, ReactNode } from "react";
+import { InputHTMLAttributes, ReactNode, useId } from "react";
 import type { ControlSize } from "../types";
 import styles from "./Input.module.css";
 
@@ -25,7 +25,9 @@ export function Input({
   className,
   ...props
 }: InputProps) {
-  const inputId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
+  const autoId = useId();
+  const inputId = id ?? autoId;
+  const messageId = `${inputId}-message`;
   const message = error ?? helperText;
   const controlClassName = [styles.control, error ? styles.controlError : ""]
     .filter(Boolean)
@@ -38,7 +40,13 @@ export function Input({
     <label htmlFor={inputId} data-size={size} className={[styles.field, className].filter(Boolean).join(" ")}>
       {label ? <span className={styles.label}>{label}</span> : null}
       <span className={controlClassName}>
-        <input id={inputId} {...props} className={styles.input} />
+        <input
+          id={inputId}
+          aria-invalid={Boolean(error) || undefined}
+          aria-describedby={message ? messageId : undefined}
+          {...props}
+          className={styles.input}
+        />
         {rightIcon ? (
           onRightIconClick ? (
             <button
@@ -56,7 +64,11 @@ export function Input({
           )
         ) : null}
       </span>
-      {message ? <span className={messageClassName}>{message}</span> : null}
+      {message ? (
+        <span id={messageId} className={messageClassName}>
+          {message}
+        </span>
+      ) : null}
     </label>
   );
 }

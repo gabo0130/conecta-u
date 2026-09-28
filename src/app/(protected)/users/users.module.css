@@ -4,7 +4,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 20px;
 }
 .h1 {
   font-size: 21px;
@@ -54,7 +53,14 @@
   background: var(--c-bg);
 }
 .editCol {
-  color: var(--c-red);
-  font-weight: 600;
   text-align: right;
+}
+/* Texto solo para lectores de pantalla. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }

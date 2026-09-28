@@ -65,16 +65,18 @@ export interface CreateCollaboratorPayload {
   lastName: string;
   personType: PersonType;
   programId: string;
+  dataConsent?: boolean;
 }
 
 export interface UpdateCollaboratorPayload {
   firstName?: string;
   lastName?: string;
   programId?: string;
-  semester?: number;
-  researchGroup?: string;
-  summary?: string;
-  profileUrl?: string;
+  /** null borra el valor guardado (el backend lo acepta en los campos opcionales). */
+  semester?: number | null;
+  researchGroup?: string | null;
+  summary?: string | null;
+  profileUrl?: string | null;
   dataConsent?: boolean;
 }
 

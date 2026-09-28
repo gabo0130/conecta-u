@@ -13,6 +13,7 @@ export { Input } from "./Input/Input";
 export { Logo } from "./Logo/Logo";
 export { Modal } from "./Modal/Modal";
 export { Select } from "./Select/Select";
+export type { SelectOption } from "./Select/Select";
 export { Spinner } from "./Spinner/Spinner";
 export { Textarea } from "./Textarea/Textarea";
 export { UserAvatar } from "./UserAvatar/UserAvatar";

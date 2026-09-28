@@ -6,11 +6,12 @@ import { ArrowLeft, Pencil } from "lucide-react";
 import type { Project } from "@/apis/interfaces/projects";
 import { AppShell, PageGrid } from "@/components/templates";
 import { Badge, Button, Card } from "@/components/atoms";
+import { LoadingState } from "@/components/molecules";
 import { AdminProjectInfo, ProjectForm, ProjectFormTips, ProjectView } from "@/components/organisms";
 import { useAuth } from "@/contexts/auth-context";
 import { useAdminProject } from "@/modules/admin/hooks/useAdminProject/useAdminProject";
-import { useProjectDetail } from "@/modules/projects/hooks/useProject/useProjectDetail";
-import { useUpdateProject } from "@/modules/projects/hooks/useProject/useProject";
+import { useProjectDetail } from "@/modules/projects/hooks/useProjectDetail/useProjectDetail";
+import { useUpdateProject } from "@/modules/projects/hooks/useUpdateProject/useUpdateProject";
 import { formatDate, getStatusView } from "@/modules/projects/utils/project-view";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { loading } from "@/utils/loading";
@@ -34,7 +35,7 @@ function DetailState({ isLoading, error }: { isLoading: boolean; error: string }
     <AppShell breadcrumb={<Breadcrumb />}>
       <PageGrid>
         {isLoading ? (
-          <p className={styles.state}>Cargando proyecto…</p>
+          <LoadingState variant="page" message="Cargando proyecto…" />
         ) : (
           <Card padding={24}>
             <p className={styles.state}>{error || "No se encontró el proyecto."}</p>
