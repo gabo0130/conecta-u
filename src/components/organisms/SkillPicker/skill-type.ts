@@ -1,6 +1,6 @@
-import type { SkillCategory, SkillType } from "@/apis/interfaces/catalogs";
+import type { SkillCategory, SkillStatus, SkillType } from "@/apis/interfaces/catalogs";
 import { toOptions } from "@/utils/to-options";
-import type { ChipTone } from "../../atoms";
+import type { BadgeTone, ChipTone } from "../../atoms";
 
 export const SKILL_TYPE_LABEL: Record<SkillType, string> = {
   CONOCIMIENTO: "Conocimiento",
@@ -15,6 +15,14 @@ export const SKILL_TYPE_TONE: Record<SkillType, ChipTone> = {
 };
 
 export const SKILL_TYPE_OPTIONS = toOptions(SKILL_TYPE_LABEL);
+
+/** Separa conocimientos/competencias de habilidades blandas para mostrarlas en bloques aparte. */
+export function groupBySoftSkill<T>(items: T[], getType: (item: T) => SkillType) {
+  return {
+    technical: items.filter((item) => getType(item) !== "HABILIDAD_BLANDA"),
+    soft: items.filter((item) => getType(item) === "HABILIDAD_BLANDA"),
+  };
+}
 
 /** Categorías del catálogo de habilidades en español (el backend envía el enum, p. ej. "BASE_DATOS"). */
 export const SKILL_CATEGORY_LABEL: Record<SkillCategory, string> = {
@@ -32,3 +40,17 @@ export const SKILL_CATEGORY_LABEL: Record<SkillCategory, string> = {
   LIDERAZGO: "Liderazgo",
   OTRA: "Otra",
 };
+
+export const SKILL_CATEGORY_OPTIONS = toOptions(SKILL_CATEGORY_LABEL);
+
+export const SKILL_STATUS_LABEL: Record<SkillStatus, string> = {
+  ACTIVA: "Activa",
+  PENDIENTE: "Pendiente de revisión",
+};
+
+export const SKILL_STATUS_TONE: Record<SkillStatus, BadgeTone> = {
+  ACTIVA: "green",
+  PENDIENTE: "amber",
+};
+
+export const SKILL_STATUS_OPTIONS = toOptions(SKILL_STATUS_LABEL);

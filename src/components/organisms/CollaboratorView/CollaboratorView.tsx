@@ -11,7 +11,7 @@ import {
 } from "@/modules/collaborator/utils/collaborator-view";
 import { formatDate, getStatusView } from "@/modules/projects/utils/project-view";
 import { Badge, Card, Chip, Spinner } from "../../atoms";
-import { SKILL_TYPE_LABEL, SKILL_TYPE_TONE } from "../SkillPicker/skill-type";
+import { SKILL_TYPE_LABEL, SKILL_TYPE_TONE, groupBySoftSkill } from "../SkillPicker/skill-type";
 import styles from "./CollaboratorView.module.css";
 
 type CollaboratorViewProps = {
@@ -27,6 +27,21 @@ const EMPTY = "Sin definir";
 export function CollaboratorView({ collaborator, programName, isProgramLoading = false }: CollaboratorViewProps) {
   const availability = AVAILABILITY_VIEW[collaborator.availabilityStatus];
   const { user } = collaborator;
+  const { technical: technicalSkills, soft: softSkills } = groupBySoftSkill(
+    collaborator.skills,
+    (entry) => entry.skill.type,
+  );
+  const renderSkillRow = (entry: (typeof collaborator.skills)[number]) => (
+    <li key={entry.id} className={styles.skillRow}>
+      <Chip tone={SKILL_TYPE_TONE[entry.skill.type]} title={SKILL_TYPE_LABEL[entry.skill.type]}>
+        {entry.skill.name}
+      </Chip>
+      <span className={styles.rowMeta}>
+        {LEVEL_LABEL[entry.level]} · {entry.experienceMonths} meses
+        {entry.lastUsedYear ? ` · último uso ${entry.lastUsedYear}` : ""}
+      </span>
+    </li>
+  );
 
   return (
     // Móvil: una columna (datos → cuenta → disponibilidad → habilidades → experiencia → proyectos → registro).
@@ -73,25 +88,20 @@ export function CollaboratorView({ collaborator, programName, isProgramLoading =
         </Card>
 
         <Card padding={24} className={styles.o4}>
-          <h2 className={styles.sectionTitle}>
-            Conocimientos, competencias y habilidades blandas ({collaborator.skills.length})
-          </h2>
-          {collaborator.skills.length > 0 ? (
-            <ul className={styles.rows}>
-              {collaborator.skills.map((entry) => (
-                <li key={entry.id} className={styles.skillRow}>
-                  <Chip tone={SKILL_TYPE_TONE[entry.skill.type]} title={SKILL_TYPE_LABEL[entry.skill.type]}>
-                    {entry.skill.name}
-                  </Chip>
-                  <span className={styles.rowMeta}>
-                    {LEVEL_LABEL[entry.level]} · {entry.experienceMonths} meses
-                    {entry.lastUsedYear ? ` · último uso ${entry.lastUsedYear}` : ""}
-                  </span>
-                </li>
-              ))}
-            </ul>
+          <h2 className={styles.sectionTitle}>Conocimientos y competencias ({technicalSkills.length})</h2>
+          {technicalSkills.length > 0 ? (
+            <ul className={styles.rows}>{technicalSkills.map(renderSkillRow)}</ul>
           ) : (
-            <p className={styles.empty}>Aún no registró habilidades.</p>
+            <p className={styles.empty}>Aún no registró conocimientos ni competencias.</p>
+          )}
+        </Card>
+
+        <Card padding={24} className={styles.o4}>
+          <h2 className={styles.sectionTitle}>Habilidades blandas ({softSkills.length})</h2>
+          {softSkills.length > 0 ? (
+            <ul className={styles.rows}>{softSkills.map(renderSkillRow)}</ul>
+          ) : (
+            <p className={styles.empty}>Aún no registró habilidades blandas.</p>
           )}
         </Card>
 

@@ -18,6 +18,15 @@
   gap: 8px;
 }
 
+.chipGroupLabel {
+  font-size: calc(var(--field-label-font) - 1px);
+  font-weight: 600;
+  color: var(--c-muted-2);
+}
+.chipGroupLabel:not(:first-child) {
+  margin-top: 4px;
+}
+
 .chip {
   gap: 6px;
 }

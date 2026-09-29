@@ -10,3 +10,4 @@ export type { ProjectSummary } from "./ProjectListItem/ProjectListItem";
 export { RequiredProfileCard } from "./RequiredProfileCard/RequiredProfileCard";
 export type { RequiredProfile } from "./RequiredProfileCard/RequiredProfileCard";
 export { StatCard } from "./StatCard/StatCard";
+export { TemplateFieldsEditor } from "./TemplateFieldsEditor/TemplateFieldsEditor";

@@ -125,7 +125,18 @@ function CollaboratorDashboard() {
   const { collaborator, isLoading, notFound, error } = useCollaborator();
 
   if (isLoading) return <LoadingState variant="page" message="Cargando tu perfil…" />;
-  if (notFound || !collaborator) {
+  if (notFound) {
+    return (
+      <Card padding={22}>
+        <h3 className={styles.listTitle}>Completa tu perfil de colaborador</h3>
+        <p className={styles.state}>
+          Aún no tienes un perfil técnico. Créalo para aparecer en las recomendaciones de los líderes de proyecto.
+        </p>
+        <Button onClick={() => router.push("/perfil")}>Completar mi perfil</Button>
+      </Card>
+    );
+  }
+  if (!collaborator) {
     return <p className={styles.state}>{error || "No se pudo cargar tu perfil."}</p>;
   }
 

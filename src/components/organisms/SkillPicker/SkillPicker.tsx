@@ -149,6 +149,30 @@ export function SkillPicker<T extends SkillRef = Skill>({
 
   const showInput = !disabled && (mode === "multi" || value.length === 0);
 
+  const renderChip = (skill: T) => (
+    <Chip key={skill.id} tone={getSkillTone(skill)} className={styles.chip}>
+      {skill.name}
+      {!disabled ? (
+        <button
+          type="button"
+          className={styles.remove}
+          onClick={() => removeSkill(skill.id)}
+          aria-label={`Quitar ${skill.name}`}
+        >
+          <X />
+        </button>
+      ) : null}
+    </Chip>
+  );
+  // Separadas en dos bloques solo cuando hay mezcla de tipos (p. ej. habilidades conocidas de un
+  // proyecto); si todo es de un solo tipo (como "Tecnologías", siempre CONOCIMIENTO) se ve como
+  // lista simple, sin encabezados de más.
+  const softChips = value.filter((skill) => (skill as SkillRef & { type?: SkillType }).type === "HABILIDAD_BLANDA");
+  const technicalChips = value.filter(
+    (skill) => (skill as SkillRef & { type?: SkillType }).type !== "HABILIDAD_BLANDA",
+  );
+  const showGroupedChips = softChips.length > 0 && technicalChips.length > 0;
+
   return (
     <div className={styles.field} data-size={size}>
       {label ? (
@@ -161,23 +185,16 @@ export function SkillPicker<T extends SkillRef = Skill>({
         )
       ) : null}
       {value.length > 0 ? (
-        <div className={styles.chips}>
-          {value.map((skill) => (
-            <Chip key={skill.id} tone={getSkillTone(skill)} className={styles.chip}>
-              {skill.name}
-              {!disabled ? (
-                <button
-                  type="button"
-                  className={styles.remove}
-                  onClick={() => removeSkill(skill.id)}
-                  aria-label={`Quitar ${skill.name}`}
-                >
-                  <X />
-                </button>
-              ) : null}
-            </Chip>
-          ))}
-        </div>
+        showGroupedChips ? (
+          <>
+            <span className={styles.chipGroupLabel}>Conocimientos y competencias</span>
+            <div className={styles.chips}>{technicalChips.map(renderChip)}</div>
+            <span className={styles.chipGroupLabel}>Habilidades blandas</span>
+            <div className={styles.chips}>{softChips.map(renderChip)}</div>
+          </>
+        ) : (
+          <div className={styles.chips}>{value.map(renderChip)}</div>
+        )
       ) : null}
       {showInput ? (
         <div className={styles.control} ref={containerRef}>

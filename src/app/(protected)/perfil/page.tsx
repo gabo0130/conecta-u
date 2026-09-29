@@ -12,7 +12,7 @@ import {
   ExperienceModal,
   SkillModal,
 } from "@/components/organisms";
-import { SKILL_TYPE_LABEL, SKILL_TYPE_TONE } from "@/components/organisms/SkillPicker/skill-type";
+import { SKILL_TYPE_LABEL, SKILL_TYPE_TONE, groupBySoftSkill } from "@/components/organisms/SkillPicker/skill-type";
 import { useAuth } from "@/contexts/auth-context";
 import { useCollaborator } from "@/modules/collaborator/hooks/useCollaborator/useCollaborator";
 import { useCreateCollaboratorProfile } from "@/modules/collaborator/hooks/useCreateCollaboratorProfile/useCreateCollaboratorProfile";
@@ -100,11 +100,9 @@ export default function PerfilPage() {
           <p className={styles.completeText}>
             {user?.role === "LIDER"
               ? "Aún no tienes un perfil de colaborador. Puedes crear uno para aparecer también como colaborador técnico."
-              : "No se encontró tu perfil de colaborador."}
+              : "Aún no tienes un perfil de colaborador. Complétalo para aparecer en las recomendaciones de los líderes de proyecto."}
           </p>
-          {user?.role === "LIDER" ? (
-            <Button onClick={() => setModal({ kind: "create" })}>Crear mi perfil</Button>
-          ) : null}
+          <Button onClick={() => setModal({ kind: "create" })}>Crear mi perfil</Button>
         </Card>
         {modal?.kind === "create" ? (
           <CreateProfileModal
@@ -136,6 +134,27 @@ export default function PerfilPage() {
     .filter(Boolean)
     .join(" · ");
   const completeness = getCompleteness(collaborator);
+  const { technical: technicalSkills, soft: softSkills } = groupBySoftSkill(
+    collaborator.skills,
+    (skill) => skill.skill.type,
+  );
+  const renderSkillChip = (skill: CollaboratorSkill) => (
+    <button
+      key={skill.id}
+      type="button"
+      className={styles.chipBtn}
+      aria-label={`Editar ${skill.skill.name}: ${SKILL_TYPE_LABEL[skill.skill.type]}, nivel ${LEVEL_LABEL[skill.level]}, ${skill.experienceMonths} meses${skill.lastUsedYear ? `, usado en ${skill.lastUsedYear}` : ""}`}
+      onClick={() => setModal({ kind: "skill", skill })}
+    >
+      {/* Nivel y meses a la vista: antes solo salían en el tooltip (invisible en móvil). */}
+      <Chip tone={SKILL_TYPE_TONE[skill.skill.type]}>
+        {skill.skill.name}
+        <span className={styles.chipMeta}>
+          {LEVEL_LABEL[skill.level]} · {skill.experienceMonths} m
+        </span>
+      </Chip>
+    </button>
+  );
 
   return (
     <AppShell>
@@ -159,33 +178,29 @@ export default function PerfilPage() {
         <div className={styles.col}>
           <Card padding={22}>
             <div className={styles.cardHead}>
-              <h3 className={styles.cardTitle}>Conocimientos, competencias y habilidades blandas</h3>
+              <h3 className={styles.cardTitle}>Conocimientos y competencias</h3>
               <Button variant="link" size="sm" onClick={() => setModal({ kind: "skill" })}>
                 + Agregar
               </Button>
             </div>
-            {collaborator.skills.length === 0 ? (
-              <p className={styles.completeText}>Aún no has agregado conocimientos, competencias ni habilidades blandas.</p>
+            {technicalSkills.length === 0 ? (
+              <p className={styles.completeText}>Aún no has agregado conocimientos ni competencias.</p>
             ) : (
-              <div className={styles.chips}>
-                {collaborator.skills.map((skill) => (
-                  <button
-                    key={skill.id}
-                    type="button"
-                    className={styles.chipBtn}
-                    aria-label={`Editar ${skill.skill.name}: ${SKILL_TYPE_LABEL[skill.skill.type]}, nivel ${LEVEL_LABEL[skill.level]}, ${skill.experienceMonths} meses${skill.lastUsedYear ? `, usado en ${skill.lastUsedYear}` : ""}`}
-                    onClick={() => setModal({ kind: "skill", skill })}
-                  >
-                    {/* Nivel y meses a la vista: antes solo salían en el tooltip (invisible en móvil). */}
-                    <Chip tone={SKILL_TYPE_TONE[skill.skill.type]}>
-                      {skill.skill.name}
-                      <span className={styles.chipMeta}>
-                        {LEVEL_LABEL[skill.level]} · {skill.experienceMonths} m
-                      </span>
-                    </Chip>
-                  </button>
-                ))}
-              </div>
+              <div className={styles.chips}>{technicalSkills.map(renderSkillChip)}</div>
+            )}
+          </Card>
+
+          <Card padding={22}>
+            <div className={styles.cardHead}>
+              <h3 className={styles.cardTitle}>Habilidades blandas</h3>
+              <Button variant="link" size="sm" onClick={() => setModal({ kind: "skill" })}>
+                + Agregar
+              </Button>
+            </div>
+            {softSkills.length === 0 ? (
+              <p className={styles.completeText}>Aún no has agregado habilidades blandas.</p>
+            ) : (
+              <div className={styles.chips}>{softSkills.map(renderSkillChip)}</div>
             )}
           </Card>
 

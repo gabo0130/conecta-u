@@ -2,18 +2,113 @@
   font-size: 21px;
   font-weight: 700;
 }
-.text {
-  color: var(--c-muted);
-  font-size: 14px;
-  line-height: 1.6;
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--c-line);
+  padding-bottom: 2px;
 }
-.badge {
-  display: inline-block;
-  margin-top: 14px;
-  padding: 6px 14px;
-  border-radius: var(--r-pill);
-  background: var(--c-amber-soft);
-  color: var(--c-amber);
-  font-size: 13px;
+.tab {
+  border: none;
+  background: transparent;
+  padding: 8px 14px;
+  font-size: 13.5px;
   font-weight: 600;
+  color: var(--c-muted);
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  cursor: pointer;
+}
+.tab:hover {
+  color: var(--c-ink);
+  background: var(--c-bg);
+}
+.tabActive {
+  color: var(--c-red);
+  box-shadow: inset 0 -2px 0 var(--c-red);
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--c-line);
+}
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--field-stack-gap);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-line);
+}
+
+.state {
+  margin: 0;
+  padding: 24px 20px;
+  color: var(--c-muted);
+  font-size: 14.5px;
+}
+
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+}
+.table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-muted-2);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--c-line);
+  white-space: nowrap;
+}
+.table td {
+  padding: 12px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--c-line-soft);
+}
+.table tr:last-child td {
+  border-bottom: none;
+}
+.row {
+  cursor: pointer;
+}
+.row:hover {
+  background: var(--c-bg);
+}
+.muted {
+  color: var(--c-muted);
+}
+.editCol {
+  text-align: right;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .filters {
+    grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+  }
 }

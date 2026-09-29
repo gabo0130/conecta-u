@@ -7,7 +7,7 @@ import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/
 import { useProjectCategoriesCatalog } from "@/modules/catalogs/hooks/useProjectCategoriesCatalog/useProjectCategoriesCatalog";
 import { useProjectTypesCatalog } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
 import { Card, Chip, Spinner } from "../../atoms";
-import { SKILL_TYPE_TONE } from "../SkillPicker/skill-type";
+import { SKILL_TYPE_TONE, groupBySoftSkill } from "../SkillPicker/skill-type";
 import { formatDate } from "@/utils/dates";
 import styles from "./ProjectView.module.css";
 
@@ -48,6 +48,7 @@ export function ProjectView({ project, asideTop }: ProjectViewProps) {
       .map((key) => ({ key, label: key, field: undefined })),
   ];
   const skills = project.knownSkills ?? [];
+  const { technical: technicalSkills, soft: softSkills } = groupBySoftSkill(skills, (skill) => skill.type);
 
   return (
     // Móvil: una columna (descripción → clasificación → habilidades → entregables).
@@ -111,17 +112,31 @@ export function ProjectView({ project, asideTop }: ProjectViewProps) {
           </dl>
         </Card>
         <Card padding={24} className={styles.skills}>
-          <h2 className={styles.sectionTitle}>Habilidades técnicas y blandas conocidas</h2>
-          {skills.length > 0 ? (
+          <h2 className={styles.sectionTitle}>Conocimientos y competencias conocidas</h2>
+          {technicalSkills.length > 0 ? (
             <div className={styles.chips}>
-              {skills.map((skill) => (
+              {technicalSkills.map((skill) => (
                 <Chip key={skill.id} tone={SKILL_TYPE_TONE[skill.type]}>
                   {skill.name}
                 </Chip>
               ))}
             </div>
           ) : (
-            <p className={styles.empty}>Aún no se registraron habilidades.</p>
+            <p className={styles.empty}>Aún no se registraron conocimientos ni competencias.</p>
+          )}
+        </Card>
+        <Card padding={24} className={styles.skills}>
+          <h2 className={styles.sectionTitle}>Habilidades blandas conocidas</h2>
+          {softSkills.length > 0 ? (
+            <div className={styles.chips}>
+              {softSkills.map((skill) => (
+                <Chip key={skill.id} tone={SKILL_TYPE_TONE[skill.type]}>
+                  {skill.name}
+                </Chip>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.empty}>Aún no se registraron habilidades blandas.</p>
           )}
         </Card>
       </div>
