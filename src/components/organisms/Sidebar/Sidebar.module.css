@@ -85,12 +85,18 @@
 
 /* lg+: sidebar fijo en la columna izquierda. */
 @media (min-width: 1024px) {
+  /* Alto de la ventana y fijo al hacer scroll: no se estira con el contenido y "Cerrar sesión"
+     queda siempre visible abajo. Si el menú no cabe, se desplaza dentro del panel. */
   .side {
-    position: static;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    height: 100dvh;
     z-index: auto;
     width: 248px;
     flex-shrink: 0;
-    overflow-y: visible;
+    overflow-y: auto;
     transform: none;
     transition: none;
     box-shadow: none;
