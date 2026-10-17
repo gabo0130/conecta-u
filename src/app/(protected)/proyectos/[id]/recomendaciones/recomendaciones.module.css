@@ -128,7 +128,7 @@
 .profileTabActive,
 .profileTabActive:hover {
   border-color: var(--c-red);
-  background: var(--c-red-soft);
+  background: var(--c-red-hover);
   color: var(--c-red-ink);
 }
 .profileTabName {

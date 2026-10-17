@@ -1,5 +1,6 @@
 "use client";
 
+import { Pencil } from "lucide-react";
 import { useState } from "react";
 import type { Collaborator, CollaboratorSkill, Experience } from "@/apis/interfaces/collaborator";
 import { AppShell } from "@/components/templates";
@@ -169,7 +170,7 @@ export default function PerfilPage() {
           </div>
           <div className={styles.meta}>{meta || "Completa tu perfil para aparecer en las recomendaciones."}</div>
         </div>
-        <Button variant="ghost" onClick={() => setModal({ kind: "profile" })}>
+        <Button variant="ghost" leftIcon={<Pencil />} onClick={() => setModal({ kind: "profile" })}>
           Editar perfil
         </Button>
       </Card>
@@ -232,7 +233,13 @@ export default function PerfilPage() {
           <Card padding={22}>
             <div className={styles.cardHead}>
               <h3 className={styles.cardTitle}>Disponibilidad</h3>
-              <Button variant="link" size="sm" onClick={() => setModal({ kind: "availability" })}>
+              <Button
+                variant="link"
+                size="sm"
+                leftIcon={<Pencil size={15} />}
+                aria-label="Editar disponibilidad"
+                onClick={() => setModal({ kind: "availability" })}
+              >
                 Editar
               </Button>
             </div>

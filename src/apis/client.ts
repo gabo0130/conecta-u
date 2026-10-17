@@ -62,6 +62,9 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
+    // Petición cancelada a propósito (AbortController): no es un fallo del servidor.
+    if (axios.isCancel(error)) return Promise.reject(error);
+
     // Sin respuesta (red caída o timeout) o 502/503/504: el servidor puede estar apagándose o
     // arrancando; se muestra el aviso global y se reintenta /health hasta que responda.
     const status = error.response?.status;

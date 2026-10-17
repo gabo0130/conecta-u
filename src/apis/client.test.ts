@@ -54,6 +54,13 @@ describe("apiClient y el aviso de servidor despertando", () => {
     expect(reportMock).toHaveBeenCalledTimes(1);
   });
 
+  it("no avisa si la petición se canceló a propósito", async () => {
+    const controller = new AbortController();
+    controller.abort();
+    await expect(apiClient.get("/users", { signal: controller.signal, adapter: offline })).rejects.toThrow();
+    expect(reportMock).not.toHaveBeenCalled();
+  });
+
   it("usa 60 s solo en las peticiones de IA", () => {
     expect(apiClient.defaults.timeout).toBe(15000);
     expect(AI_REQUEST_CONFIG.timeout).toBe(60000);

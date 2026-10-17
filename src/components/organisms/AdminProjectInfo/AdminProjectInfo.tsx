@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import type { AdminProject } from "@/apis/interfaces/admin";
 import { formatDate } from "@/modules/projects/utils/project-view";
-import { Badge, Card } from "../../atoms";
+import { ArrowLink, Badge, Card } from "../../atoms";
 import styles from "./AdminProjectInfo.module.css";
 
 type AdminProjectInfoProps = {
@@ -53,7 +52,7 @@ export function AdminProjectInfo({ project }: AdminProjectInfoProps) {
           <dt>Perfil técnico del líder</dt>
           <dd>
             {leader?.collaboratorId ? (
-              <Link href={`/colaboradores/${leader.collaboratorId}`}>Ver perfil técnico</Link>
+              <ArrowLink href={`/colaboradores/${leader.collaboratorId}`}>Ver perfil técnico</ArrowLink>
             ) : (
               <span className={styles.muted}>El líder no tiene perfil técnico.</span>
             )}
@@ -64,7 +63,7 @@ export function AdminProjectInfo({ project }: AdminProjectInfoProps) {
           <dt>Personas recomendadas</dt>
           <dd>
             {project.status === "ANALIZADO" ? (
-              <Link href={`/proyectos/${project.id}/recomendaciones`}>Ver recomendaciones</Link>
+              <ArrowLink href={`/proyectos/${project.id}/recomendaciones`}>Ver recomendaciones</ArrowLink>
             ) : (
               <span className={styles.muted}>Disponibles cuando el proyecto tenga un análisis con IA.</span>
             )}

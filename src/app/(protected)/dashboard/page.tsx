@@ -1,12 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarPlus, Contact, FileText, FileUp, Folder, History, Plus, Users, Wrench } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { AppShell } from "@/components/templates";
-import { Button, Card } from "@/components/atoms";
+import { ArrowLink, Button, Card } from "@/components/atoms";
 import { LoadingState, ProjectListItem, StatCard } from "@/components/molecules";
 import { useAdminCollaborators } from "@/modules/admin/hooks/useAdminCollaborators/useAdminCollaborators";
 import { useAdminProjects } from "@/modules/admin/hooks/useAdminProjects/useAdminProjects";
@@ -85,7 +84,7 @@ function LeaderDashboard() {
       <Card padding={0}>
         <div className={styles.listHead}>
           <h3 className={styles.listTitle}>Mis proyectos</h3>
-          <Link href="/proyectos">Ver todos</Link>
+          <ArrowLink href="/proyectos">Ver todos</ArrowLink>
         </div>
         {isLoading ? <LoadingState message="Cargando proyectos…" /> : null}
         {!isLoading && error ? <p className={styles.state}>{error}</p> : null}
@@ -229,7 +228,7 @@ function AdminDashboard() {
         <Card padding={0}>
           <div className={styles.listHead}>
             <h3 className={styles.listTitle}>Últimos proyectos</h3>
-            <Link href="/proyectos">Ver todos</Link>
+            <ArrowLink href="/proyectos">Ver todos</ArrowLink>
           </div>
           {isLoadingProjects ? <LoadingState message="Cargando proyectos…" /> : null}
           {!isLoadingProjects && projectsError ? <p className={styles.state}>{projectsError}</p> : null}

@@ -17,6 +17,7 @@
   --c-red: #c8102e;
   --c-red-dark: #9e0c24;
   --c-red-soft: #fce9ec;
+  --c-red-hover: #f7dee2; /* hover sobre fondos o acciones rojas suaves */
   --c-red-ink: #8a3a45; /* texto sobre fondo --c-red-soft */
   --c-on-red-muted: #fbd5db; /* texto secundario sobre fondo --c-red */
 
@@ -30,17 +31,19 @@
   --c-line: #eaeaee;
   --c-line-2: #e0e0e5;
   --c-line-soft: #f0f0f3; /* divisores internos y fondos de barra */
-  --c-hover: #f4f4f6;
+  --c-hover: #ececef; /* fondo al pasar el mouse sobre neutros (filas, botones ghost, opciones) */
   --c-bg: #f5f5f7;
   --c-card: #ffffff;
 
   /* Estados */
   --c-green: #1f9d57;
   --c-green-soft: #e7f6ed;
+  --c-green-hover: #cfe9db; /* hover de acciones afirmativas (~22 % de verde) */
   --c-amber: #c98a00;
   --c-amber-soft: #fef3e2;
   --c-danger: #d14343;
   --c-danger-soft: #fdecec;
+  --c-danger-hover: #f7dddd; /* hover de acciones de eliminar o rechazar */
   --c-info: #2563eb;
   --c-info-soft: #e8f0fe;
 

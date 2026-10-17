@@ -1,6 +1,11 @@
+"use client";
+
 import { AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import type { ImportCollaboratorsResult } from "@/apis/interfaces/admin";
+import { useTableSort } from "@/hooks/useTableSort";
+import type { SortAccessors } from "@/utils/sort";
 import { Card } from "../../atoms";
+import { SortableHeader } from "../../molecules";
 import styles from "./ImportResultTable.module.css";
 
 type ImportResultTableProps = {
@@ -8,8 +13,18 @@ type ImportResultTableProps = {
   fileName?: string;
 };
 
+type RejectedRow = ImportCollaboratorsResult["rejected"][number];
+
+const REJECTED_SORT: SortAccessors<RejectedRow, "sheet" | "row" | "email" | "reason"> = {
+  sheet: (row) => row.sheet,
+  row: (row) => row.row,
+  email: (row) => row.email,
+  reason: (row) => row.reason,
+};
+
 /** Resultado de una importación de colaboradores: creados, filas rechazadas (hoja, fila, causa) y advertencias. */
 export function ImportResultTable({ result, fileName }: ImportResultTableProps) {
+  const { sort, toggleSort, applySort } = useTableSort(REJECTED_SORT);
   const summary = [
     { key: "created", label: "Colaboradores creados", value: result.created, icon: CheckCircle2, tone: styles.ok },
     { key: "rejected", label: "Filas rechazadas", value: result.rejected.length, icon: XCircle, tone: styles.bad },
@@ -45,14 +60,14 @@ export function ImportResultTable({ result, fileName }: ImportResultTableProps) 
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Hoja</th>
-                  <th>Fila</th>
-                  <th>Correo</th>
-                  <th>Causa</th>
+                  <SortableHeader label="Hoja" sortKey="sheet" sort={sort} onSort={toggleSort} />
+                  <SortableHeader label="Fila" sortKey="row" sort={sort} onSort={toggleSort} />
+                  <SortableHeader label="Correo" sortKey="email" sort={sort} onSort={toggleSort} />
+                  <SortableHeader label="Causa" sortKey="reason" sort={sort} onSort={toggleSort} />
                 </tr>
               </thead>
               <tbody>
-                {result.rejected.map((row, index) => (
+                {applySort(result.rejected).map((row, index) => (
                   <tr key={`${row.sheet}-${row.row}-${index}`}>
                     <td>{row.sheet}</td>
                     <td className={styles.num}>{row.row}</td>

@@ -71,7 +71,7 @@
   border-bottom: none;
 }
 .table tbody tr:hover {
-  background: var(--c-bg);
+  background: var(--c-hover);
 }
 
 .name {
@@ -85,10 +85,12 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-.action {
+.table td.action {
+  width: 1%;
+  padding-top: 6px;
+  padding-bottom: 6px;
   text-align: right;
   white-space: nowrap;
-  font-weight: 600;
 }
 
 @media (min-width: 640px) {

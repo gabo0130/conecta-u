@@ -30,9 +30,11 @@
   border: 1px solid var(--field-border);
   background: #ffffff;
 }
+/* Al pasar el mouse, todo IconButton pinta un cuadro de color detrás del ícono (rojo de marca por defecto). */
 .ghost:hover:not(:disabled) {
-  color: var(--c-ink);
-  background: var(--c-bg);
+  color: var(--c-red);
+  border-color: var(--c-red);
+  background: var(--c-red-hover);
 }
 
 .plain {
@@ -41,10 +43,69 @@
 }
 .plain:hover:not(:disabled) {
   color: var(--c-red);
-  background: var(--c-bg);
+  background: var(--c-red-hover);
 }
 
 .danger:hover:not(:disabled) {
   color: var(--c-danger);
   border-color: var(--c-danger);
+  background: var(--c-danger-hover);
+}
+
+/* Acción afirmativa (aprobar): verde siempre, para distinguirla de las neutras. */
+.success {
+  color: var(--c-green);
+}
+.success:hover:not(:disabled) {
+  color: var(--c-green);
+  border-color: var(--c-green);
+  background: var(--c-green-hover);
+}
+
+/* Etiqueta visible (prop `tooltip`): aparece con hover y con foco de teclado. */
+.tooltipWrap {
+  position: relative;
+  display: inline-flex;
+}
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  z-index: 5;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  background: var(--c-ink);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 2px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+.alignEnd .tooltip {
+  left: auto;
+  right: 0;
+  transform: translateY(2px);
+}
+.tooltipWrap:hover .tooltip,
+.button:focus-visible + .tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.alignEnd:hover .tooltip,
+.alignEnd .button:focus-visible + .tooltip {
+  transform: none;
+}
+/* Cerrada con Escape: no vuelve hasta salir del botón. */
+.dismissed .tooltip {
+  opacity: 0 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip {
+    transition: none;
+  }
 }

@@ -13,7 +13,7 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 .button:hover:not(:disabled) {
-  background: var(--c-bg);
+  background: var(--c-hover);
   color: var(--c-ink);
 }
 .button:disabled {

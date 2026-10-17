@@ -8,6 +8,7 @@ export { Chip } from "./Chip/Chip";
 export type { ChipTone } from "./Chip/Chip";
 export { FormError } from "./FormError/FormError";
 export { FormRow } from "./FormRow/FormRow";
+export { ArrowLink } from "./ArrowLink/ArrowLink";
 export { IconButton } from "./IconButton/IconButton";
 export { Input } from "./Input/Input";
 export { Logo } from "./Logo/Logo";

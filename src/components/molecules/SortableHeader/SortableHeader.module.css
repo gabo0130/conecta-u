@@ -1,0 +1,48 @@
+/* Hereda la letra del encabezado de cada tabla (mayúsculas, tamaño y color). */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: -4px -6px;
+  padding: 4px 6px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.button svg {
+  flex-shrink: 0;
+  opacity: 0.55;
+}
+.button:hover {
+  color: var(--c-ink);
+  background: var(--c-hover);
+}
+.button:hover svg,
+.active svg {
+  opacity: 1;
+}
+.button:focus-visible {
+  outline: 2px solid var(--c-red);
+  outline-offset: 2px;
+}
+.active {
+  color: var(--c-red);
+}
+.end {
+  flex-direction: row-reverse;
+}
+.button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.button:disabled:hover {
+  color: inherit;
+  background: transparent;
+}

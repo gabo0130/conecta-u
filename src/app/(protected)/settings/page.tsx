@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Check, Pencil, Plus } from "lucide-react";
 import type { Program, ProjectCategory, ProjectType, Skill, SkillCategory, SkillStatus, SkillType } from "@/apis/interfaces/catalogs";
 import { AppShell, PageGrid } from "@/components/templates";
-import { Badge, Button, Card, Input, Select } from "@/components/atoms";
-import { LoadingState, Pagination } from "@/components/molecules";
+import { Badge, Button, Card, IconButton, Input, Select } from "@/components/atoms";
+import { LoadingState, Pagination, SortableHeader, TableStatus } from "@/components/molecules";
 import {
   AdminSkillModal,
   ProgramModal,
@@ -26,6 +26,12 @@ import { useAdminPrograms } from "@/modules/admin/hooks/useAdminPrograms/useAdmi
 import { useAdminProjectCategories } from "@/modules/admin/hooks/useAdminProjectCategories/useAdminProjectCategories";
 import { useAdminProjectTypes } from "@/modules/admin/hooks/useAdminProjectTypes/useAdminProjectTypes";
 import { useAdminSkills } from "@/modules/admin/hooks/useAdminSkills/useAdminSkills";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { usePagedTable } from "@/hooks/usePagedTable";
+import { useTableSort } from "@/hooks/useTableSort";
+import { getErrorMessage } from "@/utils/get-error-message";
+import type { SortAccessors } from "@/utils/sort";
+import { notify } from "@/utils/notify";
 import styles from "./settings.module.css";
 
 type Tab = "programs" | "types" | "categories" | "skills";
@@ -36,6 +42,54 @@ const TABS: { value: Tab; label: string }[] = [
   { value: "categories", label: "Categorías" },
   { value: "skills", label: "Habilidades" },
 ];
+
+const activeLabel = (active: boolean) => (active ? "Activo" : "Inactivo");
+
+const PROGRAM_SORT: SortAccessors<Program, "code" | "name" | "faculty" | "status"> = {
+  code: (program) => program.code,
+  name: (program) => program.name,
+  faculty: (program) => program.faculty,
+  status: (program) => activeLabel(program.active),
+};
+
+const TYPE_SORT: SortAccessors<ProjectType, "code" | "name" | "fields" | "status"> = {
+  code: (type) => type.code,
+  name: (type) => type.name,
+  fields: (type) => type.templateFields.length,
+  status: (type) => activeLabel(type.active),
+};
+
+const CATEGORY_SORT: SortAccessors<ProjectCategory, "name" | "status"> = {
+  name: (category) => category.name,
+  status: (category) => activeLabel(category.active),
+};
+
+const SKILL_SORT: SortAccessors<Skill, "name" | "type" | "category" | "status"> = {
+  name: (skill) => skill.name,
+  type: (skill) => SKILL_TYPE_LABEL[skill.type],
+  category: (skill) => SKILL_CATEGORY_LABEL[skill.category],
+  status: (skill) => SKILL_STATUS_LABEL[skill.status],
+};
+
+const SKILLS_PAGE_SIZE = 20;
+
+/** Acción de editar de una fila: la fila también abre el modal, pero solo con mouse; el botón sirve con teclado. */
+function EditAction({ name, tooltip, onEdit }: { name: string; tooltip: string; onEdit: () => void }) {
+  return (
+    <IconButton
+      variant="plain"
+      size="sm"
+      icon={<Pencil />}
+      label={`Editar ${name}`}
+      tooltip={tooltip}
+      tooltipAlign="end"
+      onClick={(event) => {
+        event.stopPropagation();
+        onEdit();
+      }}
+    />
+  );
+}
 
 function SectionHead({ title, actionLabel, onAction }: { title: string; actionLabel: string; onAction: () => void }) {
   return (
@@ -51,6 +105,7 @@ function SectionHead({ title, actionLabel, onAction }: { title: string; actionLa
 function ProgramsSection() {
   const { programs, isLoading, error, createProgram, updateProgram } = useAdminPrograms();
   const [modal, setModal] = useState<{ program?: Program } | null>(null);
+  const { sort, toggleSort, applySort } = useTableSort(PROGRAM_SORT);
 
   return (
     <Card padding={0}>
@@ -63,15 +118,15 @@ function ProgramsSection() {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Facultad</th>
-                <th>Estado</th>
+                <SortableHeader label="Código" sortKey="code" sort={sort} onSort={toggleSort} />
+                <SortableHeader label="Nombre" sortKey="name" sort={sort} onSort={toggleSort} />
+                <SortableHeader label="Facultad" sortKey="faculty" sort={sort} onSort={toggleSort} />
+                <SortableHeader label="Estado" sortKey="status" sort={sort} onSort={toggleSort} />
                 <th aria-label="Acciones" />
               </tr>
             </thead>
             <tbody>
-              {programs.map((program) => (
+              {applySort(programs).map((program) => (
                 <tr key={program.id} className={styles.row} onClick={() => setModal({ program })}>
                   <td>{program.code}</td>
                   <td>{program.name}</td>
@@ -82,17 +137,11 @@ function ProgramsSection() {
                     </Badge>
                   </td>
                   <td className={styles.editCol}>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      aria-label={`Editar ${program.name}`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setModal({ program });
-                      }}
-                    >
-                      Editar
-                    </Button>
+                    <EditAction
+                      name={program.name}
+                      tooltip="Editar código, nombre, facultad o estado"
+                      onEdit={() => setModal({ program })}
+                    />
                   </td>
                 </tr>
               ))}
@@ -115,6 +164,7 @@ function ProgramsSection() {
 function ProjectTypesSection() {
   const { projectTypes, isLoading, error, createProjectType, updateProjectType } = useAdminProjectTypes();
   const [modal, setModal] = useState<{ type?: ProjectType } | null>(null);
+  const { sort, toggleSort, applySort } = useTableSort(TYPE_SORT);
 
   return (
     <Card padding={0}>
@@ -129,15 +179,15 @@ function ProjectTypesSection() {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Campos</th>
-                <th>Estado</th>
+                <SortableHeader label="Código" sortKey="code" sort={sort} onSort={toggleSort} />
+                <SortableHeader label="Nombre" sortKey="name" sort={sort} onSort={toggleSort} />
+                <SortableHeader label="Campos" sortKey="fields" sort={sort} onSort={toggleSort} />
+                <SortableHeader label="Estado" sortKey="status" sort={sort} onSort={toggleSort} />
                 <th aria-label="Acciones" />
               </tr>
             </thead>
             <tbody>
-              {projectTypes.map((type) => (
+              {applySort(projectTypes).map((type) => (
                 <tr key={type.id} className={styles.row} onClick={() => setModal({ type })}>
                   <td>{type.code}</td>
                   <td>{type.name}</td>
@@ -148,17 +198,11 @@ function ProjectTypesSection() {
                     </Badge>
                   </td>
                   <td className={styles.editCol}>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      aria-label={`Editar ${type.name}`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setModal({ type });
-                      }}
-                    >
-                      Editar
-                    </Button>
+                    <EditAction
+                      name={type.name}
+                      tooltip="Editar el tipo y los campos de su plantilla"
+                      onEdit={() => setModal({ type })}
+                    />
                   </td>
                 </tr>
               ))}
@@ -182,6 +226,7 @@ function ProjectCategoriesSection() {
   const { projectCategories, isLoading, error, createProjectCategory, updateProjectCategory } =
     useAdminProjectCategories();
   const [modal, setModal] = useState<{ category?: ProjectCategory } | null>(null);
+  const { sort, toggleSort, applySort } = useTableSort(CATEGORY_SORT);
 
   return (
     <Card padding={0}>
@@ -196,13 +241,13 @@ function ProjectCategoriesSection() {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Nombre</th>
-                <th>Estado</th>
+                <SortableHeader label="Nombre" sortKey="name" sort={sort} onSort={toggleSort} />
+                <SortableHeader label="Estado" sortKey="status" sort={sort} onSort={toggleSort} />
                 <th aria-label="Acciones" />
               </tr>
             </thead>
             <tbody>
-              {projectCategories.map((category) => (
+              {applySort(projectCategories).map((category) => (
                 <tr key={category.id} className={styles.row} onClick={() => setModal({ category })}>
                   <td>{category.name}</td>
                   <td>
@@ -211,17 +256,11 @@ function ProjectCategoriesSection() {
                     </Badge>
                   </td>
                   <td className={styles.editCol}>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      aria-label={`Editar ${category.name}`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setModal({ category });
-                      }}
-                    >
-                      Editar
-                    </Button>
+                    <EditAction
+                      name={category.name}
+                      tooltip="Editar nombre o estado"
+                      onEdit={() => setModal({ category })}
+                    />
                   </td>
                 </tr>
               ))}
@@ -246,13 +285,44 @@ function SkillsSection() {
   const [type, setType] = useState<SkillType | "">("");
   const [category, setCategory] = useState<SkillCategory | "">("");
   const [status, setStatus] = useState<SkillStatus | "">("");
-  const { skills, meta, setPage, isLoading, error, createSkill, updateSkill } = useAdminSkills({
-    q: q || undefined,
-    type: type || undefined,
-    category: category || undefined,
-    status: status || undefined,
-  });
+  const debouncedQ = useDebouncedValue(q.trim());
+  // Memorizados: con un orden activo, cada cambio de filtros vuelve a traer todas las páginas.
+  const filters = useMemo(
+    () => ({
+      q: debouncedQ || undefined,
+      type: type || undefined,
+      category: category || undefined,
+      status: status || undefined,
+    }),
+    [debouncedQ, type, category, status],
+  );
+  const { skills, createSkill, updateSkill, approveSkill, ...server } = useAdminSkills(filters);
   const [modal, setModal] = useState<{ skill?: Skill } | null>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+  // Con un orden activo se ordenan todas las habilidades que cumplen los filtros, no solo la página.
+  const table = usePagedTable({
+    server: { ...server, items: skills },
+    url: "/admin/catalogs/skills",
+    key: "skills",
+    errorMessage: "No se pudieron ordenar las habilidades.",
+    accessors: SKILL_SORT,
+    pageSize: SKILLS_PAGE_SIZE,
+    params: filters,
+  });
+  const { sort, toggleSort, withRefresh } = table;
+  const showTable = !table.isLoading && (table.rows.length > 0 || table.isSorted);
+
+  const handleApprove = async (skill: Skill) => {
+    setApprovingId(skill.id);
+    try {
+      await withRefresh(approveSkill)(skill.id);
+      void notify.success(`"${skill.name}" quedó aprobada y ya se puede elegir desde el catálogo.`);
+    } catch (err) {
+      void notify.error(getErrorMessage(err, `No se pudo aprobar "${skill.name}".`));
+    } finally {
+      setApprovingId(null);
+    }
+  };
 
   return (
     <Card padding={0}>
@@ -262,38 +332,46 @@ function SkillsSection() {
         <Select
           options={[{ value: "", label: "Todos los tipos" }, ...SKILL_TYPE_OPTIONS]}
           value={type}
-          onChange={(event) => setType(event.target.value as SkillType | "")}
+          onValueChange={setType}
         />
         <Select
           options={[{ value: "", label: "Todas las categorías" }, ...SKILL_CATEGORY_OPTIONS]}
           value={category}
-          onChange={(event) => setCategory(event.target.value as SkillCategory | "")}
+          onValueChange={setCategory}
         />
         <Select
           options={[{ value: "", label: "Todos los estados" }, ...SKILL_STATUS_OPTIONS]}
           value={status}
-          onChange={(event) => setStatus(event.target.value as SkillStatus | "")}
+          onValueChange={setStatus}
         />
       </div>
-      {isLoading ? <LoadingState message="Cargando habilidades…" /> : null}
-      {!isLoading && error ? <p className={styles.state}>{error}</p> : null}
-      {!isLoading && !error && skills.length === 0 ? (
+      {table.isLoading ? <LoadingState message="Cargando habilidades…" /> : null}
+      {!table.isLoading && table.error && !showTable ? <p className={styles.state}>{table.error}</p> : null}
+      {!table.isLoading && !table.error && table.rows.length === 0 ? (
         <p className={styles.state}>Ninguna habilidad coincide con los filtros.</p>
       ) : null}
-      {!isLoading && !error && skills.length > 0 ? (
+      {showTable ? (
+        <TableStatus
+          isRefreshing={table.isRefreshing}
+          error={table.error}
+          onRetry={table.retry}
+          onClearSort={table.isSorted ? table.clearSort : undefined}
+        />
+      ) : null}
+      {showTable ? (
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Categoría</th>
-                <th>Estado</th>
+                <SortableHeader label="Nombre" sortKey="name" sort={sort} onSort={toggleSort} />
+                <SortableHeader label="Tipo" sortKey="type" sort={sort} onSort={toggleSort} />
+                <SortableHeader label="Categoría" sortKey="category" sort={sort} onSort={toggleSort} />
+                <SortableHeader label="Estado" sortKey="status" sort={sort} onSort={toggleSort} />
                 <th aria-label="Acciones" />
               </tr>
             </thead>
             <tbody>
-              {skills.map((skill) => (
+              {table.rows.map((skill) => (
                 <tr key={skill.id} className={styles.row} onClick={() => setModal({ skill })}>
                   <td>{skill.name}</td>
                   <td className={styles.muted}>{SKILL_TYPE_LABEL[skill.type]}</td>
@@ -303,18 +381,32 @@ function SkillsSection() {
                       {SKILL_STATUS_LABEL[skill.status]}
                     </Badge>
                   </td>
-                  <td className={styles.editCol}>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      aria-label={`Editar ${skill.name}`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setModal({ skill });
-                      }}
-                    >
-                      Editar
-                    </Button>
+                  <td className={styles.editCol} onClick={(event) => event.stopPropagation()}>
+                    <div className={styles.quickActions}>
+                      {skill.status === "PENDIENTE" ? (
+                        <IconButton
+                          variant="plain"
+                          size="sm"
+                          tone="success"
+                          icon={<Check />}
+                          label={`Aprobar ${skill.name}`}
+                          tooltip="Aprobar: queda disponible en el catálogo"
+                          tooltipAlign="end"
+                          disabled={approvingId !== null}
+                          onClick={() => void handleApprove(skill)}
+                        />
+                      ) : null}
+                      <IconButton
+                        variant="plain"
+                        size="sm"
+                        icon={<Pencil />}
+                        label={`Editar ${skill.name}`}
+                        tooltip="Editar nombre, tipo, categoría o sinónimos"
+                        tooltipAlign="end"
+                        disabled={approvingId === skill.id}
+                        onClick={() => setModal({ skill })}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -322,12 +414,12 @@ function SkillsSection() {
           </table>
         </div>
       ) : null}
-      {!isLoading && !error && meta ? <Pagination meta={meta} onPageChange={setPage} /> : null}
+      {!table.isLoading && table.meta ? <Pagination meta={table.meta} onPageChange={table.onPageChange} /> : null}
       {modal ? (
         <AdminSkillModal
           skill={modal.skill}
-          onCreate={createSkill}
-          onUpdate={(payload) => updateSkill(modal.skill!.id, payload)}
+          onCreate={withRefresh(createSkill)}
+          onUpdate={withRefresh((payload) => updateSkill(modal.skill!.id, payload))}
           onClose={() => setModal(null)}
         />
       ) : null}
