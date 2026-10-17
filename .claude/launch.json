@@ -20,6 +20,33 @@
         "start:dev"
       ],
       "port": 3001
+    },
+    {
+      "name": "conecta-u-back-fake-ai",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "set AI_PROVIDER=fake&& npm --prefix C:/Proyectos/conecta-u-back run start:dev"
+      ],
+      "port": 3001
+    },
+    {
+      "name": "conecta-u-back-ai-down",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "set AI_PROVIDER=gemini&& set GEMINI_API_KEY=clave-invalida-para-pruebas&& npm --prefix C:/Proyectos/conecta-u-back run start:dev"
+      ],
+      "port": 3001
+    },
+    {
+      "name": "conecta-u-dev-e2e-api",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "set NEXT_PUBLIC_API_BASE_URL=http://localhost:3002/api&& npm run dev"
+      ],
+      "port": 3000
     }
   ]
 }

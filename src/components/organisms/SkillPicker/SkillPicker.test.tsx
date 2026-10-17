@@ -89,3 +89,23 @@ describe("SkillPicker (combobox accesible)", () => {
     expect(mockSearch).toHaveBeenCalledWith("re", undefined);
   });
 });
+
+describe("SkillPicker en modo solo catálogo", () => {
+  it("oculta las habilidades pendientes y no ofrece proponer una nueva", () => {
+    mockCatalog = {
+      ...defaultCatalog(),
+      skills: [...SKILLS, { id: "s3", name: "Remix", type: "CONOCIMIENTO", category: "FRAMEWORK", synonyms: [], status: "PENDIENTE" }],
+    };
+    render(<SkillPicker label="Habilidades" value={[]} onChange={jest.fn()} catalogOnly />);
+    fireEvent.change(screen.getByRole("combobox", { name: "Habilidades" }), { target: { value: "re" } });
+
+    const options = within(screen.getByRole("listbox")).getAllByRole("option");
+    expect(options.map((option) => option.textContent)).toEqual([expect.stringContaining("React"), expect.stringContaining("Redux")]);
+    expect(screen.queryByText(/Proponer/)).not.toBeInTheDocument();
+  });
+
+  it("no pinta los chips de lo elegido cuando el padre muestra su propia lista", () => {
+    render(<SkillPicker label="Habilidades" value={[SKILLS[0]]} onChange={jest.fn()} hideSelected />);
+    expect(screen.queryByRole("button", { name: "Quitar React" })).not.toBeInTheDocument();
+  });
+});

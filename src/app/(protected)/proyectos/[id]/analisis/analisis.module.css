@@ -1,36 +1,151 @@
 .breadcrumbSep {
   color: var(--c-muted-3);
 }
+/* Títulos largos no empujan la barra superior: se recortan con "…". */
+.breadcrumbProject {
+  display: inline-block;
+  max-width: 24ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
 .breadcrumbCurrent {
   color: var(--c-ink);
   font-weight: 600;
 }
 
+/* Móvil: título arriba y acciones debajo. */
 .head {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
+  flex-direction: column;
+  gap: 14px;
+}
+.headText {
+  min-width: 0;
+}
+.titleRow {
+  display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
 }
 .h1 {
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 700;
   letter-spacing: -0.3px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 .sub {
   color: var(--c-muted);
   font-size: 14.5px;
   margin-top: 6px;
 }
+.headActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.state {
+  color: var(--c-muted);
+  font-size: 14.5px;
+}
+.stateAction {
+  margin-top: 14px;
+}
+
+/* Avisos en línea: análisis en curso, error de la IA y análisis desactualizado. */
+.notice,
+.errorBox,
+.outdated {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.notice p,
+.errorText,
+.outdated p {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+.notice {
+  background: var(--c-info-soft);
+  color: var(--c-ink);
+}
+.notice > svg {
+  color: var(--c-info);
+}
+.errorBox {
+  background: var(--c-danger-soft);
+  color: var(--c-ink);
+}
+.errorBox > svg {
+  color: var(--c-danger);
+}
+.errorTitle {
+  font-weight: 700;
+}
+.outdated {
+  background: var(--c-amber-soft);
+  color: var(--c-ink);
+}
+.outdated > svg {
+  color: var(--c-amber);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  max-width: 560px;
+  margin-inline: auto;
+}
+.emptyIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--c-red-soft);
+  color: var(--c-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 700;
+}
+.emptyText {
+  font-size: 14px;
+  color: var(--c-ink-3);
+  line-height: 1.6;
+}
+.emptyHint {
+  font-size: 12.5px;
+  color: var(--c-muted);
+}
 
 .banner {
   background: var(--c-red);
   border-radius: var(--r-lg);
-  padding: 22px 24px;
+  padding: 20px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
   color: #fff;
   position: relative;
   overflow: hidden;
@@ -41,6 +156,7 @@
   opacity: 0.1;
   background-image: radial-gradient(#fff 1.4px, transparent 1.5px);
   background-size: 22px 22px;
+  pointer-events: none;
 }
 .bannerIcon {
   position: relative;
@@ -55,7 +171,7 @@
 }
 .bannerText {
   position: relative;
-  flex: 1;
+  flex: 1 1 260px;
   min-width: 0;
 }
 .bannerTitle {
@@ -65,11 +181,15 @@
 .bannerSub {
   font-size: 13.5px;
   color: var(--c-on-red-muted);
-  margin-top: 4px;
+  margin-top: 6px;
+  line-height: 1.55;
 }
-/* .banner .bannerBtn gana en especificidad al display del átomo Button. */
+.bannerMeta {
+  font-size: 12px;
+  color: var(--c-on-red-muted);
+  margin-top: 8px;
+}
 .banner .bannerBtn {
-  display: none;
   position: relative;
   flex-shrink: 0;
 }
@@ -78,18 +198,32 @@
   font-size: 16.5px;
   font-weight: 700;
 }
-
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 18px;
 }
 
+@media (min-width: 640px) {
+  .h1 {
+    font-size: 24px;
+  }
+  .banner {
+    padding: 22px 24px;
+  }
+}
+
 @media (min-width: 768px) {
+  .head {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .headActions {
+    flex-shrink: 0;
+  }
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .banner .bannerBtn {
-    display: inline-flex;
   }
 }

@@ -40,12 +40,14 @@
   font-size: 14.5px;
   margin-top: 6px;
 }
-/* Móvil: los botones se reparten el ancho (uno solo ocupa todo). */
+/* Móvil: los botones se reparten el ancho y bajan de línea si no caben (uno solo ocupa todo). */
 .headActions {
-  display: grid;
-  grid-auto-columns: minmax(0, 1fr);
-  grid-auto-flow: column;
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
+}
+.headActions > * {
+  flex: 1 1 auto;
 }
 
 .state {
@@ -63,8 +65,8 @@
   }
 }
 
-/* md+: acciones a la derecha del título. */
-@media (min-width: 768px) {
+/* xl+: acciones a la derecha del título (con tres botones, antes apretaban el título). */
+@media (min-width: 1280px) {
   .head {
     flex-direction: row;
     align-items: flex-start;
@@ -72,8 +74,10 @@
     gap: 20px;
   }
   .headActions {
-    display: flex;
+    flex-wrap: nowrap;
     flex-shrink: 0;
-    gap: 10px;
+  }
+  .headActions > * {
+    flex: none;
   }
 }

@@ -1,7 +1,5 @@
 export { DynamicTypeFields } from "./DynamicTypeFields/DynamicTypeFields";
-export { RecommendationCard } from "./RecommendationCard/RecommendationCard";
 export { RoleGuard } from "./RoleGuard/RoleGuard";
-export type { CollaboratorRecommendation } from "./RecommendationCard/RecommendationCard";
 export { Sidebar } from "./Sidebar/Sidebar";
 export { TopBar } from "./TopBar/TopBar";
 export {
@@ -29,3 +27,6 @@ export { ProgramModal } from "./ProgramModal/ProgramModal";
 export { ProjectTypeModal } from "./ProjectTypeModal/ProjectTypeModal";
 export { ProjectCategoryModal } from "./ProjectCategoryModal/ProjectCategoryModal";
 export { AdminSkillModal } from "./AdminSkillModal/AdminSkillModal";
+export { RequiredProfileCard } from "./RequiredProfileCard/RequiredProfileCard";
+export { RequiredProfileModal } from "./RequiredProfileModal/RequiredProfileModal";
+export { RecommendationDetailModal } from "./RecommendationDetailModal/RecommendationDetailModal";

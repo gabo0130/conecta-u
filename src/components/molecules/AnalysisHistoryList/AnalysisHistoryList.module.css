@@ -1,0 +1,52 @@
+.title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.state {
+  font-size: 13.5px;
+  color: var(--c-muted);
+}
+.list {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.item {
+  padding: 10px 0;
+  border-top: 1px solid var(--c-line-soft);
+}
+.item:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.date {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.meta {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--c-muted-2);
+  overflow-wrap: anywhere;
+}
+.error {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--c-danger);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  /* El mensaje puede traer la respuesta cruda del proveedor: se recorta y el completo va en el title. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

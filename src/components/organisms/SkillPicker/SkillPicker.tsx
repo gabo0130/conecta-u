@@ -30,6 +30,11 @@ type SkillPickerProps<T extends SkillRef> = {
   disabled?: boolean;
   placeholder?: string;
   size?: ControlSize;
+  /** Solo habilidades ACTIVAS del catálogo y sin "Proponer habilidad" (p. ej. perfiles requeridos:
+   * el backend responde 404 con las pendientes). */
+  catalogOnly?: boolean;
+  /** No pinta los chips de lo elegido: el padre muestra su propia lista (con nivel, importancia…). */
+  hideSelected?: boolean;
 };
 
 export function SkillPicker<T extends SkillRef = Skill>({
@@ -42,6 +47,8 @@ export function SkillPicker<T extends SkillRef = Skill>({
   disabled = false,
   placeholder = "Buscar habilidad…",
   size,
+  catalogOnly = false,
+  hideSelected = false,
 }: SkillPickerProps<T>) {
   const { skills, resultsQuery, failedQuery, isLoading, error: searchError, search, proposeSkill } = useSkillsCatalog();
   const [query, setQuery] = useState("");
@@ -80,7 +87,9 @@ export function SkillPicker<T extends SkillRef = Skill>({
   }, [isOpen]);
 
   const selectedIds = new Set(value.map((skill) => skill.id));
-  const results = skills.filter((skill) => !selectedIds.has(skill.id));
+  const results = skills.filter(
+    (skill) => !selectedIds.has(skill.id) && (!catalogOnly || skill.status === "ACTIVA"),
+  );
   const normalizedQuery = query.trim().toLowerCase();
   // Mientras llega la búsqueda nueva se siguen mostrando los resultados anteriores: si se
   // reemplazaran por "Buscando…", la lista se encogería y crecería con cada tecla.
@@ -184,7 +193,7 @@ export function SkillPicker<T extends SkillRef = Skill>({
           <span className={styles.label}>{label}</span>
         )
       ) : null}
-      {value.length > 0 ? (
+      {value.length > 0 && !hideSelected ? (
         showGroupedChips ? (
           <>
             <span className={styles.chipGroupLabel}>Conocimientos y competencias</span>
@@ -258,7 +267,10 @@ export function SkillPicker<T extends SkillRef = Skill>({
               {isUpToDate && results.length === 0 && exactMatch ? (
                 <div className={styles.hint}>Ya está en la lista.</div>
               ) : null}
-              {isUpToDate && !isLoading && !exactMatch ? (
+              {catalogOnly && isUpToDate && !isLoading && !exactMatch && results.length === 0 ? (
+                <div className={styles.hint}>No hay habilidades del catálogo con ese nombre.</div>
+              ) : null}
+              {!catalogOnly && isUpToDate && !isLoading && !exactMatch ? (
                 <div className={styles.proposePanel}>
                   <p className={styles.proposeHint}>¿No existe todavía? Proponla como nueva habilidad:</p>
                   <div className={styles.proposeControls}>

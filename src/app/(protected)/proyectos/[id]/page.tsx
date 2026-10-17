@@ -2,7 +2,7 @@
 
 import { ReactNode, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft, Pencil, Sparkles, Users } from "lucide-react";
 import type { Project } from "@/apis/interfaces/projects";
 import { AppShell, PageGrid } from "@/components/templates";
 import { Badge, Button, Card } from "@/components/atoms";
@@ -74,6 +74,42 @@ function DetailHeader({ project, subtitle, actions }: DetailHeaderProps) {
   );
 }
 
+/** Acceso al análisis con IA según el estado del proyecto (RF12). El ADMIN solo lo ve si ya existe. */
+function AnalysisAction({ project, readOnly = false }: { project: Project; readOnly?: boolean }) {
+  const router = useRouter();
+  const goToAnalysis = () => router.push(`/proyectos/${project.id}/analisis`);
+
+  if (project.status === "ANALIZADO") {
+    return (
+      <>
+        <Button variant="ghost" leftIcon={<Sparkles />} onClick={goToAnalysis}>
+          Ver análisis
+        </Button>
+        <Button
+          variant={readOnly ? "ghost" : "primary"}
+          leftIcon={<Users />}
+          onClick={() => router.push(`/proyectos/${project.id}/recomendaciones`)}
+        >
+          Ver recomendaciones
+        </Button>
+      </>
+    );
+  }
+  if (readOnly) return null;
+  if (project.status === "EN_ANALISIS") {
+    return (
+      <Button variant="ghost" leftIcon={<Sparkles />} onClick={goToAnalysis}>
+        Analizando…
+      </Button>
+    );
+  }
+  return (
+    <Button leftIcon={<Sparkles />} onClick={goToAnalysis}>
+      Analizar con IA
+    </Button>
+  );
+}
+
 function LeaderProjectDetail({ id }: { id: string }) {
   const router = useRouter();
   const { project, setProject, isLoading, error } = useProjectDetail(id);
@@ -100,9 +136,10 @@ function LeaderProjectDetail({ id }: { id: string }) {
                   <Button variant="ghost" leftIcon={<ArrowLeft />} onClick={() => router.push("/proyectos")}>
                     Volver
                   </Button>
-                  <Button leftIcon={<Pencil />} onClick={() => setIsEditing(true)}>
+                  <Button variant="ghost" leftIcon={<Pencil />} onClick={() => setIsEditing(true)}>
                     Editar proyecto
                   </Button>
+                  <AnalysisAction project={project} />
                 </>
               ) : undefined
             }
@@ -151,9 +188,12 @@ function AdminProjectDetail({ id }: { id: string }) {
             project={project}
             subtitle={`Liderado por ${leaderName} · registrado el ${formatDate(project.createdAt)}`}
             actions={
-              <Button variant="ghost" leftIcon={<ArrowLeft />} onClick={() => router.push("/proyectos")}>
-                Volver
-              </Button>
+              <>
+                <Button variant="ghost" leftIcon={<ArrowLeft />} onClick={() => router.push("/proyectos")}>
+                  Volver
+                </Button>
+                <AnalysisAction project={project} readOnly />
+              </>
             }
           />
         }

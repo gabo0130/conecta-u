@@ -21,6 +21,9 @@
   flex-direction: column;
   gap: 18px;
 }
+.wide {
+  max-width: 640px;
+}
 .title {
   font-size: 18px;
   font-weight: 700;

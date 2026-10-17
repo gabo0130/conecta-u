@@ -24,3 +24,13 @@
   color: var(--c-muted);
   white-space: nowrap;
 }
+
+/* Dentro de una tarjeta con padding propio (columna lateral): sin padding horizontal extra. */
+.compact {
+  padding: 12px 0 0;
+  margin-top: 4px;
+  border-top-color: var(--c-line-soft);
+}
+.compact .controls {
+  gap: 6px;
+}

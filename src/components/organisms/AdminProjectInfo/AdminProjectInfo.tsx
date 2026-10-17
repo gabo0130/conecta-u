@@ -61,9 +61,13 @@ export function AdminProjectInfo({ project }: AdminProjectInfoProps) {
         </div>
 
         <div className={styles.field}>
-          <dt>Colaboradores asociados</dt>
-          <dd className={styles.muted}>
-            Ninguno todavía. Se asocian desde las recomendaciones del análisis con IA (Iteración 2).
+          <dt>Personas recomendadas</dt>
+          <dd>
+            {project.status === "ANALIZADO" ? (
+              <Link href={`/proyectos/${project.id}/recomendaciones`}>Ver recomendaciones</Link>
+            ) : (
+              <span className={styles.muted}>Disponibles cuando el proyecto tenga un análisis con IA.</span>
+            )}
           </dd>
         </div>
 

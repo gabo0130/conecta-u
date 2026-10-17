@@ -1,0 +1,137 @@
+.card {
+  height: 100%;
+}
+.article {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px 14px;
+  align-items: start;
+}
+.rank {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--c-red-soft);
+  color: var(--c-red-ink);
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.nameRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+.name {
+  font-weight: 700;
+  font-size: 15.5px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.personType {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-ink-3);
+}
+.meta {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 12.5px;
+  color: var(--c-muted-2);
+}
+.meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+.skills {
+  font-size: 12.5px;
+  color: var(--c-ink-3);
+}
+
+/* En móvil el puntaje ocupa toda la fila bajo los datos; desde md va a la derecha. */
+.aside {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+.scoreBox {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+.score {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+.scoreUnit {
+  font-size: 12px;
+  color: var(--c-muted-2);
+}
+.bar {
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--c-line-soft);
+  overflow: hidden;
+}
+.fill {
+  display: block;
+  height: 100%;
+  width: var(--bar-width);
+  border-radius: inherit;
+}
+.score.high {
+  color: var(--c-green);
+}
+.score.medium {
+  color: var(--c-amber);
+}
+.score.low {
+  color: var(--c-ink-3);
+}
+.fill.high {
+  background: var(--c-green);
+}
+.fill.medium {
+  background: var(--c-amber);
+}
+.fill.low {
+  background: var(--c-muted-2);
+}
+
+@media (min-width: 768px) {
+  .article {
+    grid-template-columns: auto minmax(0, 1fr) 220px;
+  }
+  .aside {
+    grid-column: auto;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-self: center;
+  }
+  .aside > :last-child {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}

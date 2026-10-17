@@ -11,13 +11,16 @@ const FOCUSABLE = 'input:not([disabled]), select:not([disabled]), textarea:not([
 type ModalProps = {
   title: string;
   onClose: () => void;
-  onSubmit: () => void;
+  /** Sin `onSubmit` el diálogo es de solo lectura: el pie muestra únicamente "Cerrar". */
+  onSubmit?: () => void;
   submitLabel?: string;
   isSubmitting?: boolean;
   error?: string;
   dangerAction?: { label: string; onClick: () => void };
   /** Tamaño de todos los campos y botones del diálogo. */
   size?: ControlSize;
+  /** `wide` (640 px) para formularios con filas de varios campos; por defecto 480 px. */
+  width?: "narrow" | "wide";
   children: ReactNode;
 };
 
@@ -30,6 +33,7 @@ export function Modal({
   error,
   dangerAction,
   size,
+  width = "narrow",
   children,
 }: ModalProps) {
   const titleId = useId();
@@ -76,6 +80,10 @@ export function Modal({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!onSubmit) {
+      onClose();
+      return;
+    }
     if (!isSubmitting) onSubmit();
   };
 
@@ -87,7 +95,7 @@ export function Modal({
         ref={dialogRef}
         noValidate
         tabIndex={-1}
-        className={styles.dialog}
+        className={[styles.dialog, width === "wide" && styles.wide].filter(Boolean).join(" ")}
         data-size={size}
         role="dialog"
         aria-modal="true"
@@ -108,12 +116,18 @@ export function Modal({
               {dangerAction.label}
             </Button>
           ) : null}
-          <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Guardando…" : submitLabel}
-          </Button>
+          {onSubmit ? (
+            <>
+              <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Guardando…" : submitLabel}
+              </Button>
+            </>
+          ) : (
+            <Button type="submit">Cerrar</Button>
+          )}
         </div>
       </form>
     </div>
