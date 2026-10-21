@@ -13,6 +13,11 @@ type ModalProps = {
   onClose: () => void;
   /** Sin `onSubmit` el diálogo es de solo lectura: el pie muestra únicamente "Cerrar". */
   onSubmit?: () => void;
+  /**
+   * Modo vista: el mismo formulario con todos sus campos deshabilitados (un `fieldset disabled`),
+   * sin guardar ni acciones peligrosas. Sirve para ver el detalle completo sin riesgo de editar.
+   */
+  readOnly?: boolean;
   submitLabel?: string;
   isSubmitting?: boolean;
   error?: string;
@@ -27,7 +32,8 @@ type ModalProps = {
 export function Modal({
   title,
   onClose,
-  onSubmit,
+  onSubmit: submitHandler,
+  readOnly = false,
   submitLabel = "Guardar",
   isSubmitting = false,
   error,
@@ -37,6 +43,7 @@ export function Modal({
   children,
 }: ModalProps) {
   const titleId = useId();
+  const onSubmit = readOnly ? undefined : submitHandler;
   const dialogRef = useRef<HTMLFormElement>(null);
   // Mientras se guarda no se puede cerrar: la petición seguiría y su notificación aparecería sin el formulario.
   const requestClose = useRef(onClose);
@@ -108,10 +115,16 @@ export function Modal({
         <h3 id={titleId} className={styles.title}>
           {title}
         </h3>
-        <div className={styles.body}>{children}</div>
+        {readOnly ? (
+          <fieldset disabled className={[styles.body, styles.readOnly].join(" ")}>
+            {children}
+          </fieldset>
+        ) : (
+          <div className={styles.body}>{children}</div>
+        )}
         {error ? <FormError>{error}</FormError> : null}
         <div className={styles.footer}>
-          {dangerAction ? (
+          {dangerAction && !readOnly ? (
             <Button variant="link" className={styles.danger} onClick={dangerAction.onClick} disabled={isSubmitting}>
               {dangerAction.label}
             </Button>

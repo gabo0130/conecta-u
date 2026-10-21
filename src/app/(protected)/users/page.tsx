@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { AppShell, PageGrid } from "@/components/templates";
-import { Badge, Button, Card, IconButton } from "@/components/atoms";
-import { LoadingState, Pagination, SortableHeader, TableStatus } from "@/components/molecules";
+import { Badge, Button, Card } from "@/components/atoms";
+import { LoadingState, Pagination, RowActions, SortableHeader, TableStatus } from "@/components/molecules";
 import { RoleGuard, UserModal } from "@/components/organisms";
 import { useAuth } from "@/contexts/auth-context";
 import { useUsers } from "@/modules/admin/hooks/useUsers/useUsers";
@@ -28,7 +28,7 @@ const PAGE_SIZE = 20;
 function UsersList() {
   const { user } = useAuth();
   const { users, createUser, updateUser, deleteUser, ...server } = useUsers();
-  const [modal, setModal] = useState<{ user?: AdminUser } | null>(null);
+  const [modal, setModal] = useState<{ user?: AdminUser; readOnly?: boolean } | null>(null);
   const editing = modal?.user;
   // Ordenar solo la página cargada engañaría: con un orden activo se ordenan todas las cuentas.
   const table = usePagedTable({
@@ -84,7 +84,7 @@ function UsersList() {
               </thead>
               <tbody>
                 {table.rows.map((row) => (
-                  <tr key={row.id} onClick={() => setModal({ user: row })} className={styles.row}>
+                  <tr key={row.id} onClick={() => setModal({ user: row, readOnly: true })} className={styles.row}>
                     <td>{row.fullName}</td>
                     <td>{row.email}</td>
                     <td>{ROLE_LABEL[row.role]}</td>
@@ -94,18 +94,12 @@ function UsersList() {
                       </Badge>
                     </td>
                     <td className={styles.editCol}>
-                      {/* Botón real: la fila clicable solo sirve con mouse; así también funciona con teclado. */}
-                      <IconButton
-                        variant="plain"
-                        size="sm"
-                        icon={<Pencil />}
-                        label={`Editar a ${row.fullName}`}
-                        tooltip="Editar cuenta, rol o estado"
-                        tooltipAlign="end"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setModal({ user: row });
-                        }}
+                      {/* Botones reales: la fila clicable (abre la vista) solo sirve con mouse. */}
+                      <RowActions
+                        name={row.fullName}
+                        editTooltip="Editar cuenta, rol o estado"
+                        onView={() => setModal({ user: row, readOnly: true })}
+                        onEdit={() => setModal({ user: row })}
                       />
                     </td>
                   </tr>
@@ -123,6 +117,7 @@ function UsersList() {
       {modal ? (
         <UserModal
           user={editing}
+          readOnly={modal?.readOnly}
           onCreate={withRefresh(createUser)}
           onUpdate={withRefresh((payload) => updateUser(editing!.id, payload))}
           // El backend no deja que el ADMIN borre su propia cuenta: no se ofrece la acción.

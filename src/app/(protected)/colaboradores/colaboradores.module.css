@@ -112,6 +112,15 @@
 
 @media (min-width: 1024px) {
   .filters {
-    grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr));
   }
+}
+
+/* A7 (v2.1): las habilidades se nombran, no solo se cuentan. */
+.skillNames {
+  display: block;
+  max-width: 260px;
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }

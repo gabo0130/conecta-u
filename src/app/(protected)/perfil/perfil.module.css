@@ -130,3 +130,27 @@
   font-weight: 500;
   opacity: 0.75;
 }
+
+/* v2.1: aviso a quien le faltan documento o teléfono (personas anteriores a v2.1). */
+.identityNotice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: var(--c-amber-soft);
+  color: var(--c-ink);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.identityNotice > svg {
+  color: var(--c-amber);
+  flex-shrink: 0;
+}
+.identityNotice p {
+  flex: 1 1 240px;
+  min-width: 0;
+  margin: 0;
+}

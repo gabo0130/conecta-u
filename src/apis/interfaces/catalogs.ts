@@ -83,14 +83,19 @@ export interface AdminSkillsResponse {
   meta: PageMeta;
 }
 
-export type TemplateFieldKind = "text" | "textarea" | "number" | "date" | "select";
+/** `tags` (lista de palabras clave) y `currency` (valor en pesos) llegan con v2.1 (A6). */
+export type TemplateFieldKind = "text" | "textarea" | "number" | "date" | "select" | "tags" | "currency";
 
 export interface TemplateField {
   key: string;
   label: string;
   kind: TemplateFieldKind;
   required: boolean;
+  /** Solo `select`. */
   options?: string[];
+  /** Solo `tags`: cuántas palabras clave se piden. */
+  minItems?: number;
+  maxItems?: number;
 }
 
 export interface ProjectType {

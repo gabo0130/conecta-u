@@ -23,9 +23,11 @@ type ExperienceModalProps = {
   onSubmit: SubmitFn<ExperiencePayload>;
   onDelete?: () => Promise<unknown>;
   onClose: () => void;
+  /** Modo vista: el mismo formulario con todo deshabilitado. */
+  readOnly?: boolean;
 };
 
-export function ExperienceModal({ experience, onSubmit, onDelete, onClose }: ExperienceModalProps) {
+export function ExperienceModal({ experience, onSubmit, onDelete, onClose, readOnly = false }: ExperienceModalProps) {
   const [type, setType] = useState<ExperienceType>(experience?.type ?? "LABORAL");
   const [role, setRole] = useState(experience?.role ?? "");
   const [organization, setOrganization] = useState(experience?.organization ?? "");
@@ -69,7 +71,8 @@ export function ExperienceModal({ experience, onSubmit, onDelete, onClose }: Exp
 
   return (
     <Modal
-      title={experience ? "Editar experiencia" : "Agregar experiencia"}
+      readOnly={readOnly}
+      title={readOnly ? "Detalle de la experiencia" : experience ? "Editar experiencia" : "Agregar experiencia"}
       onClose={onClose}
       isSubmitting={isSubmitting}
       error={error}

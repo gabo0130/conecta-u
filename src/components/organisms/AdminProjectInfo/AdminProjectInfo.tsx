@@ -71,6 +71,11 @@ export function AdminProjectInfo({ project }: AdminProjectInfoProps) {
         </div>
 
         <div className={styles.field}>
+          <dt>Registrado por</dt>
+          <dd>{registeredBy(project)}</dd>
+        </div>
+
+        <div className={styles.field}>
           <dt>Registrado · actualizado</dt>
           <dd>
             {formatDate(project.createdAt)} · {formatDate(project.updatedAt)}
@@ -79,4 +84,10 @@ export function AdminProjectInfo({ project }: AdminProjectInfoProps) {
       </dl>
     </Card>
   );
+}
+
+/** v2.1 (A5): el líder o el ADMIN a su nombre; los proyectos anteriores no lo guardaban. */
+function registeredBy(project: AdminProject) {
+  if (!project.createdById) return "Sin registro (anterior a v2.1)";
+  return project.createdById === project.leaderId ? "El líder del proyecto" : "Administración, a nombre del líder";
 }

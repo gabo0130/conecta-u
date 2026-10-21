@@ -6,7 +6,8 @@ import type { Deliverable, Project, ProjectPayload } from "@/apis/interfaces/pro
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
 import { useProjectCategoriesCatalog } from "@/modules/catalogs/hooks/useProjectCategoriesCatalog/useProjectCategoriesCatalog";
 import { useProjectTypesCatalog } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
-import { missingRequiredFields, pickTemplateData } from "@/modules/projects/utils/type-data";
+import { missingRequiredFields,
+  tagsCountError, pickTemplateData } from "@/modules/projects/utils/type-data";
 import { DeliverablesEditor } from "../../molecules/DeliverablesEditor/DeliverablesEditor";
 import { Button, Card, FormError, FormRow, Input, Select, Textarea } from "../../atoms";
 import type { ControlSize } from "../../atoms";
@@ -77,6 +78,11 @@ export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel
       setValidation(
         `Completa los campos obligatorios de ${selectedType.name}: ${missing.map((field) => field.label).join(", ")}.`,
       );
+      return;
+    }
+    const tagsError = tagsCountError(selectedType.templateFields, typeData);
+    if (tagsError) {
+      setValidation(tagsError);
       return;
     }
     const cleanDeliverables = deliverables

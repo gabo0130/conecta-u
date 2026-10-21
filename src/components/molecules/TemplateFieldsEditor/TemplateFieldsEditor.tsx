@@ -12,7 +12,24 @@ const KIND_OPTIONS: { value: TemplateFieldKind; label: string }[] = [
   { value: "number", label: "Número" },
   { value: "date", label: "Fecha" },
   { value: "select", label: "Lista de opciones" },
+  // v2.1 (A6)
+  { value: "tags", label: "Palabras clave" },
+  { value: "currency", label: "Valor en pesos" },
 ];
+
+/** Al cambiar de tipo se quitan los ajustes que solo aplican al anterior (el backend los rechaza). */
+function withKind(field: TemplateField, kind: TemplateFieldKind): TemplateField {
+  const { options, minItems, maxItems, ...base } = field;
+  return {
+    ...base,
+    kind,
+    ...(kind === "select" ? { options: options ?? [] } : {}),
+    ...(kind === "tags" ? { minItems: minItems ?? 3, maxItems: maxItems ?? 5 } : {}),
+  };
+}
+
+/** Número de un campo de límites: vacío deja el límite sin definir. */
+const limitOf = (text: string) => (text.trim() === "" ? undefined : Number(text));
 
 const EMPTY_FIELD: TemplateField = { key: "", label: "", kind: "text", required: false };
 
@@ -57,7 +74,7 @@ export function TemplateFieldsEditor({ value, onChange, size }: TemplateFieldsEd
               aria-label={`Tipo del campo ${index + 1}`}
               options={KIND_OPTIONS}
               value={row.kind}
-              onValueChange={(kind) => updateRow(index, { kind })}
+              onValueChange={(kind) => onChange(value.map((field, i) => (i === index ? withKind(field, kind) : field)))}
             />
             <IconButton
               tone="danger"
@@ -86,6 +103,28 @@ export function TemplateFieldsEditor({ value, onChange, size }: TemplateFieldsEd
                   })
                 }
               />
+            ) : null}
+            {row.kind === "tags" ? (
+              <div className={styles.limits}>
+                <Input
+                  type="number"
+                  min={1}
+                  max={20}
+                  label="Mínimo"
+                  aria-label={`Mínimo de palabras clave del campo ${index + 1}`}
+                  value={row.minItems ?? ""}
+                  onChange={(event) => updateRow(index, { minItems: limitOf(event.target.value) })}
+                />
+                <Input
+                  type="number"
+                  min={1}
+                  max={20}
+                  label="Máximo"
+                  aria-label={`Máximo de palabras clave del campo ${index + 1}`}
+                  value={row.maxItems ?? ""}
+                  onChange={(event) => updateRow(index, { maxItems: limitOf(event.target.value) })}
+                />
+              </div>
             ) : null}
           </div>
         </div>

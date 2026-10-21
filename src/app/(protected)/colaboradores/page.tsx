@@ -23,6 +23,7 @@ import {
   ROLE_LABEL,
   SOURCE_LABEL,
 } from "@/modules/collaborator/utils/collaborator-view";
+import { formatDocument, normalizeDocumentNumber } from "@/modules/collaborator/utils/identification";
 import styles from "./colaboradores.module.css";
 
 type AccountFilter = "ALL" | "WITH_USER" | "WITHOUT_USER";
@@ -42,6 +43,16 @@ const AVAILABILITY_FILTER_OPTIONS: SelectOption<AvailabilityStatus | "ALL">[] = 
   { value: "ALL", label: "Toda disponibilidad" },
   ...AVAILABILITY_OPTIONS,
 ];
+
+type IdentityFilter = "ALL" | "INCOMPLETE";
+
+const IDENTITY_OPTIONS: SelectOption<IdentityFilter>[] = [
+  { value: "ALL", label: "Toda identificación" },
+  { value: "INCOMPLETE", label: "Datos incompletos" },
+];
+
+/** A7 (v2.1): cuántas habilidades se nombran en la fila antes de resumir el resto. */
+const VISIBLE_SKILLS = 3;
 
 type CollaboratorSortKey = "person" | "program" | "account" | "availability" | "skills" | "source";
 
@@ -68,9 +79,14 @@ function matches(
   account: AccountFilter,
   source: CollaboratorSource | "ALL",
   availability: AvailabilityStatus | "ALL",
+  identity: IdentityFilter,
 ) {
   const text = `${collaborator.firstName} ${collaborator.lastName} ${collaborator.email}`.toLowerCase();
-  if (query && !text.includes(query)) return false;
+  // El documento se busca normalizado: "1.090.123" encuentra "1090123456".
+  const document = normalizeDocumentNumber(query);
+  const byDocument = Boolean(document) && (collaborator.documentNumber ?? "").includes(document);
+  if (query && !text.includes(query) && !byDocument) return false;
+  if (identity === "INCOMPLETE" && collaborator.identificationComplete) return false;
   if (account === "WITH_USER" && !collaborator.user) return false;
   if (account === "WITHOUT_USER" && collaborator.user) return false;
   if (source !== "ALL" && collaborator.source !== source) return false;
@@ -87,10 +103,12 @@ function CollaboratorsList() {
   const [account, setAccount] = useState<AccountFilter>("ALL");
   const [source, setSource] = useState<CollaboratorSource | "ALL">("ALL");
   const [availability, setAvailability] = useState<AvailabilityStatus | "ALL">("ALL");
+  const [identity, setIdentity] = useState<IdentityFilter>("ALL");
 
   const programNameById = Object.fromEntries(programs.map((program) => [program.id, program.name]));
   const normalized = query.trim().toLowerCase();
-  const hasActiveFilter = Boolean(normalized) || account !== "ALL" || source !== "ALL" || availability !== "ALL";
+  const hasActiveFilter =
+    Boolean(normalized) || account !== "ALL" || source !== "ALL" || availability !== "ALL" || identity !== "ALL";
   // Con búsqueda, filtros u orden se revisan todas las personas (todas las páginas), no solo la cargada.
   const table = usePagedTable({
     server: { ...server, items: collaborators },
@@ -99,8 +117,8 @@ function CollaboratorsList() {
     errorMessage: "No se pudieron buscar los colaboradores.",
     accessors: collaboratorSort(programNameById),
     pageSize: PAGE_SIZE,
-    filter: (collaborator) => matches(collaborator, normalized, account, source, availability),
-    filterKey: hasActiveFilter ? [normalized, account, source, availability].join("|") : "",
+    filter: (collaborator) => matches(collaborator, normalized, account, source, availability, identity),
+    filterKey: hasActiveFilter ? [normalized, account, source, availability, identity].join("|") : "",
   });
   const { sort, toggleSort } = table;
   const showTable = !table.isLoading && (table.rows.length > 0 || table.isSorted);
@@ -127,7 +145,7 @@ function CollaboratorsList() {
           <div className={styles.filters}>
             <Input
               label="Buscar"
-              placeholder="Nombre o correo"
+              placeholder="Nombre, correo o documento"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
@@ -144,6 +162,7 @@ function CollaboratorsList() {
               value={availability}
               onValueChange={setAvailability}
             />
+            <Select label="Identificación" options={IDENTITY_OPTIONS} value={identity} onValueChange={setIdentity} />
           </div>
         </Card>
 
@@ -184,14 +203,7 @@ function CollaboratorsList() {
                     />
                     <SortableHeader label="Cuenta" sortKey="account" sort={sort} onSort={toggleSort} />
                     <SortableHeader label="Disponibilidad" sortKey="availability" sort={sort} onSort={toggleSort} />
-                    <SortableHeader
-                      label="Habilidades"
-                      sortKey="skills"
-                      sort={sort}
-                      onSort={toggleSort}
-                      className={styles.num}
-                      align="end"
-                    />
+                    <SortableHeader label="Habilidades" sortKey="skills" sort={sort} onSort={toggleSort} />
                     <SortableHeader label="Origen" sortKey="source" sort={sort} onSort={toggleSort} />
                     <th aria-label="Acciones" />
                   </tr>
@@ -206,6 +218,8 @@ function CollaboratorsList() {
                             {collaborator.firstName} {collaborator.lastName}
                           </span>
                           <span className={styles.muted}>{collaborator.email}</span>
+                          <span className={styles.muted}>{formatDocument(collaborator)}</span>
+                          {!collaborator.identificationComplete ? <Badge tone="amber">Datos incompletos</Badge> : null}
                         </td>
                         <td>
                           <span>{isLoadingPrograms ? <Spinner size="sm" label="Cargando programa" /> : (programNameById[collaborator.programId] ?? "—")}</span>
@@ -224,7 +238,21 @@ function CollaboratorsList() {
                           <Badge tone={view.tone}>{view.label}</Badge>
                           <span className={styles.muted}>{collaborator.weeklyHours} h/semana</span>
                         </td>
-                        <td className={styles.num}>{collaborator.skillsCount}</td>
+                        <td>
+                          {collaborator.skills.length === 0 ? (
+                            <span className={styles.muted}>Sin habilidades</span>
+                          ) : (
+                            <span className={styles.skillNames}>
+                              {collaborator.skills
+                                .slice(0, VISIBLE_SKILLS)
+                                .map((skill) => skill.name)
+                                .join(", ")}
+                              {collaborator.skills.length > VISIBLE_SKILLS
+                                ? ` y ${collaborator.skills.length - VISIBLE_SKILLS} más`
+                                : ""}
+                            </span>
+                          )}
+                        </td>
                         <td className={styles.muted}>{SOURCE_LABEL[collaborator.source]}</td>
                         <td className={styles.action}>
                           <IconButton

@@ -78,3 +78,13 @@
 .messageError {
   color: var(--c-danger);
 }
+
+/* Deshabilitado: mismo aspecto que Select (fondo gris y cursor), también dentro de un fieldset. */
+.control:has(.input:disabled) {
+  background: var(--c-bg);
+  cursor: not-allowed;
+}
+.input:disabled {
+  cursor: not-allowed;
+  color: var(--c-muted);
+}
