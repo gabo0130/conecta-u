@@ -1,16 +1,17 @@
 "use client";
 
-import { Pencil } from "lucide-react";
+import { AlertTriangle, Pencil } from "lucide-react";
 import { useState } from "react";
 import type { Collaborator, CollaboratorSkill, Experience } from "@/apis/interfaces/collaborator";
 import { AppShell } from "@/components/templates";
 import { Badge, Button, Card, Chip, UserAvatar } from "@/components/atoms";
-import { ExperienceItem, LoadingState } from "@/components/molecules";
+import { ExperienceItem, IdentificationSummary, LoadingState } from "@/components/molecules";
 import {
   AvailabilityModal,
   CreateProfileModal,
   EditProfileModal,
   ExperienceModal,
+  IdentificationModal,
   SkillModal,
 } from "@/components/organisms";
 import { SKILL_TYPE_LABEL, SKILL_TYPE_TONE, groupBySoftSkill } from "@/components/organisms/SkillPicker/skill-type";
@@ -33,8 +34,9 @@ type ModalState =
   | { kind: "profile" }
   | { kind: "availability" }
   | { kind: "skill"; skill?: CollaboratorSkill }
-  | { kind: "experience"; experience?: Experience }
+  | { kind: "experience"; experience?: Experience; readOnly?: boolean }
   | { kind: "create" }
+  | { kind: "identification" }
   | null;
 
 function getCompleteness(collaborator: Collaborator) {
@@ -175,6 +177,19 @@ export default function PerfilPage() {
         </Button>
       </Card>
 
+      {!collaborator.identificationComplete ? (
+        <div className={styles.identityNotice} role="status">
+          <AlertTriangle size={18} aria-hidden />
+          <p>
+            <strong>Completa tu documento y teléfono.</strong> Desde la versión 2.1 son obligatorios para
+            identificarte en la plataforma.
+          </p>
+          <Button size="sm" onClick={() => setModal({ kind: "identification" })}>
+            Completar ahora
+          </Button>
+        </div>
+      ) : null}
+
       <div className={styles.grid}>
         <div className={styles.col}>
           <Card padding={22}>
@@ -220,6 +235,7 @@ export default function PerfilPage() {
                   <ExperienceItem
                     key={experience.id}
                     experience={{ title: experience.role, meta: getExperienceMeta(experience) }}
+                    onView={() => setModal({ kind: "experience", experience, readOnly: true })}
                     onEdit={() => setModal({ kind: "experience", experience })}
                     onDelete={() => void handleDeleteExperience(experience)}
                   />
@@ -230,6 +246,12 @@ export default function PerfilPage() {
         </div>
 
         <div className={styles.col}>
+          <IdentificationSummary
+            person={collaborator}
+            onEdit={() => setModal({ kind: "identification" })}
+            incompleteMessage="Completa tu documento y teléfono."
+          />
+
           <Card padding={22}>
             <div className={styles.cardHead}>
               <h3 className={styles.cardTitle}>Disponibilidad</h3>
@@ -271,6 +293,17 @@ export default function PerfilPage() {
       {modal?.kind === "profile" ? (
         <EditProfileModal collaborator={collaborator} onSubmit={updateProfile} onClose={closeModal} />
       ) : null}
+      {modal?.kind === "identification" ? (
+        <IdentificationModal
+          person={collaborator}
+          email={collaborator.email}
+          // Puede registrar su documento si aún no lo tiene; cambiarlo es del administrador.
+          canChangeDocument={!collaborator.documentNumber}
+          onSubmit={updateProfile}
+          onClose={closeModal}
+          successMessage="Tus datos de identificación y contacto se guardaron."
+        />
+      ) : null}
       {modal?.kind === "availability" ? (
         <AvailabilityModal collaborator={collaborator} onSubmit={updateAvailability} onClose={closeModal} />
       ) : null}
@@ -285,6 +318,7 @@ export default function PerfilPage() {
       {modal?.kind === "experience" ? (
         <ExperienceModal
           experience={modal.experience}
+          readOnly={modal.readOnly}
           onSubmit={(payload) =>
             modal.experience ? updateExperience(modal.experience.id, payload) : addExperience(payload)
           }

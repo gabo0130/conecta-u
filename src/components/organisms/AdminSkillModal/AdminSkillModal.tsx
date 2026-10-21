@@ -12,9 +12,11 @@ type AdminSkillModalProps = {
   onCreate: (payload: AdminCreateSkillPayload) => Promise<unknown>;
   onUpdate: (payload: UpdateSkillPayload) => Promise<unknown>;
   onClose: () => void;
+  /** Modo vista: el mismo formulario con todo deshabilitado. */
+  readOnly?: boolean;
 };
 
-export function AdminSkillModal({ skill, onCreate, onUpdate, onClose }: AdminSkillModalProps) {
+export function AdminSkillModal({ skill, onCreate, onUpdate, onClose, readOnly = false }: AdminSkillModalProps) {
   const [name, setName] = useState(skill?.name ?? "");
   const [type, setType] = useState<SkillType>(skill?.type ?? "CONOCIMIENTO");
   const [category, setCategory] = useState<SkillCategory>(skill?.category ?? "OTRA");
@@ -53,7 +55,8 @@ export function AdminSkillModal({ skill, onCreate, onUpdate, onClose }: AdminSki
 
   return (
     <Modal
-      title={skill ? "Editar habilidad" : "Agregar habilidad"}
+      readOnly={readOnly}
+      title={readOnly ? "Detalle de la habilidad" : skill ? "Editar habilidad" : "Agregar habilidad"}
       onClose={onClose}
       isSubmitting={isSubmitting}
       error={error}

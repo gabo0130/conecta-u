@@ -68,3 +68,9 @@
     flex-shrink: 0;
   }
 }
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}

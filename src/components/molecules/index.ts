@@ -14,3 +14,7 @@ export { AnalysisHistoryList } from "./AnalysisHistoryList/AnalysisHistoryList";
 export { RecommendationCard } from "./RecommendationCard/RecommendationCard";
 export { SortableHeader } from "./SortableHeader/SortableHeader";
 export { TableStatus } from "./TableStatus/TableStatus";
+export { IdentificationFields } from "./IdentificationFields/IdentificationFields";
+export { IdentificationSummary } from "./IdentificationSummary/IdentificationSummary";
+export { TagsInput } from "./TagsInput/TagsInput";
+export { RowActions } from "./RowActions/RowActions";

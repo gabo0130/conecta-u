@@ -8,6 +8,7 @@ import { useProjectCategoriesCatalog } from "@/modules/catalogs/hooks/useProject
 import { useProjectTypesCatalog } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
 import { Card, Chip, Spinner } from "../../atoms";
 import { SKILL_TYPE_TONE, groupBySoftSkill } from "../SkillPicker/skill-type";
+import { formatCOP } from "@/modules/projects/utils/type-data";
 import { formatDate } from "@/utils/dates";
 import styles from "./ProjectView.module.css";
 
@@ -21,6 +22,8 @@ const EMPTY = "Sin definir";
 
 function formatTypeValue(field: TemplateField | undefined, value: unknown) {
   if (value === undefined || value === null || value === "") return EMPTY;
+  if (Array.isArray(value)) return value.length > 0 ? value.join(" · ") : EMPTY;
+  if (field?.kind === "currency" && typeof value === "number") return formatCOP(value);
   if (field?.kind === "date" && typeof value === "string") {
     return formatDate(value, { day: "numeric", month: "long", year: "numeric" });
   }

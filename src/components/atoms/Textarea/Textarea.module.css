@@ -42,3 +42,9 @@
 .messageError {
   color: var(--c-danger);
 }
+
+.textarea:disabled {
+  cursor: not-allowed;
+  color: var(--c-muted);
+  background: var(--c-bg);
+}

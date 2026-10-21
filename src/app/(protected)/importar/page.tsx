@@ -24,17 +24,17 @@ const SHEETS = [
   {
     name: "Colaboradores",
     fields:
-      'correo, nombres, apellidos, tipo_persona (Estudiante, Docente), programa (nombre exacto del catálogo), disponibilidad (Disponible, Parcial, No disponible), horas_semana y autoriza_datos ("Sí").',
+      'correo, nombres, apellidos, tipo_documento (CC, TI, CE, PPT, PA), numero_documento (único, sin puntos), telefono, nacionalidad, tipo_persona (Estudiante, Docente), programa (nombre exacto del catálogo), disponibilidad (Disponible, Parcial, No disponible), horas_semana y autoriza_datos ("Sí"). Opcionales: correo_alterno y codigo.',
   },
   {
     name: "Habilidades",
     fields:
-      "correo, habilidad (nombre o sinónimo del catálogo), tipo (Conocimiento, Competencia, Habilidad blanda), nivel (Básico, Intermedio, Avanzado, Experto) y meses_experiencia.",
+      "numero_documento (o correo), habilidad (nombre o sinónimo del catálogo), tipo (Conocimiento, Competencia, Habilidad blanda), nivel (Básico, Intermedio, Avanzado, Experto) y meses_experiencia.",
   },
   {
     name: "Experiencia",
     fields:
-      "correo, tipo (Laboral, Práctica, Proyecto académico, Semillero de investigación, Proyecto personal, Voluntariado, Docencia), rol, organización, fecha_inicio (AAAA-MM-DD), actual (Sí/No), horas_semana y nivel.",
+      "numero_documento (o correo), tipo (Laboral, Práctica, Proyecto académico, Semillero de investigación, Proyecto personal, Voluntariado, Docencia), rol, organización, fecha_inicio (AAAA-MM-DD), actual (Sí/No), horas_semana y nivel.",
   },
 ];
 
@@ -43,8 +43,10 @@ function ImportGuide() {
     <Card padding={20}>
       <h2 className={styles.guideTitle}>Cómo llenar la plantilla</h2>
       <p className={styles.guideText}>
-        La columna <b>correo</b> une las tres hojas. Los desplegables de las columnas de la plantilla ya solo dejan
-        elegir un valor válido; estos son los campos obligatorios de cada hoja:
+        El <b>número de documento</b> identifica a cada persona: no puede repetirse en el archivo ni existir ya en la
+        plataforma, y une las tres hojas (si una fila de Habilidades o Experiencia no lo trae, se usa el{" "}
+        <b>correo</b>). Descarga la plantilla nueva: la anterior no tiene las columnas de identificación. Los
+        desplegables ya solo dejan elegir un valor válido; estos son los campos obligatorios de cada hoja:
       </p>
       <dl className={styles.sheets}>
         {SHEETS.map((sheet) => (

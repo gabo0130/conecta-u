@@ -12,9 +12,18 @@ import {
   PERSON_TYPE_OPTIONS,
   REGISTERABLE_ROLE_OPTIONS,
 } from "@/modules/collaborator/utils/collaborator-view";
+import {
+  type IdentificationErrors,
+  type IdentificationForm,
+  hasErrors,
+  toIdentificationForm,
+  toIdentificationPayload,
+  validateIdentification,
+} from "@/modules/collaborator/utils/identification";
 import { notify } from "@/utils/notify";
 import { Button, Checkbox, FormError, FormRow, Input, Select } from "../../atoms";
 import type { ControlSize } from "../../atoms";
+import { IdentificationFields } from "../../molecules";
 import styles from "./RegisterForm.module.css";
 
 type RegisterFormProps = {
@@ -22,18 +31,20 @@ type RegisterFormProps = {
   size?: ControlSize;
 };
 
+/** RF1 + v2.1: toda cuenta (líder o colaborador) queda vinculada a una persona identificada. */
 export function RegisterForm({ size }: RegisterFormProps) {
   const router = useRouter();
   const { createUser, isLoading } = useCreateUser();
   const { programs, isLoading: isLoadingPrograms, error: programsError } = useProgramsCatalog();
 
-  const [fullName, setFullName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<RegisterRole>("COLABORADOR");
   const [personType, setPersonType] = useState<PersonType>("ESTUDIANTE");
   const [programId, setProgramId] = useState("");
+  const [identification, setIdentification] = useState<IdentificationForm>(() => toIdentificationForm());
+  const [identificationErrors, setIdentificationErrors] = useState<IdentificationErrors>({});
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -41,58 +52,48 @@ export function RegisterForm({ size }: RegisterFormProps) {
   const [acceptsTerms, setAcceptsTerms] = useState(false);
   const [error, setError] = useState("");
 
-  const isCollaborator = role === "COLABORADOR";
+  const updateIdentification = <K extends keyof IdentificationForm>(field: K, value: IdentificationForm[K]) => {
+    setIdentification((current) => ({ ...current, [field]: value }));
+    setIdentificationErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
+  /** Mensaje del primer error del formulario o null. */
+  const validate = (): string | null => {
+    if (!email || !password || !confirmPassword) return "Por favor completa todos los campos";
+    if (firstName.trim().length < 2 || lastName.trim().length < 2) {
+      return "Nombres y apellidos deben tener al menos 2 caracteres";
+    }
+    if (!programId) return "Selecciona tu programa académico";
+    const errors = validateIdentification(identification, email);
+    setIdentificationErrors(errors);
+    if (hasErrors(errors)) return "Revisa tus datos de identificación";
+    if (password.length < 8) return "La contraseña debe tener al menos 8 caracteres";
+    if (password !== confirmPassword) return "Las contraseñas no coinciden";
+    if (!acceptsTerms) return "Debes aceptar los términos de uso";
+    return null;
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError("");
-
-    if (!email || !password || !confirmPassword) {
-      setError("Por favor completa todos los campos");
-      return;
-    }
-    if (isCollaborator) {
-      if (firstName.trim().length < 2 || lastName.trim().length < 2) {
-        setError("Nombres y apellidos deben tener al menos 2 caracteres");
-        return;
-      }
-      if (!programId) {
-        setError("Selecciona tu programa académico");
-        return;
-      }
-    } else if (fullName.trim().length < 2) {
-      setError("El nombre debe tener al menos 2 caracteres");
-      return;
-    }
-    if (password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
-      return;
-    }
-    if (!acceptsTerms) {
-      setError("Debes aceptar los términos de uso");
-      return;
-    }
+    const validationError = validate();
+    setError(validationError ?? "");
+    if (validationError) return;
 
     try {
       await createUser({
-        fullName: isCollaborator ? `${firstName.trim()} ${lastName.trim()}`.trim() : fullName.trim(),
+        fullName: `${firstName.trim()} ${lastName.trim()}`.trim(),
         email,
         password,
         role,
-        collaborator: isCollaborator
-          ? {
-              firstName: firstName.trim(),
-              lastName: lastName.trim(),
-              personType,
-              programId,
-              // La casilla es obligatoria para registrarse; se envía para que quede guardada.
-              dataConsent: acceptsTerms,
-            }
-          : undefined,
+        collaborator: {
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          personType,
+          programId,
+          ...toIdentificationPayload(identification),
+          // La casilla es obligatoria para registrarse; se envía para que quede guardada.
+          dataConsent: acceptsTerms,
+        },
       });
       router.push("/login");
       void notify.success("Ya puedes iniciar sesión con tu correo y contraseña.", { title: "Cuenta creada" });
@@ -104,36 +105,25 @@ export function RegisterForm({ size }: RegisterFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form} data-size={size}>
-      {isCollaborator ? (
-        <FormRow>
-          <Input
-            label="Nombres"
-            placeholder="Tus nombres"
-            autoComplete="given-name"
-            value={firstName}
-            onChange={(event) => setFirstName(event.target.value)}
-            disabled={isLoading}
-          />
-          <Input
-            label="Apellidos"
-            placeholder="Tus apellidos"
-            autoComplete="family-name"
-            value={lastName}
-            onChange={(event) => setLastName(event.target.value)}
-            disabled={isLoading}
-          />
-        </FormRow>
-      ) : (
+    <form onSubmit={handleSubmit} className={styles.form} data-size={size} noValidate>
+      <FormRow>
         <Input
-          label="Nombre completo"
-          placeholder="Tu nombre completo"
-          autoComplete="name"
-          value={fullName}
-          onChange={(event) => setFullName(event.target.value)}
+          label="Nombres"
+          placeholder="Tus nombres"
+          autoComplete="given-name"
+          value={firstName}
+          onChange={(event) => setFirstName(event.target.value)}
           disabled={isLoading}
         />
-      )}
+        <Input
+          label="Apellidos"
+          placeholder="Tus apellidos"
+          autoComplete="family-name"
+          value={lastName}
+          onChange={(event) => setLastName(event.target.value)}
+          disabled={isLoading}
+        />
+      </FormRow>
       <Input
         label="Correo institucional"
         type="email"
@@ -144,8 +134,7 @@ export function RegisterForm({ size }: RegisterFormProps) {
         disabled={isLoading}
       />
 
-      {/* Para un líder el rol va solo y ocupa todo el ancho, igual que los demás campos. */}
-      <FormRow columns={isCollaborator ? 2 : 1}>
+      <FormRow>
         <Select
           label="Rol"
           options={REGISTERABLE_ROLE_OPTIONS}
@@ -153,31 +142,34 @@ export function RegisterForm({ size }: RegisterFormProps) {
           onValueChange={setRole}
           disabled={isLoading}
         />
-        {isCollaborator ? (
-          <Select
-            label="Tipo de persona"
-            options={PERSON_TYPE_OPTIONS}
-            value={personType}
-            onValueChange={setPersonType}
-            disabled={isLoading}
-          />
-        ) : null}
+        <Select
+          label="Tipo de persona"
+          options={PERSON_TYPE_OPTIONS}
+          value={personType}
+          onValueChange={setPersonType}
+          disabled={isLoading}
+        />
       </FormRow>
 
-      {isCollaborator ? (
-        <Select
-          label="Programa"
-          options={[
-            { value: "", label: isLoadingPrograms ? "Cargando programas…" : "Selecciona un programa" },
-            ...programs.map((program) => ({ value: program.id, label: program.name })),
-          ]}
-          value={programId}
-          onChange={(event) => setProgramId(event.target.value)}
-          disabled={isLoading}
-          isLoading={isLoadingPrograms}
-          error={programsError || undefined}
-        />
-      ) : null}
+      <Select
+        label="Programa"
+        options={[
+          { value: "", label: isLoadingPrograms ? "Cargando programas…" : "Selecciona un programa" },
+          ...programs.map((program) => ({ value: program.id, label: program.name })),
+        ]}
+        value={programId}
+        onChange={(event) => setProgramId(event.target.value)}
+        disabled={isLoading}
+        isLoading={isLoadingPrograms}
+        error={programsError || undefined}
+      />
+
+      <IdentificationFields
+        value={identification}
+        onChange={updateIdentification}
+        errors={identificationErrors}
+        disabled={isLoading}
+      />
 
       <FormRow>
         <Input

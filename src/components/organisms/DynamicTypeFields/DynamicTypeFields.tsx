@@ -1,5 +1,7 @@
 import type { TemplateField } from "@/apis/interfaces/catalogs";
+import { formatCOP, tagsOf, tagsRangeText } from "@/modules/projects/utils/type-data";
 import { Input, Select, Textarea } from "../../atoms";
+import { TagsInput } from "../../molecules";
 import type { ControlSize } from "../../atoms";
 import styles from "./DynamicTypeFields.module.css";
 
@@ -58,6 +60,37 @@ export function DynamicTypeFields({ templateFields, typeData, onChange, size }: 
               type="number"
               value={typeof value === "number" ? value : (value as string) ?? ""}
               onChange={(event) => setField(field.key, event.target.value === "" ? "" : Number(event.target.value))}
+            />
+          );
+        }
+
+        // v2.1 (A6): palabras clave y valor en pesos.
+        if (field.kind === "tags") {
+          return (
+            <TagsInput
+              key={field.key}
+              label={label}
+              value={tagsOf(value)}
+              onChange={(tags) => setField(field.key, tags)}
+              max={field.maxItems}
+              helperText={`Escribe ${tagsRangeText(field)} palabras clave; Enter para agregar cada una.`}
+            />
+          );
+        }
+
+        if (field.kind === "currency") {
+          return (
+            <Input
+              key={field.key}
+              label={label}
+              inputMode="numeric"
+              placeholder="$ 0"
+              value={typeof value === "number" ? formatCOP(value) : ""}
+              onChange={(event) => {
+                const digits = event.target.value.replace(/\D/g, "");
+                setField(field.key, digits ? Number(digits) : "");
+              }}
+              helperText="Pesos colombianos (COP), sin centavos."
             />
           );
         }

@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Pencil, Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import type { Program, ProjectCategory, ProjectType, Skill, SkillCategory, SkillStatus, SkillType } from "@/apis/interfaces/catalogs";
 import { AppShell, PageGrid } from "@/components/templates";
 import { Badge, Button, Card, IconButton, Input, Select } from "@/components/atoms";
-import { LoadingState, Pagination, SortableHeader, TableStatus } from "@/components/molecules";
+import { LoadingState, Pagination, RowActions, SortableHeader, TableStatus } from "@/components/molecules";
 import {
   AdminSkillModal,
   ProgramModal,
@@ -73,24 +73,6 @@ const SKILL_SORT: SortAccessors<Skill, "name" | "type" | "category" | "status"> 
 
 const SKILLS_PAGE_SIZE = 20;
 
-/** Acción de editar de una fila: la fila también abre el modal, pero solo con mouse; el botón sirve con teclado. */
-function EditAction({ name, tooltip, onEdit }: { name: string; tooltip: string; onEdit: () => void }) {
-  return (
-    <IconButton
-      variant="plain"
-      size="sm"
-      icon={<Pencil />}
-      label={`Editar ${name}`}
-      tooltip={tooltip}
-      tooltipAlign="end"
-      onClick={(event) => {
-        event.stopPropagation();
-        onEdit();
-      }}
-    />
-  );
-}
-
 function SectionHead({ title, actionLabel, onAction }: { title: string; actionLabel: string; onAction: () => void }) {
   return (
     <div className={styles.sectionHead}>
@@ -104,7 +86,7 @@ function SectionHead({ title, actionLabel, onAction }: { title: string; actionLa
 
 function ProgramsSection() {
   const { programs, isLoading, error, createProgram, updateProgram } = useAdminPrograms();
-  const [modal, setModal] = useState<{ program?: Program } | null>(null);
+  const [modal, setModal] = useState<{ program?: Program; readOnly?: boolean } | null>(null);
   const { sort, toggleSort, applySort } = useTableSort(PROGRAM_SORT);
 
   return (
@@ -127,7 +109,7 @@ function ProgramsSection() {
             </thead>
             <tbody>
               {applySort(programs).map((program) => (
-                <tr key={program.id} className={styles.row} onClick={() => setModal({ program })}>
+                <tr key={program.id} className={styles.row} onClick={() => setModal({ program, readOnly: true })}>
                   <td>{program.code}</td>
                   <td>{program.name}</td>
                   <td className={styles.muted}>{program.faculty ?? "—"}</td>
@@ -137,9 +119,10 @@ function ProgramsSection() {
                     </Badge>
                   </td>
                   <td className={styles.editCol}>
-                    <EditAction
+                    <RowActions
                       name={program.name}
-                      tooltip="Editar código, nombre, facultad o estado"
+                      editTooltip="Editar código, nombre, facultad o estado"
+                      onView={() => setModal({ program, readOnly: true })}
                       onEdit={() => setModal({ program })}
                     />
                   </td>
@@ -152,6 +135,7 @@ function ProgramsSection() {
       {modal ? (
         <ProgramModal
           program={modal.program}
+          readOnly={modal.readOnly}
           onCreate={createProgram}
           onUpdate={(payload) => updateProgram(modal.program!.id, payload)}
           onClose={() => setModal(null)}
@@ -163,7 +147,7 @@ function ProgramsSection() {
 
 function ProjectTypesSection() {
   const { projectTypes, isLoading, error, createProjectType, updateProjectType } = useAdminProjectTypes();
-  const [modal, setModal] = useState<{ type?: ProjectType } | null>(null);
+  const [modal, setModal] = useState<{ type?: ProjectType; readOnly?: boolean } | null>(null);
   const { sort, toggleSort, applySort } = useTableSort(TYPE_SORT);
 
   return (
@@ -188,7 +172,7 @@ function ProjectTypesSection() {
             </thead>
             <tbody>
               {applySort(projectTypes).map((type) => (
-                <tr key={type.id} className={styles.row} onClick={() => setModal({ type })}>
+                <tr key={type.id} className={styles.row} onClick={() => setModal({ type, readOnly: true })}>
                   <td>{type.code}</td>
                   <td>{type.name}</td>
                   <td className={styles.muted}>{type.templateFields.length}</td>
@@ -198,9 +182,10 @@ function ProjectTypesSection() {
                     </Badge>
                   </td>
                   <td className={styles.editCol}>
-                    <EditAction
+                    <RowActions
                       name={type.name}
-                      tooltip="Editar el tipo y los campos de su plantilla"
+                      editTooltip="Editar el tipo y los campos de su plantilla"
+                      onView={() => setModal({ type, readOnly: true })}
                       onEdit={() => setModal({ type })}
                     />
                   </td>
@@ -213,6 +198,7 @@ function ProjectTypesSection() {
       {modal ? (
         <ProjectTypeModal
           type={modal.type}
+          readOnly={modal.readOnly}
           onCreate={createProjectType}
           onUpdate={(payload) => updateProjectType(modal.type!.id, payload)}
           onClose={() => setModal(null)}
@@ -225,7 +211,7 @@ function ProjectTypesSection() {
 function ProjectCategoriesSection() {
   const { projectCategories, isLoading, error, createProjectCategory, updateProjectCategory } =
     useAdminProjectCategories();
-  const [modal, setModal] = useState<{ category?: ProjectCategory } | null>(null);
+  const [modal, setModal] = useState<{ category?: ProjectCategory; readOnly?: boolean } | null>(null);
   const { sort, toggleSort, applySort } = useTableSort(CATEGORY_SORT);
 
   return (
@@ -248,7 +234,7 @@ function ProjectCategoriesSection() {
             </thead>
             <tbody>
               {applySort(projectCategories).map((category) => (
-                <tr key={category.id} className={styles.row} onClick={() => setModal({ category })}>
+                <tr key={category.id} className={styles.row} onClick={() => setModal({ category, readOnly: true })}>
                   <td>{category.name}</td>
                   <td>
                     <Badge tone={category.active ? "green" : "gray"} dot>
@@ -256,9 +242,10 @@ function ProjectCategoriesSection() {
                     </Badge>
                   </td>
                   <td className={styles.editCol}>
-                    <EditAction
+                    <RowActions
                       name={category.name}
-                      tooltip="Editar nombre o estado"
+                      editTooltip="Editar nombre o estado"
+                      onView={() => setModal({ category, readOnly: true })}
                       onEdit={() => setModal({ category })}
                     />
                   </td>
@@ -271,6 +258,7 @@ function ProjectCategoriesSection() {
       {modal ? (
         <ProjectCategoryModal
           category={modal.category}
+          readOnly={modal.readOnly}
           onCreate={createProjectCategory}
           onUpdate={(payload) => updateProjectCategory(modal.category!.id, payload)}
           onClose={() => setModal(null)}
@@ -297,7 +285,7 @@ function SkillsSection() {
     [debouncedQ, type, category, status],
   );
   const { skills, createSkill, updateSkill, approveSkill, ...server } = useAdminSkills(filters);
-  const [modal, setModal] = useState<{ skill?: Skill } | null>(null);
+  const [modal, setModal] = useState<{ skill?: Skill; readOnly?: boolean } | null>(null);
   const [approvingId, setApprovingId] = useState<string | null>(null);
   // Con un orden activo se ordenan todas las habilidades que cumplen los filtros, no solo la página.
   const table = usePagedTable({
@@ -372,7 +360,7 @@ function SkillsSection() {
             </thead>
             <tbody>
               {table.rows.map((skill) => (
-                <tr key={skill.id} className={styles.row} onClick={() => setModal({ skill })}>
+                <tr key={skill.id} className={styles.row} onClick={() => setModal({ skill, readOnly: true })}>
                   <td>{skill.name}</td>
                   <td className={styles.muted}>{SKILL_TYPE_LABEL[skill.type]}</td>
                   <td className={styles.muted}>{SKILL_CATEGORY_LABEL[skill.category]}</td>
@@ -396,15 +384,11 @@ function SkillsSection() {
                           onClick={() => void handleApprove(skill)}
                         />
                       ) : null}
-                      <IconButton
-                        variant="plain"
-                        size="sm"
-                        icon={<Pencil />}
-                        label={`Editar ${skill.name}`}
-                        tooltip="Editar nombre, tipo, categoría o sinónimos"
-                        tooltipAlign="end"
-                        disabled={approvingId === skill.id}
-                        onClick={() => setModal({ skill })}
+                      <RowActions
+                        name={skill.name}
+                        editTooltip="Editar habilidad"
+                        onView={() => setModal({ skill, readOnly: true })}
+                        onEdit={() => setModal({ skill })}
                       />
                     </div>
                   </td>
@@ -418,6 +402,7 @@ function SkillsSection() {
       {modal ? (
         <AdminSkillModal
           skill={modal.skill}
+          readOnly={modal.readOnly}
           onCreate={withRefresh(createSkill)}
           onUpdate={withRefresh((payload) => updateSkill(modal.skill!.id, payload))}
           onClose={() => setModal(null)}

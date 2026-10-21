@@ -62,3 +62,12 @@
 .add {
   align-self: flex-start;
 }
+
+/* v2.1: mínimo y máximo de palabras clave, lado a lado. */
+.limits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  flex: 1 1 220px;
+  min-width: 0;
+}

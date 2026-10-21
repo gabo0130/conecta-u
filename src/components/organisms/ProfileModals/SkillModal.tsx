@@ -19,9 +19,11 @@ type SkillModalProps = {
   onSubmit: SubmitFn<CollaboratorSkillPayload>;
   onDelete?: () => Promise<unknown>;
   onClose: () => void;
+  /** Modo vista: el mismo formulario con todo deshabilitado. */
+  readOnly?: boolean;
 };
 
-export function SkillModal({ skill, onSubmit, onDelete, onClose }: SkillModalProps) {
+export function SkillModal({ skill, onSubmit, onDelete, onClose, readOnly = false }: SkillModalProps) {
   const [selected, setSelected] = useState<Skill[]>(skill ? [skill.skill] : []);
   const [level, setLevel] = useState<SkillLevel>(skill?.level ?? "BASICO");
   const [experienceMonths, setExperienceMonths] = useState(skill?.experienceMonths.toString() ?? "");
@@ -57,7 +59,8 @@ export function SkillModal({ skill, onSubmit, onDelete, onClose }: SkillModalPro
 
   return (
     <Modal
-      title={skill ? "Editar habilidad" : "Agregar habilidad"}
+      readOnly={readOnly}
+      title={readOnly ? "Detalle de la habilidad" : skill ? "Editar habilidad" : "Agregar habilidad"}
       onClose={onClose}
       isSubmitting={isSubmitting}
       error={error}

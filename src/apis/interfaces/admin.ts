@@ -1,5 +1,13 @@
-import type { PersonType, UserRole } from "./auth";
-import type { AvailabilityStatus, Collaborator, CollaboratorSource } from "./collaborator";
+import type { PersonType, RegisterCollaboratorPayload, UserRole } from "./auth";
+import type {
+  AvailabilityStatus,
+  Collaborator,
+  CollaboratorSource,
+  DocumentType,
+  Identification,
+  SkillLevel,
+} from "./collaborator";
+import type { SkillType } from "./catalogs";
 import type { PageMeta } from "./pagination";
 import type { Project, ProjectStatus } from "./projects";
 
@@ -21,6 +29,8 @@ export interface CreateUserPayload {
   email: string;
   password: string;
   role: UserRole;
+  /** v2.1: toda cuenta queda vinculada a una persona identificada. */
+  collaborator: RegisterCollaboratorPayload;
 }
 
 export interface UpdateUserPayload {
@@ -59,7 +69,13 @@ export interface AdminLinkedUser {
   active: boolean;
 }
 
-export interface AdminCollaboratorSummary {
+export interface AdminCollaboratorSkill {
+  name: string;
+  type: SkillType;
+  level: SkillLevel;
+}
+
+export interface AdminCollaboratorSummary extends Identification {
   id: string;
   email: string;
   firstName: string;
@@ -72,8 +88,20 @@ export interface AdminCollaboratorSummary {
   active: boolean;
   dataConsent: boolean;
   skillsCount: number;
+  /** A7 (v2.1): cuáles habilidades, no solo cuántas. */
+  skills: AdminCollaboratorSkill[];
   experiencesCount: number;
   user: AdminLinkedUser | null;
+}
+
+/** ADMIN corrige identificación y contacto, incluido el documento (v2.1). */
+export interface UpdateIdentificationPayload {
+  documentType?: DocumentType;
+  documentNumber?: string;
+  phone?: string;
+  nationality?: string;
+  alternateEmail?: string | null;
+  institutionalCode?: string | null;
 }
 
 export interface AdminCollaboratorsResponse {
