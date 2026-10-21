@@ -68,5 +68,8 @@ export function useAdminSkills(filters: AdminSkillsFilters) {
     createSkill: (payload: AdminCreateSkillPayload) => mutate(() => apiClient.post("/admin/catalogs/skills", payload)),
     updateSkill: (id: string, payload: UpdateSkillPayload) =>
       mutate(() => apiClient.patch(`/admin/catalogs/skills/${id}`, payload)),
+    /** Aprobar = pasar una PENDIENTE a ACTIVA (el backend no tiene una ruta propia para esto). */
+    approveSkill: (id: string) =>
+      mutate(() => apiClient.patch(`/admin/catalogs/skills/${id}`, { status: "ACTIVA" } satisfies UpdateSkillPayload)),
   };
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiClient } from "@/apis/client";
-import type { AdminCollaboratorDetail } from "@/apis/interfaces/admin";
+import type { AdminCollaboratorDetail, UpdateIdentificationPayload } from "@/apis/interfaces/admin";
 import { getErrorMessage } from "@/utils/get-error-message";
 
 /** ADMIN: perfil técnico completo de una persona, su cuenta y los proyectos que lidera. */
@@ -29,5 +29,14 @@ export function useAdminCollaborator(id: string) {
     };
   }, [id]);
 
-  return { collaborator, isLoading, error };
+  /** v2.1: el ADMIN corrige identificación y contacto, incluido el documento. */
+  const updateIdentification = useCallback(
+    async (payload: UpdateIdentificationPayload) => {
+      const response = await apiClient.patch<AdminCollaboratorDetail>(`/admin/collaborators/${id}`, payload);
+      setCollaborator(response.data);
+    },
+    [id],
+  );
+
+  return { collaborator, isLoading, error, updateIdentification };
 }

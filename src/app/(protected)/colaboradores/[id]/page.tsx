@@ -1,11 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { AppShell, PageGrid } from "@/components/templates";
 import { Badge, Button, Card, UserAvatar } from "@/components/atoms";
-import { LoadingState } from "@/components/molecules";
-import { CollaboratorView, RoleGuard } from "@/components/organisms";
+import { IdentificationSummary, LoadingState } from "@/components/molecules";
+import { CollaboratorView, IdentificationModal, RoleGuard } from "@/components/organisms";
 import { useAdminCollaborator } from "@/modules/admin/hooks/useAdminCollaborator/useAdminCollaborator";
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
 import { PERSON_TYPE_LABEL, ROLE_LABEL, getInitials } from "@/modules/collaborator/utils/collaborator-view";
@@ -13,7 +14,8 @@ import styles from "./detalle.module.css";
 
 function CollaboratorDetail({ id }: { id: string }) {
   const router = useRouter();
-  const { collaborator, isLoading, error } = useAdminCollaborator(id);
+  const { collaborator, isLoading, error, updateIdentification } = useAdminCollaborator(id);
+  const [isEditingIdentity, setIsEditingIdentity] = useState(false);
   const { programs, isLoading: isLoadingPrograms } = useProgramsCatalog();
 
   if (isLoading) {
@@ -59,6 +61,7 @@ function CollaboratorDetail({ id }: { id: string }) {
                   <Badge tone="amber">Sin usuario</Badge>
                 )}
                 {!collaborator.active ? <Badge tone="gray">Dado de baja</Badge> : null}
+                {!collaborator.identificationComplete ? <Badge tone="amber">Datos incompletos</Badge> : null}
               </div>
             </div>
           </div>
@@ -70,7 +73,24 @@ function CollaboratorDetail({ id }: { id: string }) {
         </div>
       }
     >
-      <CollaboratorView collaborator={collaborator} programName={programName} isProgramLoading={isLoadingPrograms} />
+      <div className={styles.stack}>
+        <IdentificationSummary
+          person={collaborator}
+          onEdit={() => setIsEditingIdentity(true)}
+          incompleteMessage="A esta persona le faltan el documento o el teléfono (registrada o importada antes de v2.1)."
+        />
+        <CollaboratorView collaborator={collaborator} programName={programName} isProgramLoading={isLoadingPrograms} />
+      </div>
+      {isEditingIdentity ? (
+        <IdentificationModal
+          person={collaborator}
+          email={collaborator.email}
+          canChangeDocument
+          onSubmit={updateIdentification}
+          onClose={() => setIsEditingIdentity(false)}
+          successMessage={`Los datos de identificación de ${fullName} se guardaron.`}
+        />
+      ) : null}
     </PageGrid>
   );
 }

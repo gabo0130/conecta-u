@@ -4,19 +4,43 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { AppShell, PageGrid } from "@/components/templates";
 import { Badge, Button, Card } from "@/components/atoms";
-import { LoadingState, Pagination } from "@/components/molecules";
+import { LoadingState, Pagination, RowActions, SortableHeader, TableStatus } from "@/components/molecules";
 import { RoleGuard, UserModal } from "@/components/organisms";
 import { useAuth } from "@/contexts/auth-context";
 import { useUsers } from "@/modules/admin/hooks/useUsers/useUsers";
+import { usePagedTable } from "@/hooks/usePagedTable";
+import type { SortAccessors } from "@/utils/sort";
 import type { AdminUser } from "@/apis/interfaces/admin";
 import { ROLE_LABEL } from "@/modules/collaborator/utils/collaborator-view";
 import styles from "./users.module.css";
 
+type UserSortKey = "name" | "email" | "role" | "status";
+
+const USER_SORT: SortAccessors<AdminUser, UserSortKey> = {
+  name: (row) => row.fullName,
+  email: (row) => row.email,
+  role: (row) => ROLE_LABEL[row.role],
+  status: (row) => (row.active ? "Activo" : "Inactivo"),
+};
+
+const PAGE_SIZE = 20;
+
 function UsersList() {
   const { user } = useAuth();
-  const { users, meta, setPage, isLoading, error, createUser, updateUser, deleteUser } = useUsers();
-  const [modal, setModal] = useState<{ user?: AdminUser } | null>(null);
+  const { users, createUser, updateUser, deleteUser, ...server } = useUsers();
+  const [modal, setModal] = useState<{ user?: AdminUser; readOnly?: boolean } | null>(null);
   const editing = modal?.user;
+  // Ordenar solo la página cargada engañaría: con un orden activo se ordenan todas las cuentas.
+  const table = usePagedTable({
+    server: { ...server, items: users },
+    url: "/users",
+    key: "users",
+    errorMessage: "No se pudieron ordenar los usuarios.",
+    accessors: USER_SORT,
+    pageSize: PAGE_SIZE,
+  });
+  const { sort, toggleSort, withRefresh } = table;
+  const showTable = !table.isLoading && (table.rows.length > 0 || table.isSorted);
 
   return (
     <PageGrid
@@ -34,25 +58,33 @@ function UsersList() {
       }
     >
       <Card padding={0}>
-        {isLoading ? <LoadingState message="Cargando usuarios…" /> : null}
-        {!isLoading && error ? <p className={styles.state}>{error}</p> : null}
-        {!isLoading && !error && users.length > 0 ? (
+        {table.isLoading ? <LoadingState message="Cargando usuarios…" /> : null}
+        {!table.isLoading && table.error && !showTable ? <p className={styles.state}>{table.error}</p> : null}
+        {showTable ? (
+          <TableStatus
+            isRefreshing={table.isRefreshing}
+            error={table.error}
+            onRetry={table.retry}
+            onClearSort={table.isSorted ? table.clearSort : undefined}
+          />
+        ) : null}
+        {showTable ? (
           <div className={styles.tableWrap}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Nombre</th>
-                  <th>Correo</th>
-                  <th>Rol</th>
-                  <th>Estado</th>
+                  <SortableHeader label="Nombre" sortKey="name" sort={sort} onSort={toggleSort} />
+                  <SortableHeader label="Correo" sortKey="email" sort={sort} onSort={toggleSort} />
+                  <SortableHeader label="Rol" sortKey="role" sort={sort} onSort={toggleSort} />
+                  <SortableHeader label="Estado" sortKey="status" sort={sort} onSort={toggleSort} />
                   <th>
                     <span className={styles.srOnly}>Acciones</span>
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((row) => (
-                  <tr key={row.id} onClick={() => setModal({ user: row })} className={styles.row}>
+                {table.rows.map((row) => (
+                  <tr key={row.id} onClick={() => setModal({ user: row, readOnly: true })} className={styles.row}>
                     <td>{row.fullName}</td>
                     <td>{row.email}</td>
                     <td>{ROLE_LABEL[row.role]}</td>
@@ -62,18 +94,13 @@ function UsersList() {
                       </Badge>
                     </td>
                     <td className={styles.editCol}>
-                      {/* Botón real: la fila clicable solo sirve con mouse; así también funciona con teclado. */}
-                      <Button
-                        variant="link"
-                        size="sm"
-                        aria-label={`Editar a ${row.fullName}`}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setModal({ user: row });
-                        }}
-                      >
-                        Editar
-                      </Button>
+                      {/* Botones reales: la fila clicable (abre la vista) solo sirve con mouse. */}
+                      <RowActions
+                        name={row.fullName}
+                        editTooltip="Editar cuenta, rol o estado"
+                        onView={() => setModal({ user: row, readOnly: true })}
+                        onEdit={() => setModal({ user: row })}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -81,19 +108,20 @@ function UsersList() {
             </table>
           </div>
         ) : null}
-        {!isLoading && !error && users.length === 0 ? (
+        {!table.isLoading && !table.error && table.rows.length === 0 ? (
           <p className={styles.state}>Aún no hay usuarios registrados.</p>
         ) : null}
-        {!isLoading && !error && meta ? <Pagination meta={meta} onPageChange={setPage} /> : null}
+        {!table.isLoading && table.meta ? <Pagination meta={table.meta} onPageChange={table.onPageChange} /> : null}
       </Card>
 
       {modal ? (
         <UserModal
           user={editing}
-          onCreate={createUser}
-          onUpdate={(payload) => updateUser(editing!.id, payload)}
+          readOnly={modal?.readOnly}
+          onCreate={withRefresh(createUser)}
+          onUpdate={withRefresh((payload) => updateUser(editing!.id, payload))}
           // El backend no deja que el ADMIN borre su propia cuenta: no se ofrece la acción.
-          onDelete={editing && editing.id !== user?.id ? () => deleteUser(editing.id) : undefined}
+          onDelete={editing && editing.id !== user?.id ? withRefresh(() => deleteUser(editing.id)) : undefined}
           onClose={() => setModal(null)}
         />
       ) : null}

@@ -15,9 +15,11 @@ type ProjectCategoryModalProps = {
   onCreate: (payload: CreateProjectCategoryPayload) => Promise<unknown>;
   onUpdate: (payload: UpdateProjectCategoryPayload) => Promise<unknown>;
   onClose: () => void;
+  /** Modo vista: el mismo formulario con todo deshabilitado. */
+  readOnly?: boolean;
 };
 
-export function ProjectCategoryModal({ category, onCreate, onUpdate, onClose }: ProjectCategoryModalProps) {
+export function ProjectCategoryModal({ category, onCreate, onUpdate, onClose, readOnly = false }: ProjectCategoryModalProps) {
   const [name, setName] = useState(category?.name ?? "");
   const [active, setActive] = useState(category?.active !== false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +50,8 @@ export function ProjectCategoryModal({ category, onCreate, onUpdate, onClose }: 
 
   return (
     <Modal
-      title={category ? "Editar categoría" : "Crear categoría"}
+      readOnly={readOnly}
+      title={readOnly ? "Detalle de la categoría" : category ? "Editar categoría" : "Crear categoría"}
       onClose={onClose}
       isSubmitting={isSubmitting}
       error={error}

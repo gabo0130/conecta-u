@@ -124,6 +124,7 @@ function LeaderProjects({ query }: { query: string }) {
 }
 
 function AdminProjects({ query }: { query: string }) {
+  const router = useRouter();
   const { projects, meta, setPage, isLoading, error } = useAdminProjects();
 
   return (
@@ -139,6 +140,10 @@ function AdminProjects({ query }: { query: string }) {
                 : `${meta.total} proyectos de todos los líderes.`}
             </p>
           </div>
+          {/* v2.1 (A5): el ADMIN registra proyectos a nombre de un líder. */}
+          <Button leftIcon={<Plus />} onClick={() => router.push("/proyectos/nuevo")}>
+            Registrar proyecto
+          </Button>
         </div>
       }
     >

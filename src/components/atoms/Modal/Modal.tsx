@@ -11,28 +11,39 @@ const FOCUSABLE = 'input:not([disabled]), select:not([disabled]), textarea:not([
 type ModalProps = {
   title: string;
   onClose: () => void;
-  onSubmit: () => void;
+  /** Sin `onSubmit` el diálogo es de solo lectura: el pie muestra únicamente "Cerrar". */
+  onSubmit?: () => void;
+  /**
+   * Modo vista: el mismo formulario con todos sus campos deshabilitados (un `fieldset disabled`),
+   * sin guardar ni acciones peligrosas. Sirve para ver el detalle completo sin riesgo de editar.
+   */
+  readOnly?: boolean;
   submitLabel?: string;
   isSubmitting?: boolean;
   error?: string;
   dangerAction?: { label: string; onClick: () => void };
   /** Tamaño de todos los campos y botones del diálogo. */
   size?: ControlSize;
+  /** `wide` (640 px) para formularios con filas de varios campos; por defecto 480 px. */
+  width?: "narrow" | "wide";
   children: ReactNode;
 };
 
 export function Modal({
   title,
   onClose,
-  onSubmit,
+  onSubmit: submitHandler,
+  readOnly = false,
   submitLabel = "Guardar",
   isSubmitting = false,
   error,
   dangerAction,
   size,
+  width = "narrow",
   children,
 }: ModalProps) {
   const titleId = useId();
+  const onSubmit = readOnly ? undefined : submitHandler;
   const dialogRef = useRef<HTMLFormElement>(null);
   // Mientras se guarda no se puede cerrar: la petición seguiría y su notificación aparecería sin el formulario.
   const requestClose = useRef(onClose);
@@ -76,6 +87,10 @@ export function Modal({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!onSubmit) {
+      onClose();
+      return;
+    }
     if (!isSubmitting) onSubmit();
   };
 
@@ -87,7 +102,7 @@ export function Modal({
         ref={dialogRef}
         noValidate
         tabIndex={-1}
-        className={styles.dialog}
+        className={[styles.dialog, width === "wide" && styles.wide].filter(Boolean).join(" ")}
         data-size={size}
         role="dialog"
         aria-modal="true"
@@ -100,20 +115,32 @@ export function Modal({
         <h3 id={titleId} className={styles.title}>
           {title}
         </h3>
-        <div className={styles.body}>{children}</div>
+        {readOnly ? (
+          <fieldset disabled className={[styles.body, styles.readOnly].join(" ")}>
+            {children}
+          </fieldset>
+        ) : (
+          <div className={styles.body}>{children}</div>
+        )}
         {error ? <FormError>{error}</FormError> : null}
         <div className={styles.footer}>
-          {dangerAction ? (
+          {dangerAction && !readOnly ? (
             <Button variant="link" className={styles.danger} onClick={dangerAction.onClick} disabled={isSubmitting}>
               {dangerAction.label}
             </Button>
           ) : null}
-          <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Guardando…" : submitLabel}
-          </Button>
+          {onSubmit ? (
+            <>
+              <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Guardando…" : submitLabel}
+              </Button>
+            </>
+          ) : (
+            <Button type="submit">Cerrar</Button>
+          )}
         </div>
       </form>
     </div>

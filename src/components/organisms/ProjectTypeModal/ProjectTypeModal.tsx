@@ -14,6 +14,8 @@ type ProjectTypeModalProps = {
   onCreate: (payload: CreateProjectTypePayload) => Promise<unknown>;
   onUpdate: (payload: UpdateProjectTypePayload) => Promise<unknown>;
   onClose: () => void;
+  /** Modo vista: el mismo formulario con todo deshabilitado. */
+  readOnly?: boolean;
 };
 
 function validateFields(fields: TemplateField[]): string | null {
@@ -26,11 +28,21 @@ function validateFields(fields: TemplateField[]): string | null {
     if (field.kind === "select" && (field.options ?? []).length === 0) {
       return `El campo "${field.label}" es de tipo lista y necesita al menos una opción.`;
     }
+    if (field.kind === "tags") {
+      const { minItems, maxItems } = field;
+      const outOfRange = (limit?: number) => limit !== undefined && (!Number.isInteger(limit) || limit < 1 || limit > 20);
+      if (outOfRange(minItems) || outOfRange(maxItems)) {
+        return `En "${field.label}" el mínimo y el máximo de palabras clave deben estar entre 1 y 20.`;
+      }
+      if (minItems !== undefined && maxItems !== undefined && minItems > maxItems) {
+        return `En "${field.label}" el mínimo de palabras clave no puede superar el máximo.`;
+      }
+    }
   }
   return null;
 }
 
-export function ProjectTypeModal({ type, onCreate, onUpdate, onClose }: ProjectTypeModalProps) {
+export function ProjectTypeModal({ type, onCreate, onUpdate, onClose, readOnly = false }: ProjectTypeModalProps) {
   const [code, setCode] = useState(type?.code ?? "");
   const [name, setName] = useState(type?.name ?? "");
   const [templateFields, setTemplateFields] = useState<TemplateField[]>(type?.templateFields ?? []);
@@ -72,11 +84,13 @@ export function ProjectTypeModal({ type, onCreate, onUpdate, onClose }: ProjectT
 
   return (
     <Modal
-      title={type ? "Editar tipo de proyecto" : "Crear tipo de proyecto"}
+      readOnly={readOnly}
+      title={readOnly ? "Detalle del tipo de proyecto" : type ? "Editar tipo de proyecto" : "Crear tipo de proyecto"}
       onClose={onClose}
       isSubmitting={isSubmitting}
       error={error}
       onSubmit={() => void handleSubmit()}
+      width="wide"
     >
       {!type ? (
         <Input label="Código" maxLength={40} value={code} onChange={(event) => setCode(event.target.value)} />

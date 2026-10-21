@@ -21,6 +21,8 @@ export interface Project {
   knownSkills: Skill[] | null;
   deliverables: Deliverable[];
   leaderId: string;
+  /** Quién lo registró (v2.1, A5): el líder o el ADMIN a su nombre; null en los anteriores. */
+  createdById?: string | null;
   status: ProjectStatus;
   createdAt?: string;
   updatedAt?: string;
@@ -36,6 +38,8 @@ export interface ProjectPayload {
   typeData?: Record<string, unknown>;
   knownSkillIds?: string[];
   deliverables: Deliverable[];
+  /** Solo el ADMIN (v2.1, A5): líder a cuyo nombre registra el proyecto. */
+  leaderId?: string;
 }
 
 export interface ProjectListResponse {

@@ -50,7 +50,7 @@
   cursor: pointer;
 }
 .row:hover {
-  background: var(--c-bg);
+  background: var(--c-hover);
 }
 .editCol {
   text-align: right;

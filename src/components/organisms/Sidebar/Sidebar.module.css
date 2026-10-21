@@ -56,7 +56,7 @@
   font-weight: 600;
 }
 .on:hover {
-  background: var(--c-red-soft);
+  background: var(--c-red-hover);
   color: var(--c-red);
 }
 .footer {

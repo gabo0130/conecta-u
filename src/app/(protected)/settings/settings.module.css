@@ -23,7 +23,7 @@
 }
 .tab:hover {
   color: var(--c-ink);
-  background: var(--c-bg);
+  background: var(--c-hover);
 }
 .tabActive {
   color: var(--c-red);
@@ -91,7 +91,7 @@
   cursor: pointer;
 }
 .row:hover {
-  background: var(--c-bg);
+  background: var(--c-hover);
 }
 .muted {
   color: var(--c-muted);
@@ -111,4 +111,10 @@
   .filters {
     grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
   }
+}
+
+.quickActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }

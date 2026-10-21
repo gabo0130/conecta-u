@@ -1,0 +1,229 @@
+.breadcrumbSep {
+  color: var(--c-muted-3);
+}
+/* Títulos largos no empujan la barra superior: se recortan con "…". */
+.breadcrumbProject {
+  display: inline-block;
+  max-width: 24ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+.breadcrumbCurrent {
+  color: var(--c-ink);
+  font-weight: 600;
+}
+
+/* Móvil: título arriba y acciones debajo. */
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.headText {
+  min-width: 0;
+}
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.h1 {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.sub {
+  color: var(--c-muted);
+  font-size: 14.5px;
+  margin-top: 6px;
+}
+.headActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.state {
+  color: var(--c-muted);
+  font-size: 14.5px;
+}
+.stateAction {
+  margin-top: 14px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.generated {
+  margin: 0;
+  font-size: 13px;
+  color: var(--c-muted);
+}
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--r-lg);
+  background: var(--c-info-soft);
+  color: var(--c-ink);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.notice > svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--c-info);
+}
+.notice p {
+  margin: 0;
+  min-width: 0;
+}
+
+/* Píldoras de perfil: se desplazan dentro de su fila en móvil en vez de desbordar la página. */
+.profileTabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.profileTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  max-width: 280px;
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background: var(--c-card);
+  color: var(--c-ink-3);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.profileTab:hover {
+  background: var(--c-hover);
+}
+.profileTab:focus-visible {
+  outline: 2px solid var(--c-red);
+  outline-offset: 2px;
+}
+.profileTabActive,
+.profileTabActive:hover {
+  border-color: var(--c-red);
+  background: var(--c-red-hover);
+  color: var(--c-red-ink);
+}
+.profileTabName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.profileTabCount {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  background: var(--c-line-soft);
+  font-size: 12px;
+  text-align: center;
+}
+.profileTabActive .profileTabCount {
+  background: #fff;
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.profileHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+.sectionTitle {
+  font-size: 17px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.profileMeta {
+  font-size: 13px;
+  color: var(--c-muted);
+}
+/* El puesto ya se ve en la tarjeta; el <ol> conserva el orden para lectores de pantalla. */
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  max-width: 560px;
+  margin-inline: auto;
+}
+.emptyIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--c-red-soft);
+  color: var(--c-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 700;
+}
+.emptyText {
+  font-size: 14px;
+  color: var(--c-ink-3);
+  line-height: 1.6;
+}
+
+@media (min-width: 640px) {
+  .h1 {
+    font-size: 24px;
+  }
+}
+@media (min-width: 768px) {
+  .head {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .headActions {
+    flex-shrink: 0;
+  }
+  .profileTabs {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}

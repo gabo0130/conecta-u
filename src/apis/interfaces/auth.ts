@@ -1,3 +1,5 @@
+import type { IdentificationPayload } from "./collaborator";
+
 export type UserRole = "LIDER" | "COLABORADOR" | "ADMIN";
 
 export interface MenuItem {
@@ -30,7 +32,8 @@ export interface LoginSuccessResponse {
 export type RegisterRole = "LIDER" | "COLABORADOR";
 export type PersonType = "ESTUDIANTE" | "DOCENTE";
 
-export interface RegisterCollaboratorPayload {
+/** La persona de la cuenta (v2.1: toda cuenta, de cualquier rol, queda vinculada a una persona). */
+export interface RegisterCollaboratorPayload extends IdentificationPayload {
   firstName: string;
   lastName: string;
   personType: PersonType;
@@ -44,7 +47,7 @@ export interface RegisterPayload {
   email: string;
   password: string;
   role: RegisterRole;
-  collaborator?: RegisterCollaboratorPayload;
+  collaborator: RegisterCollaboratorPayload;
 }
 
 export interface RegisterResponse {

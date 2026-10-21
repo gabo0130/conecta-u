@@ -1,0 +1,26 @@
+.panel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: var(--r-lg);
+  background: var(--c-info-soft);
+  color: var(--c-ink);
+  border: 1px solid var(--c-line);
+}
+.text {
+  min-width: 0;
+}
+.title {
+  font-weight: 700;
+  font-size: 15px;
+}
+.sub {
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: var(--c-ink-3);
+  line-height: 1.5;
+}
+.elapsed {
+  font-variant-numeric: tabular-nums;
+}

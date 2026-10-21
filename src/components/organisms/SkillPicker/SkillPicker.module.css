@@ -105,7 +105,7 @@
 }
 .option:hover,
 .optionActive {
-  background: var(--c-bg);
+  background: var(--c-hover);
 }
 
 .listbox {
@@ -181,7 +181,7 @@
   cursor: pointer;
 }
 .propose:hover {
-  background: var(--c-red-soft);
+  background: var(--c-red-hover);
 }
 .propose:disabled {
   opacity: 0.6;

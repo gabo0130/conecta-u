@@ -42,7 +42,7 @@
   border-color: var(--c-line-2);
 }
 .ghost:hover:not(:disabled) {
-  background: var(--c-bg);
+  background: var(--c-hover);
 }
 
 .white {

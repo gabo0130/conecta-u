@@ -23,7 +23,7 @@
 .zone:hover,
 .dragging {
   border-color: var(--c-red);
-  background: var(--c-red-soft);
+  background: var(--c-red-hover);
 }
 /* El foco del input oculto se muestra en la zona completa. */
 .zone:focus-within {

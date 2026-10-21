@@ -14,9 +14,11 @@ type ProgramModalProps = {
   onCreate: (payload: CreateProgramPayload) => Promise<unknown>;
   onUpdate: (payload: UpdateProgramPayload) => Promise<unknown>;
   onClose: () => void;
+  /** Modo vista: el mismo formulario con todo deshabilitado. */
+  readOnly?: boolean;
 };
 
-export function ProgramModal({ program, onCreate, onUpdate, onClose }: ProgramModalProps) {
+export function ProgramModal({ program, onCreate, onUpdate, onClose, readOnly = false }: ProgramModalProps) {
   const [code, setCode] = useState(program?.code ?? "");
   const [name, setName] = useState(program?.name ?? "");
   const [faculty, setFaculty] = useState(program?.faculty ?? "");
@@ -53,7 +55,8 @@ export function ProgramModal({ program, onCreate, onUpdate, onClose }: ProgramMo
 
   return (
     <Modal
-      title={program ? "Editar programa" : "Crear programa"}
+      readOnly={readOnly}
+      title={readOnly ? "Detalle del programa" : program ? "Editar programa" : "Crear programa"}
       onClose={onClose}
       isSubmitting={isSubmitting}
       error={error}

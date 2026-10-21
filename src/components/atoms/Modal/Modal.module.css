@@ -21,6 +21,9 @@
   flex-direction: column;
   gap: 18px;
 }
+.wide {
+  max-width: 640px;
+}
 .title {
   font-size: 18px;
   font-weight: 700;
@@ -50,4 +53,22 @@
     max-height: 90vh;
     padding: 26px;
   }
+}
+
+/* Modo vista: mismo formulario, sin bordes de fieldset ni márgenes propios. */
+.readOnly {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+/* En la vista se lee, no se edita: texto con buen contraste y sin botones de acción
+   (agregar, quitar, proponer). Solo queda "Cerrar", que está fuera del fieldset. */
+.readOnly.readOnly :disabled {
+  color: var(--c-ink);
+  -webkit-text-fill-color: var(--c-ink);
+  opacity: 1;
+}
+.readOnly.readOnly button {
+  display: none;
 }

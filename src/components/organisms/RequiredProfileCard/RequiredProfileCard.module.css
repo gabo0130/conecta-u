@@ -1,0 +1,143 @@
+.card {
+  height: 100%;
+}
+.article {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+}
+.top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--c-red-soft);
+  color: var(--c-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.titleBox {
+  min-width: 0;
+}
+.name {
+  font-weight: 700;
+  font-size: 15.5px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--c-muted-2);
+}
+.meta span {
+  display: inline-flex;
+  white-space: nowrap;
+  align-items: center;
+  gap: 4px;
+}
+.badges {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.source {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: var(--c-hover);
+  color: var(--c-ink-3);
+  font-size: 12px;
+  font-weight: 600;
+}
+.sourceAi {
+  background: var(--c-red-soft);
+  color: var(--c-red-ink);
+}
+.description {
+  font-size: 13.5px;
+  color: var(--c-ink-3);
+  line-height: 1.55;
+}
+/* RF14: la justificación es lo que el líder lee para decidir; va destacada. */
+.justification {
+  border-left: 3px solid var(--c-red);
+  background: var(--c-bg);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  padding: 10px 12px;
+}
+.justificationTitle {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--c-ink-2);
+  margin-bottom: 4px;
+}
+.justificationText {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--c-ink);
+}
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.groupTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-muted-2);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.skills {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.skill {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+  max-width: 100%;
+}
+.skillName {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.skillMeta {
+  font-size: 11.5px;
+  opacity: 0.85;
+}
+/* La IA propuso algo que no está en el catálogo: se muestra apagado. */
+.uncatalogued {
+  color: var(--c-muted);
+  border: 1px dashed var(--c-line-2);
+}
+.actions {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--c-line-soft);
+}
+.actions .discard {
+  color: var(--c-danger);
+}

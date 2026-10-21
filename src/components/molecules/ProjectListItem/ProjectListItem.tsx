@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { Badge, BadgeTone, Spinner } from "../../atoms";
+import { Eye } from "lucide-react";
+import { Badge, BadgeTone, IconButton, Spinner } from "../../atoms";
 import styles from "./ProjectListItem.module.css";
 
 export type ProjectSummary = {
@@ -32,9 +32,15 @@ export function ProjectListItem({ project, bordered = true }: ProjectListItemPro
         </div>
       </div>
       <Badge tone={project.tone}>{project.status}</Badge>
-      <Link href={project.href} className={styles.link}>
-        Abrir
-      </Link>
+      <IconButton
+        variant="plain"
+        size="sm"
+        icon={<Eye />}
+        href={project.href}
+        label={`Abrir ${project.name}`}
+        tooltip="Abrir proyecto"
+        tooltipAlign="end"
+      />
     </div>
   );
 }
