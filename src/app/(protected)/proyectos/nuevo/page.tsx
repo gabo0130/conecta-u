@@ -40,7 +40,7 @@ export default function NuevoProyectoPage() {
             <p className={styles.sub}>
               {isAdmin
                 ? "Registra el proyecto a nombre de un líder: quedará en su lista y solo él podrá editarlo."
-                : "Elige el tipo y la categoría y completa su plantilla: resumen, objetivos, habilidades conocidas y entregables."}
+                : "Elige el tipo y la categoría y completa su plantilla: resumen, objetivos, entidades, duración, competencias requeridas y entregables."}
             </p>
           </>
         }

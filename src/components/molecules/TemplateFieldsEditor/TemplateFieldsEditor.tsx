@@ -39,7 +39,7 @@ type TemplateFieldsEditorProps = {
   size?: ControlSize;
 };
 
-/** Editor de la plantilla de campos de un tipo de proyecto (RF7/RF22): uno por fila. */
+/** Editor de la plantilla de campos de un tipo de proyecto (RF6/RF18): uno por fila. */
 export function TemplateFieldsEditor({ value, onChange, size }: TemplateFieldsEditorProps) {
   const updateRow = (index: number, patch: Partial<TemplateField>) => {
     onChange(value.map((field, i) => (i === index ? { ...field, ...patch } : field)));

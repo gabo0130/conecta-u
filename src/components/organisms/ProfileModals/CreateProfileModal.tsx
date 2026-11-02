@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { PersonType } from "@/apis/interfaces/auth";
 import type { CreateCollaboratorPayload } from "@/apis/interfaces/collaborator";
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
-import { DATA_CONSENT_LABEL, PERSON_TYPE_OPTIONS } from "@/modules/collaborator/utils/collaborator-view";
+import { PERSON_TYPE_OPTIONS } from "@/modules/collaborator/utils/collaborator-view";
 import {
   type IdentificationErrors,
   type IdentificationForm,
@@ -13,8 +13,15 @@ import {
   toIdentificationPayload,
   validateIdentification,
 } from "@/modules/collaborator/utils/identification";
-import { Checkbox, FormRow, Input, Modal, Select } from "../../atoms";
-import { IdentificationFields } from "../../molecules";
+import {
+  DATA_CONSENT_LABEL,
+  DATA_TREATMENT,
+  TRUTHFULNESS_DECLARATION,
+  TRUTHFULNESS_LABEL,
+  TRUTHFULNESS_REQUIRED,
+} from "@/modules/legal/legal-texts";
+import { FormRow, Input, Modal, Select } from "../../atoms";
+import { IdentificationFields, LegalCheckbox } from "../../molecules";
 import { clean, useProfileSubmit, type SubmitFn } from "./useProfileSubmit";
 
 type CreateProfileModalProps = {
@@ -30,6 +37,7 @@ export function CreateProfileModal({ onSubmit, onClose }: CreateProfileModalProp
   const [personType, setPersonType] = useState<PersonType>("DOCENTE");
   const [programId, setProgramId] = useState("");
   const [dataConsent, setDataConsent] = useState(false);
+  const [truthfulness, setTruthfulness] = useState(false);
   const [identification, setIdentification] = useState<IdentificationForm>(() => toIdentificationForm());
   const [identificationErrors, setIdentificationErrors] = useState<IdentificationErrors>({});
   const { isSubmitting, error, run, failWith } = useProfileSubmit();
@@ -48,6 +56,7 @@ export function CreateProfileModal({ onSubmit, onClose }: CreateProfileModalProp
         !programId ? "Selecciona un programa." : null,
         hasErrors(errors) ? "Revisa tus datos de identificación." : null,
         !dataConsent ? "Debes autorizar el tratamiento de tus datos para crear tu perfil técnico." : null,
+        !truthfulness ? TRUTHFULNESS_REQUIRED : null,
       )
     ) {
       return;
@@ -61,6 +70,7 @@ export function CreateProfileModal({ onSubmit, onClose }: CreateProfileModalProp
           programId,
           ...toIdentificationPayload(identification),
           dataConsent,
+          truthfulnessDeclared: true,
         }),
       onClose,
       "Tu perfil de colaborador quedó creado.",
@@ -104,7 +114,18 @@ export function CreateProfileModal({ onSubmit, onClose }: CreateProfileModalProp
         errors={identificationErrors}
         disabled={isSubmitting}
       />
-      <Checkbox label={DATA_CONSENT_LABEL} checked={dataConsent} onChange={(event) => setDataConsent(event.target.checked)} />
+      <LegalCheckbox
+        label={DATA_CONSENT_LABEL}
+        href={DATA_TREATMENT.href}
+        checked={dataConsent}
+        onChange={(event) => setDataConsent(event.target.checked)}
+      />
+      <LegalCheckbox
+        label={TRUTHFULNESS_LABEL}
+        href={TRUTHFULNESS_DECLARATION.href}
+        checked={truthfulness}
+        onChange={(event) => setTruthfulness(event.target.checked)}
+      />
     </Modal>
   );
 }

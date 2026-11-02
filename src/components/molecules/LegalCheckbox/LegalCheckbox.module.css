@@ -1,0 +1,25 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Alineado con el texto de la casilla, no con la casilla. */
+.link {
+  align-self: flex-start;
+  margin-left: calc(var(--check-size, 16px) * 1.6);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--c-red);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

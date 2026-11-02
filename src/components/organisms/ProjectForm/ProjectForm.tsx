@@ -8,6 +8,8 @@ import { useProjectCategoriesCatalog } from "@/modules/catalogs/hooks/useProject
 import { useProjectTypesCatalog } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
 import { missingRequiredFields,
   tagsCountError, pickTemplateData } from "@/modules/projects/utils/type-data";
+import { validateInteger } from "@/modules/collaborator/utils/collaborator-limits";
+import { PROJECT_DURATION_MONTHS, PROJECT_ENTITY_MAX_LENGTH } from "@/modules/projects/utils/project-limits";
 import { DeliverablesEditor } from "../../molecules/DeliverablesEditor/DeliverablesEditor";
 import { Button, Card, FormError, FormRow, Input, Select, Textarea } from "../../atoms";
 import type { ControlSize } from "../../atoms";
@@ -35,6 +37,9 @@ export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel
   const [title, setTitle] = useState(initial?.title ?? "");
   const [summary, setSummary] = useState(initial?.summary ?? "");
   const [objectives, setObjectives] = useState(initial?.objectives ?? "");
+  const [executingEntity, setExecutingEntity] = useState(initial?.executingEntity ?? "");
+  const [sponsorEntity, setSponsorEntity] = useState(initial?.sponsorEntity ?? "");
+  const [durationMonths, setDurationMonths] = useState(initial?.durationMonths?.toString() ?? "");
   const [typeId, setTypeId] = useState(initial?.typeId ?? "");
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
   const [programId, setProgramId] = useState(initial?.programId ?? "");
@@ -69,6 +74,20 @@ export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel
       setValidation("El resumen y los objetivos son obligatorios.");
       return;
     }
+    // Al crear son obligatorias; un proyecto anterior a v2.2 se puede editar sin completarlas.
+    const requiresEntities = !initial || initial.executingEntity !== null || initial.durationMonths !== null;
+    if (requiresEntities && !executingEntity.trim()) {
+      setValidation("Indica la entidad ejecutora del proyecto.");
+      return;
+    }
+    const durationError = validateInteger(durationMonths, PROJECT_DURATION_MONTHS, {
+      label: "La duración (meses)",
+      required: requiresEntities,
+    });
+    if (durationError) {
+      setValidation(durationError);
+      return;
+    }
     if (!effectiveTypeId || !effectiveCategoryId || !selectedType) {
       setValidation("Selecciona el tipo y la categoría del proyecto.");
       return;
@@ -98,6 +117,10 @@ export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel
       title: trimmedTitle,
       summary: summary.trim(),
       objectives: objectives.trim(),
+      executingEntity: executingEntity.trim() || undefined,
+      // Al editar, vaciar la patrocinadora envía null para que el backend la borre.
+      sponsorEntity: sponsorEntity.trim() || (initial ? null : undefined),
+      durationMonths: durationMonths.trim() ? Number(durationMonths) : undefined,
       typeId: effectiveTypeId,
       categoryId: effectiveCategoryId,
       // Al editar, quitar el programa envía null para que el backend lo borre.
@@ -134,6 +157,34 @@ export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel
           placeholder="¿Qué busca lograr el proyecto?"
           value={objectives}
           onChange={(event) => setObjectives(event.target.value)}
+        />
+
+        <FormRow>
+          <Input
+            label="Entidad ejecutora"
+            placeholder="Ej. Universidad Francisco de Paula Santander"
+            maxLength={PROJECT_ENTITY_MAX_LENGTH}
+            value={executingEntity}
+            onChange={(event) => setExecutingEntity(event.target.value)}
+          />
+          <Input
+            label="Entidad patrocinadora (opcional)"
+            placeholder="Quién financia o apoya el proyecto"
+            maxLength={PROJECT_ENTITY_MAX_LENGTH}
+            value={sponsorEntity}
+            onChange={(event) => setSponsorEntity(event.target.value)}
+          />
+        </FormRow>
+
+        <Input
+          label="Duración (meses)"
+          type="number"
+          inputMode="numeric"
+          min={PROJECT_DURATION_MONTHS.min}
+          max={PROJECT_DURATION_MONTHS.max}
+          helperText={`Entre ${PROJECT_DURATION_MONTHS.min} y ${PROJECT_DURATION_MONTHS.max} meses.`}
+          value={durationMonths}
+          onChange={(event) => setDurationMonths(event.target.value)}
         />
 
         <FormRow>
@@ -184,7 +235,7 @@ export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel
         ) : null}
 
         <SkillPicker
-          label="Habilidades técnicas y blandas conocidas"
+          label="Competencias técnicas y blandas requeridas por el proyecto"
           mode="multi"
           value={knownSkills}
           onChange={setKnownSkills}

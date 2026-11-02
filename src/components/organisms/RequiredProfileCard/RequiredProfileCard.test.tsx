@@ -18,8 +18,8 @@ describe("RequiredProfileCard", () => {
   it("separa las habilidades técnicas de las blandas", () => {
     render(<RequiredProfileCard profile={AI_PROFILE} />);
 
-    const technical = screen.getByRole("list", { name: "Conocimientos y competencias" });
-    const soft = screen.getByRole("list", { name: "Habilidades blandas" });
+    const technical = screen.getByRole("list", { name: "Conocimientos y competencias técnicas" });
+    const soft = screen.getByRole("list", { name: "Competencias blandas" });
     expect(within(technical).getAllByRole("listitem")).toHaveLength(2);
     expect(within(soft).getByLabelText(/Trabajo en equipo: nivel mínimo Avanzado, importancia baja/)).toBeInTheDocument();
   });
@@ -37,7 +37,7 @@ describe("RequiredProfileCard", () => {
     expect(screen.getByText("Manual")).toBeInTheDocument();
     expect(screen.getByText("Sin justificación registrada.")).toBeInTheDocument();
     expect(screen.queryByText(/h\/semana/)).not.toBeInTheDocument();
-    expect(screen.queryByRole("list", { name: "Habilidades blandas" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: "Competencias blandas" })).not.toBeInTheDocument();
   });
 
   it("solo muestra las acciones si recibe los callbacks", () => {

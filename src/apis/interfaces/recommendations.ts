@@ -1,4 +1,4 @@
-// Recomendaciones de personas (RF15–RF17). Copia exacta de notes/backend-iteracion-2.md §12.
+// Recomendaciones de personas (RF11–RF13). Copia exacta de notes/backend-iteracion-2.md §12.
 import type { PersonType } from "./auth";
 import type { ProfilePriority, ProfileSource, SkillImportance } from "./analysis";
 import type { AvailabilityStatus, SkillLevel } from "./collaborator";
@@ -71,7 +71,7 @@ export interface MatchBreakdown {
   weights: MatchComponents;
 }
 
-/** Detalle de una recomendación (RF17): por qué se recomienda a la persona. */
+/** Detalle de una recomendación (RF13): por qué se recomienda a la persona. */
 export interface RecommendationDetail {
   id: string;
   rank: number;

@@ -11,7 +11,7 @@ import type {
 import { programsRequest } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
 import { getErrorMessage } from "@/utils/get-error-message";
 
-/** ADMIN: catálogo de programas académicos, incluidos los inactivos (RF22). */
+/** ADMIN: catálogo de programas académicos, incluidos los inactivos (RF18). */
 export function useAdminPrograms() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [isLoading, setIsLoading] = useState(true);

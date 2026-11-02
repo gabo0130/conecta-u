@@ -74,7 +74,7 @@ function DetailHeader({ project, subtitle, actions }: DetailHeaderProps) {
   );
 }
 
-/** Acceso al análisis con IA según el estado del proyecto (RF12). El ADMIN solo lo ve si ya existe. */
+/** Acceso al análisis con IA según el estado del proyecto (RF8). El ADMIN solo lo ve si ya existe. */
 function AnalysisAction({ project, readOnly = false }: { project: Project; readOnly?: boolean }) {
   const router = useRouter();
   const goToAnalysis = () => router.push(`/proyectos/${project.id}/analisis`);

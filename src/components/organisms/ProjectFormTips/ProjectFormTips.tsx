@@ -4,7 +4,7 @@ import styles from "./ProjectFormTips.module.css";
 
 const TIPS = [
   "Sé específico en los objetivos.",
-  "Incluye las habilidades técnicas y blandas que ya conoces.",
+  "Incluye las competencias técnicas y blandas que requiere el proyecto.",
   "Define al menos un entregable con su alcance.",
   "Menciona si es interdisciplinario.",
 ];

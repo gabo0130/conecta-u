@@ -7,7 +7,7 @@ import type { Project } from "@/apis/interfaces/projects";
 import type { ProfileRecommendations, RecommendationItem } from "@/apis/interfaces/recommendations";
 import { AppShell, PageGrid } from "@/components/templates";
 import { Badge, Button, Card, Checkbox } from "@/components/atoms";
-import { LoadingState, RecommendationCard } from "@/components/molecules";
+import { LoadingState, RecommendationCard, VerificationNotice } from "@/components/molecules";
 import { RecommendationDetailModal, RoleGuard } from "@/components/organisms";
 import { useAuth } from "@/contexts/auth-context";
 import { useAdminProject } from "@/modules/admin/hooks/useAdminProject/useAdminProject";
@@ -51,7 +51,7 @@ type RecommendationsScreenProps = {
   canGenerate: boolean;
 };
 
-/** Personas recomendadas por perfil requerido (RF15–RF17). */
+/** Personas recomendadas por perfil requerido (RF11–RF13). */
 function RecommendationsScreen({ project, canGenerate }: RecommendationsScreenProps) {
   const router = useRouter();
   const {
@@ -263,6 +263,8 @@ function ProfileSection({
           </p>
         </Card>
       ) : null}
+
+      {!isLoading && profile.recommendations.length > 0 ? <VerificationNotice /> : null}
 
       {!isLoading && profile.recommendations.length > 0 ? (
         <ol className={styles.list}>

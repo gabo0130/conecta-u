@@ -21,9 +21,16 @@ import {
   validateIdentification,
 } from "@/modules/collaborator/utils/identification";
 import { notify } from "@/utils/notify";
-import { Button, Checkbox, FormError, FormRow, Input, Select } from "../../atoms";
+import {
+  DATA_CONSENT_LABEL,
+  DATA_TREATMENT,
+  TRUTHFULNESS_DECLARATION,
+  TRUTHFULNESS_LABEL,
+  TRUTHFULNESS_REQUIRED,
+} from "@/modules/legal/legal-texts";
+import { Button, FormError, FormRow, Input, Select } from "../../atoms";
 import type { ControlSize } from "../../atoms";
-import { IdentificationFields } from "../../molecules";
+import { IdentificationFields, LegalCheckbox } from "../../molecules";
 import styles from "./RegisterForm.module.css";
 
 type RegisterFormProps = {
@@ -50,6 +57,7 @@ export function RegisterForm({ size }: RegisterFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptsTerms, setAcceptsTerms] = useState(false);
+  const [declaresTruthfulness, setDeclaresTruthfulness] = useState(false);
   const [error, setError] = useState("");
 
   const updateIdentification = <K extends keyof IdentificationForm>(field: K, value: IdentificationForm[K]) => {
@@ -69,7 +77,8 @@ export function RegisterForm({ size }: RegisterFormProps) {
     if (hasErrors(errors)) return "Revisa tus datos de identificación";
     if (password.length < 8) return "La contraseña debe tener al menos 8 caracteres";
     if (password !== confirmPassword) return "Las contraseñas no coinciden";
-    if (!acceptsTerms) return "Debes aceptar los términos de uso";
+    if (!acceptsTerms) return "Debes autorizar el tratamiento de tus datos para crear la cuenta";
+    if (!declaresTruthfulness) return TRUTHFULNESS_REQUIRED;
     return null;
   };
 
@@ -93,6 +102,7 @@ export function RegisterForm({ size }: RegisterFormProps) {
           ...toIdentificationPayload(identification),
           // La casilla es obligatoria para registrarse; se envía para que quede guardada.
           dataConsent: acceptsTerms,
+          truthfulnessDeclared: true,
         },
       });
       router.push("/login");
@@ -196,10 +206,18 @@ export function RegisterForm({ size }: RegisterFormProps) {
         />
       </FormRow>
 
-      <Checkbox
-        label="Acepto el tratamiento de mis datos y los términos de uso de la plataforma."
+      <LegalCheckbox
+        label={DATA_CONSENT_LABEL}
+        href={DATA_TREATMENT.href}
         checked={acceptsTerms}
         onChange={(event) => setAcceptsTerms(event.target.checked)}
+        disabled={isLoading}
+      />
+      <LegalCheckbox
+        label={TRUTHFULNESS_LABEL}
+        href={TRUTHFULNESS_DECLARATION.href}
+        checked={declaresTruthfulness}
+        onChange={(event) => setDeclaresTruthfulness(event.target.checked)}
         disabled={isLoading}
       />
 

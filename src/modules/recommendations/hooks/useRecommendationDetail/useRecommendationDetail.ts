@@ -5,7 +5,7 @@ import { apiClient } from "@/apis/client";
 import type { RecommendationDetail } from "@/apis/interfaces/recommendations";
 import { getErrorMessage } from "@/utils/get-error-message";
 
-/** Desglose de una recomendación (RF17): habilidades, experiencia, disponibilidad, semántica y pesos. */
+/** Desglose de una recomendación (RF13): habilidades, experiencia, disponibilidad, semántica y pesos. */
 export function useRecommendationDetail(projectId: string, recommendationId: string) {
   const [detail, setDetail] = useState<RecommendationDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);

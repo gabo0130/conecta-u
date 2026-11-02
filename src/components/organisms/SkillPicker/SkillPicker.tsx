@@ -196,9 +196,9 @@ export function SkillPicker<T extends SkillRef = Skill>({
       {value.length > 0 && !hideSelected ? (
         showGroupedChips ? (
           <>
-            <span className={styles.chipGroupLabel}>Conocimientos y competencias</span>
+            <span className={styles.chipGroupLabel}>Conocimientos y competencias técnicas</span>
             <div className={styles.chips}>{technicalChips.map(renderChip)}</div>
-            <span className={styles.chipGroupLabel}>Habilidades blandas</span>
+            <span className={styles.chipGroupLabel}>Competencias blandas</span>
             <div className={styles.chips}>{softChips.map(renderChip)}</div>
           </>
         ) : (

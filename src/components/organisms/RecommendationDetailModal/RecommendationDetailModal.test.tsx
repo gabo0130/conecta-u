@@ -39,6 +39,16 @@ describe("RecommendationDetailModal", () => {
     expect(screen.getByText(/peso 50 %/)).toBeInTheDocument();
   });
 
+  it("avisa que la recomendación está sujeta a verificación (v2.2, E4)", async () => {
+    get.mockResolvedValue({ data: DETAIL });
+    renderModal();
+
+    expect(screen.getByRole("note")).toHaveTextContent(
+      "Recomendación basada en la información declarada por cada persona; sujeta a verificación de su experiencia y conocimientos.",
+    );
+    expect(await screen.findByText("Arduino")).toBeInTheDocument();
+  });
+
   it("si no hubo embeddings dice que la afinidad no estuvo disponible", async () => {
     get.mockResolvedValue({
       data: {

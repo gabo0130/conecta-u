@@ -8,6 +8,7 @@ import {
   ROLE_LABEL,
   SOURCE_LABEL,
   getExperienceMeta,
+  accessLabel,
 } from "@/modules/collaborator/utils/collaborator-view";
 import { formatDate, getStatusView } from "@/modules/projects/utils/project-view";
 import { Badge, Card, Chip, Spinner } from "../../atoms";
@@ -88,20 +89,20 @@ export function CollaboratorView({ collaborator, programName, isProgramLoading =
         </Card>
 
         <Card padding={24} className={styles.o4}>
-          <h2 className={styles.sectionTitle}>Conocimientos y competencias ({technicalSkills.length})</h2>
+          <h2 className={styles.sectionTitle}>Conocimientos y competencias técnicas ({technicalSkills.length})</h2>
           {technicalSkills.length > 0 ? (
             <ul className={styles.rows}>{technicalSkills.map(renderSkillRow)}</ul>
           ) : (
-            <p className={styles.empty}>Aún no registró conocimientos ni competencias.</p>
+            <p className={styles.empty}>Aún no registró conocimientos ni competencias técnicas.</p>
           )}
         </Card>
 
         <Card padding={24} className={styles.o4}>
-          <h2 className={styles.sectionTitle}>Habilidades blandas ({softSkills.length})</h2>
+          <h2 className={styles.sectionTitle}>Competencias blandas ({softSkills.length})</h2>
           {softSkills.length > 0 ? (
             <ul className={styles.rows}>{softSkills.map(renderSkillRow)}</ul>
           ) : (
-            <p className={styles.empty}>Aún no registró habilidades blandas.</p>
+            <p className={styles.empty}>Aún no registró competencias blandas.</p>
           )}
         </Card>
 
@@ -151,7 +152,7 @@ export function CollaboratorView({ collaborator, programName, isProgramLoading =
                 <dt>Estado</dt>
                 <dd>
                   <Badge tone={user.active ? "green" : "gray"} dot>
-                    {user.active ? "Activa" : "Inactiva"}
+                    {accessLabel(user.active)}
                   </Badge>
                 </dd>
               </div>

@@ -14,6 +14,10 @@ export interface Project {
   title: string;
   summary: string;
   objectives: string;
+  /** v2.2, E5: null en proyectos anteriores a v2.2. */
+  executingEntity: string | null;
+  sponsorEntity: string | null;
+  durationMonths: number | null;
   typeId: string;
   categoryId: string;
   programId: string | null;
@@ -32,6 +36,10 @@ export interface ProjectPayload {
   title: string;
   summary: string;
   objectives: string;
+  /** v2.2, E5: ejecutora y duración obligatorias al crear; la patrocinadora es opcional. */
+  executingEntity?: string;
+  sponsorEntity?: string | null;
+  durationMonths?: number;
   typeId: string;
   categoryId: string;
   programId?: string | null;

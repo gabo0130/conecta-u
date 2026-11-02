@@ -18,3 +18,5 @@ export { IdentificationFields } from "./IdentificationFields/IdentificationField
 export { IdentificationSummary } from "./IdentificationSummary/IdentificationSummary";
 export { TagsInput } from "./TagsInput/TagsInput";
 export { RowActions } from "./RowActions/RowActions";
+export { LegalCheckbox } from "./LegalCheckbox/LegalCheckbox";
+export { VerificationNotice } from "./VerificationNotice/VerificationNotice";
