@@ -31,3 +31,7 @@ export { RequiredProfileCard } from "./RequiredProfileCard/RequiredProfileCard";
 export { RequiredProfileModal } from "./RequiredProfileModal/RequiredProfileModal";
 export { RecommendationDetailModal } from "./RecommendationDetailModal/RecommendationDetailModal";
 export { IdentificationModal } from "./IdentificationModal/IdentificationModal";
+export { PersonModal } from "./PersonModal/PersonModal";
+export { ReportsCard } from "./ReportsCard/ReportsCard";
+export { InvitationModal } from "./InvitationModal/InvitationModal";
+export { InvitationHistory } from "./InvitationHistory/InvitationHistory";

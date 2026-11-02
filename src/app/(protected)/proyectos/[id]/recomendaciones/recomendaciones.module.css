@@ -227,3 +227,21 @@
     overflow-x: visible;
   }
 }
+
+/* RF21: barra para convocar a las personas marcadas. */
+.inviteBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--r-md);
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
+}
+.inviteText {
+  margin: 0;
+  font-size: 14px;
+  color: var(--c-ink-2);
+}

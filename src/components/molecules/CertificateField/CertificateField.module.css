@@ -1,0 +1,49 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--field-gap);
+}
+.label {
+  font-size: var(--field-label-font);
+  font-weight: 600;
+  color: var(--field-label);
+}
+.required {
+  color: var(--c-red);
+  font-weight: 500;
+}
+.optional {
+  color: var(--c-muted-2);
+  font-weight: 500;
+}
+.current {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--c-line-2);
+  border-radius: var(--r-md);
+  background: var(--c-green-soft);
+}
+.icon {
+  color: var(--c-green);
+  display: flex;
+  flex-shrink: 0;
+}
+.text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.meta {
+  font-size: 12.5px;
+  color: var(--c-muted);
+}

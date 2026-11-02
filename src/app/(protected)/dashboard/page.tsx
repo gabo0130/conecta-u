@@ -2,14 +2,30 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarPlus, Contact, FileText, FileUp, Folder, History, Plus, Users, Wrench } from "lucide-react";
+import {
+  CalendarPlus,
+  Contact,
+  FileText,
+  FileUp,
+  Folder,
+  History,
+  Mail,
+  Plus,
+  Settings,
+  Sparkles,
+  Users,
+  Wrench,
+} from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { AppShell } from "@/components/templates";
 import { ArrowLink, Button, Card } from "@/components/atoms";
-import { LoadingState, ProjectListItem, StatCard } from "@/components/molecules";
-import { useAdminCollaborators } from "@/modules/admin/hooks/useAdminCollaborators/useAdminCollaborators";
+import { BarList, LoadingState, ProjectListItem, StatCard, type BarListItem } from "@/components/molecules";
+import { ReportsCard } from "@/components/organisms";
+import type { CountBy, PlatformStats, SkillBalance } from "@/apis/interfaces/admin";
+import { usePlatformStats } from "@/modules/admin/hooks/usePlatformStats/usePlatformStats";
+import { AVAILABILITY_VIEW, PERSON_TYPE_LABEL } from "@/modules/collaborator/utils/collaborator-view";
+import { isAvailability, isPersonType, isProjectStatus } from "@/modules/admin/utils/stats-keys";
 import { useAdminProjects } from "@/modules/admin/hooks/useAdminProjects/useAdminProjects";
-import { useUsers } from "@/modules/admin/hooks/useUsers/useUsers";
 import { useCollaborator } from "@/modules/collaborator/hooks/useCollaborator/useCollaborator";
 import { useProjects } from "@/modules/projects/hooks/useProjects/useProjects";
 import { useProjectMeta } from "@/modules/projects/hooks/useProjectMeta/useProjectMeta";
@@ -168,61 +184,172 @@ function CollaboratorDashboard() {
   );
 }
 
-/** ADMIN: vista global de la plataforma (proyectos, perfiles y cuentas) y accesos a su gestión. */
-function AdminDashboard() {
-  const router = useRouter();
-  const { projects, meta: projectsMeta, isLoading: isLoadingProjects, error: projectsError } = useAdminProjects();
-  const {
-    collaborators,
-    meta: collaboratorsMeta,
-    isLoading: isLoadingCollaborators,
-    error: collaboratorsError,
-  } = useAdminCollaborators();
-  const { users, meta: usersMeta, isLoading: isLoadingUsers, error: usersError } = useUsers();
-  const projectMeta = useProjectMeta();
-  // Totales desde `meta.total`; los desgloses se cuentan sobre todos los elementos, no sobre la página.
-  const allProjects = useCountSource(projects, projectsMeta, "/admin/projects", "projects");
-  const allCollaborators = useCountSource(collaborators, collaboratorsMeta, "/admin/collaborators", "collaborators");
-  const allUsers = useCountSource(users, usersMeta, "/users", "users");
-  const drafts = allProjects.items.filter((project) => project.status === "BORRADOR").length;
-  const withoutUser = allCollaborators.items.filter((collaborator) => !collaborator.user).length;
-  const leaders = allUsers.items.filter((user) => user.role === "LIDER").length;
-  const recent = projects.slice(0, 5);
+/** Conteos del backend con su etiqueta en español (las de catálogo ya vienen con nombre). */
+function toBars(items: CountBy[], labelOf: (key: string, label: string) => string = (_key, label) => label): BarListItem[] {
+  return items.map((item) => ({ key: item.key, label: labelOf(item.key, item.label), value: item.count }));
+}
 
-  const stats = [
+const percent = (part: number, total: number) => (total === 0 ? 0 : Math.round((part / total) * 100));
+
+const skillBars = (skills: SkillBalance[], value: (skill: SkillBalance) => number, display: (skill: SkillBalance) => string) =>
+  skills.map((skill) => ({ key: skill.skillId, label: skill.name, value: value(skill), display: display(skill) }));
+
+const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
+
+/** RF15: indicadores de proyectos, personas, perfiles y disponibilidad, con acceso a la gestión. */
+function AdminStats({ stats }: { stats: PlatformStats }) {
+  const { projects, people, availability, profiles, skills, certificates, invitations } = stats;
+  const quality: BarListItem[] = [
+    {
+      key: "consent",
+      label: "Con autorización de datos",
+      value: percent(people.withConsent, people.total),
+      display: `${percent(people.withConsent, people.total)} %`,
+    },
+    {
+      key: "truthfulness",
+      label: "Con declaración de veracidad",
+      value: percent(people.truthfulnessDeclared, people.total),
+      display: `${percent(people.truthfulnessDeclared, people.total)} %`,
+    },
+    {
+      key: "account",
+      label: "Con cuenta en la plataforma",
+      value: percent(people.withAccount, people.total),
+      display: `${percent(people.withAccount, people.total)} %`,
+    },
+    {
+      key: "certificates",
+      label: "Experiencias con certificado",
+      value: percent(certificates.uploaded, certificates.required),
+      display: certificates.required === 0 ? "—" : `${certificates.uploaded} de ${certificates.required}`,
+    },
+  ];
+
+  const sections: { title: string; hint?: string; label: string; items: BarListItem[]; tone?: "red" | "green" | "amber" | "info"; empty?: string }[] = [
+    { title: "Proyectos por tipo", label: "Proyectos por tipo", items: toBars(projects.byType) },
+    { title: "Proyectos por categoría", label: "Proyectos por categoría", items: toBars(projects.byCategory) },
+    {
+      title: "Proyectos por estado",
+      label: "Proyectos por estado",
+      items: toBars(projects.byStatus, (key, label) => (isProjectStatus(key) ? getStatusView(key).label : label)),
+      tone: "info",
+    },
+    {
+      title: "Personas por tipo",
+      label: "Personas activas por tipo",
+      items: toBars(people.byPersonType, (key, label) => (isPersonType(key) ? PERSON_TYPE_LABEL[key] : label)),
+      tone: "info",
+    },
+    {
+      title: "Disponibilidad",
+      hint: `${availability.averageWeeklyHours} h/semana en promedio · ${availability.totalWeeklyHoursAvailable} h disponibles`,
+      label: "Personas por disponibilidad",
+      items: toBars(availability.byStatus, (key, label) => (isAvailability(key) ? AVAILABILITY_VIEW[key].label : label)),
+      tone: "green",
+    },
+    { title: "Programas con más personas", label: "Personas por programa", items: toBars(people.byProgram), tone: "info" },
+    {
+      title: "Habilidades más ofrecidas",
+      label: "Habilidades más ofrecidas",
+      items: skillBars(skills.topOffered, (skill) => skill.offered, (skill) => plural(skill.offered, "persona", "personas")),
+      tone: "green",
+    },
+    {
+      title: "Habilidades más pedidas",
+      label: "Habilidades más pedidas por los perfiles requeridos",
+      items: skillBars(skills.topDemanded, (skill) => skill.demanded, (skill) => plural(skill.demanded, "perfil", "perfiles")),
+      empty: "Aún no hay perfiles requeridos analizados.",
+    },
+    {
+      title: "Brechas de capacidades",
+      hint: "Habilidades pedidas que menos personas ofrecen.",
+      label: "Brechas de capacidades",
+      items: skillBars(
+        skills.gaps,
+        (skill) => skill.demanded,
+        (skill) => `${skill.offered} ofrecen · ${skill.demanded} piden`,
+      ),
+      tone: "amber",
+      empty: "Aún no hay perfiles requeridos analizados.",
+    },
+    { title: "Calidad de los perfiles", label: "Calidad de los perfiles", items: quality, tone: "green" },
+  ];
+
+  const kpis = [
     {
       label: "Proyectos",
-      value: String(projectsMeta?.total ?? projects.length),
-      isLoading: isLoadingProjects || allProjects.isLoading,
-      hasError: Boolean(projectsError || allProjects.error),
-      hint: `${drafts} en borrador`,
+      value: String(projects.total),
+      hint: `${projects.createdLast30Days} nuevos en 30 días`,
       icon: Folder,
     },
     {
-      label: "Colaboradores",
-      value: String(collaboratorsMeta?.total ?? collaborators.length),
-      isLoading: isLoadingCollaborators || allCollaborators.isLoading,
-      hasError: Boolean(collaboratorsError || allCollaborators.error),
-      hint: `${withoutUser} sin usuario`,
+      label: "Personas",
+      value: String(people.total),
+      hint: `${people.withAccount} con cuenta · ${people.total - people.withAccount} sin cuenta`,
       icon: Contact,
     },
     {
-      label: "Usuarios",
-      value: String(usersMeta?.total ?? users.length),
-      isLoading: isLoadingUsers || allUsers.isLoading,
-      hasError: Boolean(usersError || allUsers.error),
-      hint: `${leaders} líderes de proyecto`,
-      icon: Users,
+      label: "Recomendaciones",
+      value: String(profiles.recommendations),
+      hint:
+        profiles.averageTopScore === null
+          ? `en ${profiles.projectsWithRecommendations} proyectos`
+          : `en ${profiles.projectsWithRecommendations} proyectos · 1.º puesto ${profiles.averageTopScore} % en promedio`,
+      icon: Sparkles,
+    },
+    {
+      label: "Convocatorias enviadas",
+      value: String(invitations.sent),
+      hint: invitations.failed > 0 ? `${invitations.failed} fallidas` : "por correo",
+      icon: Mail,
     },
   ];
 
   return (
     <>
-      <div className={styles.stats}>
-        {stats.map((stat) => (
-          <StatCard key={stat.label} {...stat} />
+      <div className={[styles.stats, styles.stats4].join(" ")}>
+        {kpis.map((kpi) => (
+          <StatCard key={kpi.label} {...kpi} />
         ))}
       </div>
+      <div className={styles.statsGrid}>
+        {sections.map((section) => (
+          <Card key={section.title} padding={20}>
+            <h3 className={styles.listTitle}>{section.title}</h3>
+            {section.hint ? <p className={styles.sectionHint}>{section.hint}</p> : null}
+            <div className={styles.sectionBody}>
+              <BarList label={section.label} items={section.items} tone={section.tone} emptyMessage={section.empty} />
+            </div>
+          </Card>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/** ADMIN: indicadores de la plataforma (RF15), últimos proyectos, gestión y reportes (RF16). */
+function AdminDashboard() {
+  const router = useRouter();
+  const { projects, isLoading: isLoadingProjects, error: projectsError } = useAdminProjects();
+  const { stats, isLoading: isLoadingStats, error: statsError, reload: reloadStats } = usePlatformStats();
+  const projectMeta = useProjectMeta();
+  const recent = projects.slice(0, 5);
+
+  return (
+    <>
+      {isLoadingStats ? <LoadingState message="Calculando indicadores…" /> : null}
+      {!isLoadingStats && statsError ? (
+        <Card padding={20}>
+          <p className={styles.state}>{statsError}</p>
+          <div className={styles.retry}>
+            <Button variant="ghost" onClick={() => void reloadStats()}>
+              Reintentar
+            </Button>
+          </div>
+        </Card>
+      ) : null}
+      {stats ? <AdminStats stats={stats} /> : null}
 
       <div className={styles.adminGrid}>
         <Card padding={0}>
@@ -263,10 +390,13 @@ function AdminDashboard() {
               Importar colaboradores
             </Button>
             <Button variant="ghost" leftIcon={<Contact />} fullWidth onClick={() => router.push("/colaboradores")}>
-              Ver colaboradores
+              Gestionar personas
             </Button>
             <Button variant="ghost" leftIcon={<Users />} fullWidth onClick={() => router.push("/users")}>
               Gestionar usuarios
+            </Button>
+            <Button variant="ghost" leftIcon={<Settings />} fullWidth onClick={() => router.push("/settings")}>
+              Catálogos y plantillas
             </Button>
             <Button variant="ghost" leftIcon={<History />} fullWidth onClick={() => router.push("/importar/historial")}>
               Historial de importaciones
@@ -274,6 +404,8 @@ function AdminDashboard() {
           </div>
         </Card>
       </div>
+
+      <ReportsCard />
     </>
   );
 }

@@ -30,4 +30,25 @@ describe("RecommendationCard", () => {
     fireEvent.click(screen.getByRole("button", { name: "¿Por qué se recomienda a Ana Prueba?" }));
     expect(onExplain).toHaveBeenCalledTimes(1);
   });
+
+  it("permite marcar a la persona para convocarla y muestra si ya fue convocada (RF21–RF22)", () => {
+    const onChange = jest.fn();
+    render(
+      <RecommendationCard
+        recommendation={RECOMMENDATION}
+        onExplain={jest.fn()}
+        selection={{ checked: false, onChange }}
+        invitedLabel="Convocada el 3 nov."
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Convocar a Ana Prueba por correo" }));
+    expect(onChange).toHaveBeenCalledWith(true);
+    expect(screen.getByText("Convocada el 3 nov.")).toBeInTheDocument();
+  });
+
+  it("sin selección (ADMIN) no muestra la casilla", () => {
+    render(<RecommendationCard recommendation={RECOMMENDATION} onExplain={jest.fn()} />);
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+  });
 });

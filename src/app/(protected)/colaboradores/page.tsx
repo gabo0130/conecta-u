@@ -3,14 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, FileUp } from "lucide-react";
+import { Eye, FileUp, UserPlus } from "lucide-react";
 import type { AdminCollaboratorSummary } from "@/apis/interfaces/admin";
 import type { AvailabilityStatus, CollaboratorSource } from "@/apis/interfaces/collaborator";
 import { AppShell, PageGrid } from "@/components/templates";
 import { Badge, Button, Card, IconButton, Input, Select, Spinner } from "@/components/atoms";
 import type { SelectOption } from "@/components/atoms";
 import { LoadingState, Pagination, SortableHeader, TableStatus } from "@/components/molecules";
-import { RoleGuard } from "@/components/organisms";
+import { PersonModal, RoleGuard } from "@/components/organisms";
 import { useAdminCollaborators } from "@/modules/admin/hooks/useAdminCollaborators/useAdminCollaborators";
 import { usePagedTable } from "@/hooks/usePagedTable";
 import type { SortAccessors } from "@/utils/sort";
@@ -96,7 +96,8 @@ function matches(
 
 function CollaboratorsList() {
   const router = useRouter();
-  const { collaborators, ...server } = useAdminCollaborators();
+  const { collaborators, createPerson, ...server } = useAdminCollaborators();
+  const [isCreating, setIsCreating] = useState(false);
   const { meta, isLoading } = server;
   const { programs, isLoading: isLoadingPrograms } = useProgramsCatalog();
   const [query, setQuery] = useState("");
@@ -134,9 +135,14 @@ function CollaboratorsList() {
               {isLoading || !meta ? "Personas con perfil técnico, con o sin usuario." : `${meta.total} personas con perfil técnico.`}
             </p>
           </div>
-          <Button leftIcon={<FileUp />} onClick={() => router.push("/importar")}>
-            Importar desde Excel
-          </Button>
+          <div className={styles.headActions}>
+            <Button variant="ghost" leftIcon={<FileUp />} onClick={() => router.push("/importar")}>
+              Importar desde Excel
+            </Button>
+            <Button leftIcon={<UserPlus />} onClick={() => setIsCreating(true)}>
+              Registrar persona
+            </Button>
+          </div>
         </div>
       }
     >
@@ -275,6 +281,19 @@ function CollaboratorsList() {
           {!table.isLoading && table.meta ? <Pagination meta={table.meta} onPageChange={table.onPageChange} /> : null}
         </Card>
       </div>
+      {isCreating ? (
+        <PersonModal
+          mode="create"
+          onCreate={async (payload) => {
+            let created: Awaited<ReturnType<typeof createPerson>> | undefined;
+            await table.withRefresh(async () => {
+              created = await createPerson(payload);
+            })();
+            return created!;
+          }}
+          onClose={() => setIsCreating(false)}
+        />
+      ) : null}
     </PageGrid>
   );
 }

@@ -64,6 +64,19 @@ export interface Experience {
   description: string | null;
   technologies: ExperienceTechnology[];
   durationMonths: number;
+  /** v2.2, E8 (RF4): certificado que soporta la experiencia (solo metadatos). */
+  certificate: ExperienceCertificate | null;
+  /** La experiencia laboral, de práctica y de docencia debe tener certificado. */
+  certificateRequired: boolean;
+}
+
+export type CertificateMimeType = "application/pdf" | "image/png" | "image/jpeg";
+
+export interface ExperienceCertificate {
+  fileName: string;
+  mimeType: CertificateMimeType;
+  sizeBytes: number;
+  uploadedAt: string;
 }
 
 export interface Collaborator extends Identification {

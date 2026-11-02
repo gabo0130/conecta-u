@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { apiClient } from "@/apis/client";
-import type { AdminCollaboratorSummary, AdminCollaboratorsResponse } from "@/apis/interfaces/admin";
+import type {
+  AdminCollaboratorDetail,
+  AdminCollaboratorSummary,
+  AdminCollaboratorsResponse,
+  CreatePersonPayload,
+} from "@/apis/interfaces/admin";
 import type { PageMeta } from "@/apis/interfaces/pagination";
 import { getErrorMessage } from "@/utils/get-error-message";
 
@@ -36,5 +41,15 @@ export function useAdminCollaborators() {
     void reload();
   }, [reload]);
 
-  return { collaborators, meta, page, setPage, isLoading, error, reload };
+  /** RF17: registra una persona sin cuenta y recarga la lista. */
+  const createPerson = useCallback(
+    async (payload: CreatePersonPayload) => {
+      const response = await apiClient.post<AdminCollaboratorDetail>("/admin/collaborators", payload);
+      await reload();
+      return response.data;
+    },
+    [reload],
+  );
+
+  return { collaborators, meta, page, setPage, isLoading, error, reload, createPerson };
 }

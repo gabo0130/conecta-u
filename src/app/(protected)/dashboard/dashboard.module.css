@@ -93,3 +93,41 @@
     grid-template-columns: minmax(0, 1fr) 320px;
   }
 }
+
+/* RF15: indicadores del ADMIN. */
+@media (min-width: 768px) {
+  .stats4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1200px) {
+  .stats4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.statsGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+@media (min-width: 900px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1400px) {
+  .statsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.sectionHint {
+  margin: 4px 0 0;
+  color: var(--c-muted);
+  font-size: 12.5px;
+}
+.sectionBody {
+  margin-top: 14px;
+}
+.retry {
+  padding: 0 22px 18px;
+}

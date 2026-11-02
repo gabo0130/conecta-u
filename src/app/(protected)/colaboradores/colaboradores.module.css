@@ -124,3 +124,10 @@
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
+
+/* RF17: importar y registrar persona, uno al lado del otro (se apilan en móvil). */
+.headActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

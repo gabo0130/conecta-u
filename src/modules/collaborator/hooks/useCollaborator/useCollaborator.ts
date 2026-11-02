@@ -6,11 +6,39 @@ import { apiClient } from "@/apis/client";
 import type {
   AvailabilityPayload,
   Collaborator,
+  Experience,
   CollaboratorSkillPayload,
   ExperiencePayload,
   UpdateCollaboratorPayload,
 } from "@/apis/interfaces/collaborator";
 import { getErrorMessage } from "@/utils/get-error-message";
+import { fileNameFromDisposition, openBlob } from "@/utils/open-blob";
+
+/** La experiencia se guardó pero el certificado no: se avisa sin perder lo guardado. */
+export class CertificateUploadError extends Error {
+  constructor(cause: unknown) {
+    super(
+      `La experiencia se guardó, pero el certificado no se pudo subir: ${getErrorMessage(cause, "intenta adjuntarlo de nuevo.")}`,
+    );
+    this.name = "CertificateUploadError";
+  }
+}
+
+const certificateUrl = (experienceId: string) => `/collaborators/me/experience/${experienceId}/certificate`;
+
+/** Sube el certificado (multipart, campo `file`). */
+export function uploadCertificate(url: string, file: File) {
+  const form = new FormData();
+  form.append("file", file);
+  return apiClient.put<Experience>(url, form, { headers: { "Content-Type": "multipart/form-data" } });
+}
+
+/** Descarga un certificado con el token y lo abre en otra pestaña. */
+export async function viewCertificateAt(url: string, fallbackName = "certificado") {
+  const response = await apiClient.get<Blob>(url, { responseType: "blob" });
+  const disposition = response.headers["content-disposition"];
+  openBlob(response.data, fileNameFromDisposition(typeof disposition === "string" ? disposition : undefined, fallbackName));
+}
 
 export function useCollaborator() {
   const [collaborator, setCollaborator] = useState<Collaborator | null>(null);
@@ -72,5 +100,23 @@ export function useCollaborator() {
       mutate(() => apiClient.patch(`/collaborators/me/experience/${id}`, payload)),
     deleteExperience: (id: string) =>
       mutate(() => apiClient.delete(`/collaborators/me/experience/${id}`)),
+    /**
+     * RF4 (v2.2, E8): crea o actualiza la experiencia y, si se eligió un archivo, sube el
+     * certificado. Si solo falla el certificado lanza `CertificateUploadError`.
+     */
+    saveExperience: (payload: ExperiencePayload, { id, certificate }: { id?: string; certificate: File | null }) =>
+      mutate(async () => {
+        const response = id
+          ? await apiClient.patch<Experience>(`/collaborators/me/experience/${id}`, payload)
+          : await apiClient.post<Experience>("/collaborators/me/experience", payload);
+        if (!certificate) return;
+        try {
+          await uploadCertificate(certificateUrl(response.data.id), certificate);
+        } catch (err) {
+          throw new CertificateUploadError(err);
+        }
+      }),
+    deleteCertificate: (experienceId: string) => mutate(() => apiClient.delete(certificateUrl(experienceId))),
+    viewCertificate: (experienceId: string) => viewCertificateAt(certificateUrl(experienceId)),
   };
 }

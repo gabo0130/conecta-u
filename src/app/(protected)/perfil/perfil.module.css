@@ -154,3 +154,14 @@
   min-width: 0;
   margin: 0;
 }
+
+/* RF4 (v2.2, E8): aviso de certificados pendientes en la tarjeta de experiencia. */
+.certificateNotice {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--c-amber-soft);
+  color: var(--c-ink-2);
+  font-size: 13.5px;
+  line-height: 1.45;
+}

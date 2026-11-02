@@ -1,0 +1,28 @@
+.intro {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--c-ink-2);
+}
+.recipients {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.recipient {
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  background: var(--c-red-soft);
+  color: var(--c-red-ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+.note {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--c-muted);
+  line-height: 1.45;
+}

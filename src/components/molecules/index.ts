@@ -20,3 +20,6 @@ export { TagsInput } from "./TagsInput/TagsInput";
 export { RowActions } from "./RowActions/RowActions";
 export { LegalCheckbox } from "./LegalCheckbox/LegalCheckbox";
 export { VerificationNotice } from "./VerificationNotice/VerificationNotice";
+export { CertificateField } from "./CertificateField/CertificateField";
+export { BarList } from "./BarList/BarList";
+export type { BarListItem } from "./BarList/BarList";

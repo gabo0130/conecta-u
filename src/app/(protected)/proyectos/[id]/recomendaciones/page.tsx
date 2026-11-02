@@ -2,13 +2,21 @@
 
 import { useState, type ReactNode } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Info, RefreshCw, Sparkles, Users } from "lucide-react";
+import { ArrowLeft, Info, Mail, RefreshCw, Sparkles, Users } from "lucide-react";
 import type { Project } from "@/apis/interfaces/projects";
 import type { ProfileRecommendations, RecommendationItem } from "@/apis/interfaces/recommendations";
 import { AppShell, PageGrid } from "@/components/templates";
 import { Badge, Button, Card, Checkbox } from "@/components/atoms";
 import { LoadingState, RecommendationCard, VerificationNotice } from "@/components/molecules";
-import { RecommendationDetailModal, RoleGuard } from "@/components/organisms";
+import {
+  InvitationHistory,
+  InvitationModal,
+  RecommendationDetailModal,
+  RoleGuard,
+} from "@/components/organisms";
+import { useInvitations } from "@/modules/invitations/hooks/useInvitations/useInvitations";
+import { invitedLabel, lastSentByPerson } from "@/modules/invitations/utils/invitation-view";
+import { INVITATION_LIMITS } from "@/apis/interfaces/invitations";
 import { useAuth } from "@/contexts/auth-context";
 import { useAdminProject } from "@/modules/admin/hooks/useAdminProject/useAdminProject";
 import { PRIORITY_LABEL, PRIORITY_TONE, formatQuantity } from "@/modules/analysis/utils/analysis-view";
@@ -67,6 +75,11 @@ function RecommendationsScreen({ project, canGenerate }: RecommendationsScreenPr
   } = useRecommendations(project.id);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [explaining, setExplaining] = useState<Explaining | null>(null);
+  // RF21: personas marcadas para convocar, por perfil (se limpia al cambiar de perfil).
+  const [toInvite, setToInvite] = useState<Set<string>>(() => new Set());
+  const [isInviting, setIsInviting] = useState(false);
+  const invitationsApi = useInvitations(project.id);
+  const sentByPerson = lastSentByPerson(invitationsApi.invitations);
 
   const status = getStatusView(project.status);
   const selected = profiles.find((profile) => profile.profileId === selectedId) ?? profiles[0];
@@ -170,7 +183,10 @@ function RecommendationsScreen({ project, canGenerate }: RecommendationsScreenPr
                     .filter(Boolean)
                     .join(" ")}
                   aria-pressed={profile === selected}
-                  onClick={() => setSelectedId(profile.profileId)}
+                  onClick={() => {
+                    setSelectedId(profile.profileId);
+                    setToInvite(new Set());
+                  }}
                 >
                   <span className={styles.profileTabName}>{profile.name}</span>
                   <span className={styles.profileTabCount}>{profile.recommendations.length}</span>
@@ -185,10 +201,48 @@ function RecommendationsScreen({ project, canGenerate }: RecommendationsScreenPr
               isLoading={isLoading}
               generateButton={canGenerate ? generateButton : null}
               onExplain={(recommendation) => setExplaining({ recommendation, profileName: selected.name })}
+              invitedLabelOf={(collaboratorId) => invitedLabel(sentByPerson.get(collaboratorId))}
+              invitation={
+                canGenerate
+                  ? {
+                      selected: toInvite,
+                      onToggle: (collaboratorId, checked) =>
+                        setToInvite((current) => {
+                          const next = new Set(current);
+                          if (checked) next.add(collaboratorId);
+                          else next.delete(collaboratorId);
+                          return next;
+                        }),
+                      onInvite: () => setIsInviting(true),
+                    }
+                  : null
+              }
             />
           </>
         ) : null}
+
+        {!isLoading && !error && hasGenerated ? (
+          <InvitationHistory
+            invitations={invitationsApi.invitations}
+            isLoading={invitationsApi.isLoading}
+            error={invitationsApi.error}
+            onRetry={() => void invitationsApi.reload()}
+          />
+        ) : null}
       </div>
+
+      {isInviting && selected ? (
+        <InvitationModal
+          projectTitle={project.title}
+          profile={{ id: selected.profileId, name: selected.name }}
+          recipients={selected.recommendations
+            .filter((item) => toInvite.has(item.collaborator.id))
+            .map((item) => ({ id: item.collaborator.id, fullName: item.collaborator.fullName }))}
+          onSend={invitationsApi.send}
+          onSent={() => setToInvite(new Set())}
+          onClose={() => setIsInviting(false)}
+        />
+      ) : null}
 
       {explaining ? (
         <RecommendationDetailModal
@@ -210,6 +264,13 @@ type ProfileSectionProps = {
   /** Solo para el LIDER; el ADMIN ve el estado vacío sin acción. */
   generateButton: ReactNode;
   onExplain: (recommendation: RecommendationItem) => void;
+  invitedLabelOf: (collaboratorId: string) => string | null;
+  /** RF21: solo el LIDER dueño convoca; el ADMIN ve la lista sin selección. */
+  invitation: {
+    selected: Set<string>;
+    onToggle: (collaboratorId: string, checked: boolean) => void;
+    onInvite: () => void;
+  } | null;
 };
 
 function ProfileSection({
@@ -219,7 +280,12 @@ function ProfileSection({
   isLoading,
   generateButton,
   onExplain,
+  invitedLabelOf,
+  invitation,
 }: ProfileSectionProps) {
+  const selectedCount = invitation
+    ? profile.recommendations.filter((item) => invitation.selected.has(item.collaborator.id)).length
+    : 0;
   return (
     <section className={styles.profile} aria-labelledby="perfil-seleccionado">
       <div className={styles.profileHead}>
@@ -266,11 +332,42 @@ function ProfileSection({
 
       {!isLoading && profile.recommendations.length > 0 ? <VerificationNotice /> : null}
 
+      {invitation && !isLoading && profile.recommendations.length > 0 ? (
+        <div className={styles.inviteBar}>
+          <p className={styles.inviteText}>
+            {selectedCount === 0
+              ? "Marca a las personas que quieres convocar por correo."
+              : `${selectedCount} ${selectedCount === 1 ? "persona seleccionada" : "personas seleccionadas"}.`}
+          </p>
+          <Button
+            leftIcon={<Mail />}
+            disabled={selectedCount === 0 || selectedCount > INVITATION_LIMITS.maxRecipients}
+            onClick={invitation.onInvite}
+          >
+            {selectedCount > INVITATION_LIMITS.maxRecipients
+              ? `Máximo ${INVITATION_LIMITS.maxRecipients} por envío`
+              : "Convocar por correo"}
+          </Button>
+        </div>
+      ) : null}
+
       {!isLoading && profile.recommendations.length > 0 ? (
         <ol className={styles.list}>
           {profile.recommendations.map((recommendation) => (
             <li key={recommendation.id}>
-              <RecommendationCard recommendation={recommendation} onExplain={() => onExplain(recommendation)} />
+              <RecommendationCard
+                recommendation={recommendation}
+                onExplain={() => onExplain(recommendation)}
+                invitedLabel={invitedLabelOf(recommendation.collaborator.id)}
+                selection={
+                  invitation
+                    ? {
+                        checked: invitation.selected.has(recommendation.collaborator.id),
+                        onChange: (checked) => invitation.onToggle(recommendation.collaborator.id, checked),
+                      }
+                    : undefined
+                }
+              />
             </li>
           ))}
         </ol>

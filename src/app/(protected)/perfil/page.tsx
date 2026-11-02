@@ -22,6 +22,7 @@ import {
   SKILL_TYPE_TONE,
 } from "@/components/organisms/SkillPicker/skill-type";
 import { useAuth } from "@/contexts/auth-context";
+import { getCertificateBadge, countPendingCertificates } from "@/modules/collaborator/utils/certificate";
 import { useCollaborator } from "@/modules/collaborator/hooks/useCollaborator/useCollaborator";
 import { useCreateCollaboratorProfile } from "@/modules/collaborator/hooks/useCreateCollaboratorProfile/useCreateCollaboratorProfile";
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
@@ -69,9 +70,10 @@ export default function PerfilPage() {
     addSkill,
     updateSkill,
     deleteSkill,
-    addExperience,
-    updateExperience,
+    saveExperience,
     deleteExperience,
+    deleteCertificate,
+    viewCertificate,
     reload,
   } = useCollaborator();
   const { createProfile } = useCreateCollaboratorProfile();
@@ -243,6 +245,14 @@ export default function PerfilPage() {
                 + Agregar
               </Button>
             </div>
+            {countPendingCertificates(collaborator.experiences) > 0 ? (
+              <p className={styles.certificateNotice} role="status">
+                {countPendingCertificates(collaborator.experiences) === 1
+                  ? "1 experiencia laboral, de práctica o de docencia no tiene certificado."
+                  : `${countPendingCertificates(collaborator.experiences)} experiencias laborales, de práctica o de docencia no tienen certificado.`}{" "}
+                Edítala para adjuntarlo (PDF, PNG o JPG).
+              </p>
+            ) : null}
             {collaborator.experiences.length === 0 ? (
               <p className={styles.completeText}>Aún no has agregado experiencia.</p>
             ) : (
@@ -251,6 +261,15 @@ export default function PerfilPage() {
                   <ExperienceItem
                     key={experience.id}
                     experience={{ title: experience.role, meta: getExperienceMeta(experience) }}
+                    badge={getCertificateBadge(experience)}
+                    onViewCertificate={
+                      experience.certificate
+                        ? () =>
+                            void viewCertificate(experience.id).catch((err: unknown) =>
+                              notify.error(getErrorMessage(err, "No se pudo abrir el certificado.")),
+                            )
+                        : undefined
+                    }
                     onView={() => setModal({ kind: "experience", experience, readOnly: true })}
                     onEdit={() => setModal({ kind: "experience", experience })}
                     onDelete={() => void handleDeleteExperience(experience)}
@@ -336,10 +355,12 @@ export default function PerfilPage() {
         <ExperienceModal
           experience={modal.experience}
           readOnly={modal.readOnly}
-          onSubmit={(payload) =>
-            modal.experience ? updateExperience(modal.experience.id, payload) : addExperience(payload)
+          onSubmit={(payload, certificate) =>
+            saveExperience(payload, { id: modal.experience?.id, certificate })
           }
           onDelete={modal.experience ? () => deleteExperience(modal.experience!.id) : undefined}
+          onViewCertificate={modal.experience ? () => viewCertificate(modal.experience!.id) : undefined}
+          onDeleteCertificate={modal.experience ? () => deleteCertificate(modal.experience!.id) : undefined}
           onClose={closeModal}
         />
       ) : null}

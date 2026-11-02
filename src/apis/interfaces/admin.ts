@@ -159,3 +159,81 @@ export interface ImportRunDetail {
   rejected: ImportRejectedRow[];
   warnings: string[];
 }
+
+/* ---- RF17: personas sin cuenta (ADMIN) ---- */
+
+/** Persona que registra el ADMIN sin crearle cuenta (`POST /admin/collaborators`). */
+export interface CreatePersonPayload extends AccountPersonPayload {
+  email: string;
+  semester?: number | null;
+  researchGroup?: string | null;
+  summary?: string | null;
+  availabilityStatus?: AvailabilityStatus;
+  weeklyHours?: number;
+}
+
+/** `PATCH /admin/collaborators/:id/profile`: campos parciales del perfil. */
+export interface UpdatePersonProfilePayload {
+  firstName?: string;
+  lastName?: string;
+  personType?: PersonType;
+  programId?: string;
+  semester?: number | null;
+  researchGroup?: string | null;
+  summary?: string | null;
+  availabilityStatus?: AvailabilityStatus;
+  weeklyHours?: number;
+}
+
+/* ---- RF15–RF16: estadísticas y reportes (ADMIN) ---- */
+
+export interface CountBy {
+  key: string;
+  label: string;
+  count: number;
+}
+
+export interface SkillBalance {
+  skillId: string;
+  name: string;
+  type: SkillType;
+  offered: number;
+  demanded: number;
+}
+
+export interface PlatformStats {
+  generatedAt: string;
+  projects: {
+    total: number;
+    createdLast30Days: number;
+    byStatus: CountBy[];
+    byType: CountBy[];
+    byCategory: CountBy[];
+  };
+  people: {
+    total: number;
+    active: number;
+    withAccount: number;
+    withConsent: number;
+    truthfulnessDeclared: number;
+    byPersonType: CountBy[];
+    bySource: CountBy[];
+    byProgram: CountBy[];
+  };
+  availability: { byStatus: CountBy[]; averageWeeklyHours: number; totalWeeklyHoursAvailable: number };
+  users: { total: number; active: number; byRole: CountBy[] };
+  profiles: {
+    activeRequiredProfiles: number;
+    analysesCompleted: number;
+    analysesFailed: number;
+    projectsWithRecommendations: number;
+    recommendations: number;
+    averageTopScore: number | null;
+  };
+  skills: { catalogActive: number; pendingApproval: number; topOffered: SkillBalance[]; topDemanded: SkillBalance[]; gaps: SkillBalance[] };
+  certificates: { required: number; uploaded: number };
+  invitations: { sent: number; failed: number };
+}
+
+export type ReportKind = "proyectos" | "personas" | "habilidades" | "recomendaciones" | "convocatorias";
+export type ReportFormat = "xlsx" | "csv";

@@ -3,16 +3,20 @@ import { GraduationCap, HelpCircle, UserX } from "lucide-react";
 import type { RecommendationItem } from "@/apis/interfaces/recommendations";
 import { AVAILABILITY_VIEW, PERSON_TYPE_LABEL } from "@/modules/collaborator/utils/collaborator-view";
 import { barWidth, formatScore, scoreTone } from "@/modules/recommendations/utils/recommendation-view";
-import { Badge, Button, Card } from "../../atoms";
+import { Badge, Button, Card, Checkbox } from "../../atoms";
 import styles from "./RecommendationCard.module.css";
 
 type RecommendationCardProps = {
   recommendation: RecommendationItem;
   onExplain: () => void;
+  /** RF21: el líder marca a quién convocar por correo. */
+  selection?: { checked: boolean; onChange: (checked: boolean) => void; disabled?: boolean };
+  /** RF22: ya se le envió una convocatoria (p. ej. "Convocada el 3 nov."). */
+  invitedLabel?: string | null;
 };
 
 /** Una persona recomendada para un perfil (RF12): puesto, puntaje y datos sin contacto. */
-export function RecommendationCard({ recommendation, onExplain }: RecommendationCardProps) {
+export function RecommendationCard({ recommendation, onExplain, selection, invitedLabel }: RecommendationCardProps) {
   const { rank, score, matchedSkillCount, requiredSkillCount, collaborator } = recommendation;
   const availability = AVAILABILITY_VIEW[collaborator.availabilityStatus];
   const tone = scoreTone(score);
@@ -49,7 +53,18 @@ export function RecommendationCard({ recommendation, onExplain }: Recommendation
             <span className={styles.skills}>
               {matchedSkillCount} de {requiredSkillCount} habilidades
             </span>
+            {invitedLabel ? <Badge tone="green">{invitedLabel}</Badge> : null}
           </div>
+          {selection ? (
+            <Checkbox
+              size="sm"
+              label="Convocar por correo"
+              checked={selection.checked}
+              disabled={selection.disabled}
+              onChange={(event) => selection.onChange(event.target.checked)}
+              aria-label={`Convocar a ${collaborator.fullName} por correo`}
+            />
+          ) : null}
         </div>
 
         <div className={styles.aside}>

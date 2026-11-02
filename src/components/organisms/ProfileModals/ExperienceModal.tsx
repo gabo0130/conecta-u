@@ -14,20 +14,42 @@ import {
   validateInteger,
 } from "@/modules/collaborator/utils/collaborator-limits";
 import { EXPERIENCE_TYPE_OPTIONS, LEVEL_OPTIONS } from "@/modules/collaborator/utils/collaborator-view";
+import {
+  CERTIFICATE_ACCEPT,
+  CERTIFICATE_HINT,
+  CERTIFICATE_MAX_BYTES,
+  CERTIFICATE_REQUIRED_MESSAGE,
+  requiresCertificate,
+} from "@/modules/collaborator/utils/certificate";
+import { CertificateUploadError } from "@/modules/collaborator/hooks/useCollaborator/useCollaborator";
+import { getErrorMessage } from "@/utils/get-error-message";
+import { notify } from "@/utils/notify";
 import { Checkbox, Input, Modal, Select, Textarea } from "../../atoms";
+import { CertificateField } from "../../molecules";
 import { SkillPicker } from "../SkillPicker/SkillPicker";
-import { clean, useProfileSubmit, type SubmitFn } from "./useProfileSubmit";
+import { clean, useProfileSubmit } from "./useProfileSubmit";
 
 type ExperienceModalProps = {
   experience?: Experience;
-  onSubmit: SubmitFn<ExperiencePayload>;
+  /** Guarda la experiencia y, si se eligió, sube el certificado (RF4, v2.2 E8). */
+  onSubmit: (payload: ExperiencePayload, certificate: File | null) => Promise<unknown>;
   onDelete?: () => Promise<unknown>;
+  onViewCertificate?: () => Promise<void>;
+  onDeleteCertificate?: () => Promise<unknown>;
   onClose: () => void;
   /** Modo vista: el mismo formulario con todo deshabilitado. */
   readOnly?: boolean;
 };
 
-export function ExperienceModal({ experience, onSubmit, onDelete, onClose, readOnly = false }: ExperienceModalProps) {
+export function ExperienceModal({
+  experience,
+  onSubmit,
+  onDelete,
+  onViewCertificate,
+  onDeleteCertificate,
+  onClose,
+  readOnly = false,
+}: ExperienceModalProps) {
   const [type, setType] = useState<ExperienceType>(experience?.type ?? "LABORAL");
   const [role, setRole] = useState(experience?.role ?? "");
   const [organization, setOrganization] = useState(experience?.organization ?? "");
@@ -38,7 +60,38 @@ export function ExperienceModal({ experience, onSubmit, onDelete, onClose, readO
   const [level, setLevel] = useState<SkillLevel>(experience?.level ?? "BASICO");
   const [description, setDescription] = useState(experience?.description ?? "");
   const [technologies, setTechnologies] = useState<ExperienceTechnology[]>(experience?.technologies ?? []);
-  const { isSubmitting, error, run, confirmDelete, failWith } = useProfileSubmit();
+  const [certificateFile, setCertificateFile] = useState<File | null>(null);
+  const [savedCertificate, setSavedCertificate] = useState(experience?.certificate ?? null);
+  const { isSubmitting, error, setError, run, confirmDelete, failWith } = useProfileSubmit();
+  const certificateRequired = requiresCertificate(type);
+
+  const viewCertificate = async () => {
+    try {
+      await onViewCertificate?.();
+    } catch (err) {
+      void notify.error(getErrorMessage(err, "No se pudo abrir el certificado."));
+    }
+  };
+
+  const removeCertificate = async () => {
+    if (!onDeleteCertificate) return;
+    const confirmed = await notify.confirm({
+      title: "¿Quitar el certificado?",
+      message: certificateRequired
+        ? "La experiencia quedará sin soporte hasta que adjuntes otro certificado."
+        : "El certificado se eliminará de esta experiencia.",
+      confirmLabel: "Quitar",
+      tone: "danger",
+    });
+    if (!confirmed) return;
+    try {
+      await onDeleteCertificate();
+      setSavedCertificate(null);
+      void notify.success("El certificado se quitó de la experiencia.");
+    } catch (err) {
+      void notify.error(getErrorMessage(err, "No se pudo quitar el certificado."));
+    }
+  };
 
   const handleSubmit = () => {
     if (
@@ -46,13 +99,26 @@ export function ExperienceModal({ experience, onSubmit, onDelete, onClose, readO
         !clean(role) || !clean(organization) ? "El rol y la organización son obligatorios." : null,
         validateExperienceDates(startDate, endDate, current),
         validateInteger(weeklyHours, EXPERIENCE_WEEKLY_HOURS, { label: "La dedicación semanal" }),
+        certificateRequired && !savedCertificate && !certificateFile ? CERTIFICATE_REQUIRED_MESSAGE : null,
       )
     ) {
       return;
     }
+    // Si se guardó la experiencia pero falló el certificado, el modal se cierra (reintentar crearía
+    // otra experiencia) y se avisa qué faltó, después del mensaje de éxito.
+    let partialFailure: CertificateUploadError | null = null;
+    const save = async (payload: ExperiencePayload) => {
+      try {
+        await onSubmit(payload, certificateFile);
+      } catch (err) {
+        if (err instanceof CertificateUploadError) partialFailure = err;
+        else throw err;
+      }
+    };
     void run(
       () =>
-        onSubmit({
+        save(
+          {
           type,
           role: clean(role),
           organization: clean(organization),
@@ -63,10 +129,13 @@ export function ExperienceModal({ experience, onSubmit, onDelete, onClose, readO
           level,
           skillIds: technologies.map((skill) => skill.id),
           description: clean(description) || undefined,
-        }),
+          },
+        ),
       onClose,
       experience ? "La experiencia se actualizó." : "La experiencia se agregó a tu perfil.",
-    );
+    ).then(() => {
+      if (partialFailure) void notify.warning(partialFailure.message);
+    });
   };
 
   return (
@@ -144,6 +213,24 @@ export function ExperienceModal({ experience, onSubmit, onDelete, onClose, readO
         value={description}
         onChange={(event) => setDescription(event.target.value)}
       />
+      {readOnly ? null : (
+        <CertificateField
+          current={savedCertificate}
+          file={certificateFile}
+          onFileChange={(file) => {
+            setCertificateFile(file);
+            // Al elegir el archivo deja de aplicar el aviso de "falta el certificado".
+            if (file) setError("");
+          }}
+          required={certificateRequired}
+          accept={CERTIFICATE_ACCEPT}
+          maxSizeBytes={CERTIFICATE_MAX_BYTES}
+          hint={CERTIFICATE_HINT}
+          onView={savedCertificate && onViewCertificate ? () => void viewCertificate() : undefined}
+          onRemove={savedCertificate && onDeleteCertificate ? () => void removeCertificate() : undefined}
+          disabled={isSubmitting}
+        />
+      )}
     </Modal>
   );
 }

@@ -11,7 +11,9 @@ import {
   accessLabel,
 } from "@/modules/collaborator/utils/collaborator-view";
 import { formatDate, getStatusView } from "@/modules/projects/utils/project-view";
-import { Badge, Card, Chip, Spinner } from "../../atoms";
+import { FileText } from "lucide-react";
+import { getCertificateBadge } from "@/modules/collaborator/utils/certificate";
+import { Badge, Button, Card, Chip, Spinner } from "../../atoms";
 import { SKILL_TYPE_LABEL, SKILL_TYPE_TONE, groupBySoftSkill } from "../SkillPicker/skill-type";
 import styles from "./CollaboratorView.module.css";
 
@@ -20,13 +22,39 @@ type CollaboratorViewProps = {
   programName?: string;
   /** El catálogo de programas todavía está cargando. */
   isProgramLoading?: boolean;
+  /** RF4 (v2.2, E8 / RT16): el ADMIN abre el certificado que soporta una experiencia. */
+  onViewCertificate?: (experienceId: string) => void;
 };
 
 const EMPTY = "Sin definir";
 
 /** Perfil técnico de una persona en solo lectura, con los datos de cuenta y registro que ve el ADMIN. */
-export function CollaboratorView({ collaborator, programName, isProgramLoading = false }: CollaboratorViewProps) {
+export function CollaboratorView({
+  collaborator,
+  programName,
+  isProgramLoading = false,
+  onViewCertificate,
+}: CollaboratorViewProps) {
   const availability = AVAILABILITY_VIEW[collaborator.availabilityStatus];
+  const renderCertificate = (experience: AdminCollaboratorDetail["experiences"][number]) => {
+    const badge = getCertificateBadge(experience);
+    if (!badge) return null;
+    return (
+      <div className={styles.certificate}>
+        <Badge tone={badge.tone}>{badge.label}</Badge>
+        {experience.certificate && onViewCertificate ? (
+          <Button
+            variant="link"
+            size="sm"
+            leftIcon={<FileText size={16} />}
+            onClick={() => onViewCertificate(experience.id)}
+          >
+            Ver certificado
+          </Button>
+        ) : null}
+      </div>
+    );
+  };
   const { user } = collaborator;
   const { technical: technicalSkills, soft: softSkills } = groupBySoftSkill(
     collaborator.skills,
@@ -119,6 +147,7 @@ export function CollaboratorView({ collaborator, programName, isProgramLoading =
                   <p className={styles.rowMeta}>
                     Nivel {LEVEL_LABEL[experience.level].toLowerCase()} · {experience.weeklyHours} h/semana
                   </p>
+                  {renderCertificate(experience)}
                   {experience.technologies.length > 0 ? (
                     <div className={styles.chips}>
                       {experience.technologies.map((technology) => (
