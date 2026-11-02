@@ -1,6 +1,7 @@
 "use client";
 
 import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
@@ -72,6 +73,9 @@ export function LoginForm({ size }: LoginFormProps) {
           rightIconLabel={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
           onRightIconClick={() => setShowPassword((value) => !value)}
         />
+        <Link href="/recuperar-contrasena" className={styles.forgot}>
+          ¿Olvidaste tu contraseña?
+        </Link>
       </div>
 
       {error ? <FormError>{error}</FormError> : null}

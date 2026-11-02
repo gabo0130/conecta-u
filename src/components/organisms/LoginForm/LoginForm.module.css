@@ -16,3 +16,17 @@
   color: var(--c-muted);
   text-align: center;
 }
+
+.forgot {
+  justify-self: end;
+  margin-top: -4px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--c-red);
+  text-decoration: none;
+}
+
+.forgot:hover,
+.forgot:focus-visible {
+  text-decoration: underline;
+}

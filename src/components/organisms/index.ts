@@ -36,3 +36,5 @@ export { ReportsCard } from "./ReportsCard/ReportsCard";
 export { InvitationModal } from "./InvitationModal/InvitationModal";
 export { InvitationHistory } from "./InvitationHistory/InvitationHistory";
 export { StatsFiltersBar } from "./StatsFiltersBar/StatsFiltersBar";
+export { ForgotPasswordForm } from "./PasswordRecovery/ForgotPasswordForm";
+export { ResetPasswordForm } from "./PasswordRecovery/ResetPasswordForm";
