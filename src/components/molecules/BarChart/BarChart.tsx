@@ -13,6 +13,9 @@ const INK_MUTED = "#6c6c76";
 const GRID = "#f0f0f3";
 const ROW_HEIGHT = 30;
 const PADDING = 36;
+// Etiquetas largas (programas, habilidades) se acortan en el eje; completas en el tooltip y la tabla.
+const MAX_TICK_CHARS = 26;
+const shorten = (text: string) => (text.length > MAX_TICK_CHARS ? `${text.slice(0, MAX_TICK_CHARS - 1)}…` : text);
 
 export type BarChartSeries = {
   name: string;
@@ -43,6 +46,7 @@ export function BarChart({ label, categories, series, emptyMessage = "Sin datos 
     responsive: true,
     maintainAspectRatio: false,
     animation: false,
+    layout: { padding: { left: 8 } },
     plugins: {
       legend: {
         display: showLegend,
@@ -75,7 +79,12 @@ export function BarChart({ label, categories, series, emptyMessage = "Sin datos 
       y: {
         grid: { display: false },
         border: { display: false },
-        ticks: { color: INK_MUTED, font: { size: 12 }, autoSkip: false },
+        ticks: {
+          color: INK_MUTED,
+          font: { size: 12 },
+          autoSkip: false,
+          callback: (_value, index) => shorten(categories[index] ?? ""),
+        },
       },
     },
   };

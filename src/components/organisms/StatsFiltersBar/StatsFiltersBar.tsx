@@ -43,7 +43,7 @@ export function StatsFiltersBar({ value, onChange, isRefreshing = false }: Stats
     <section className={styles.bar} aria-label="Filtros de las estadísticas">
       <div className={styles.group}>
         <span className={styles.groupLabel}>Proyectos</span>
-        <div className={styles.fields}>
+        <div className={styles.fieldsWide}>
           <Input
             label="Desde"
             type="date"

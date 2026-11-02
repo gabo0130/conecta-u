@@ -318,8 +318,8 @@ function AdminStats({ stats }: { stats: PlatformStats }) {
       value: String(profiles.recommendations),
       hint:
         profiles.averageTopScore === null
-          ? `en ${profiles.projectsWithRecommendations} proyectos`
-          : `en ${profiles.projectsWithRecommendations} proyectos · 1.º puesto ${profiles.averageTopScore} % en promedio`,
+          ? `en ${plural(profiles.projectsWithRecommendations, "proyecto", "proyectos")}`
+          : `en ${plural(profiles.projectsWithRecommendations, "proyecto", "proyectos")} · 1.º puesto ${profiles.averageTopScore} % en promedio`,
       icon: Sparkles,
     },
     {
