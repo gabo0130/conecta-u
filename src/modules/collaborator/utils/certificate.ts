@@ -23,3 +23,35 @@ export function getCertificateBadge(experience: Pick<Experience, "certificate" |
 export function countPendingCertificates(experiences: Pick<Experience, "certificate" | "certificateRequired">[]) {
   return experiences.filter((experience) => experience.certificateRequired && !experience.certificate).length;
 }
+
+export type CertificateMime = "application/pdf" | "image/png" | "image/jpeg";
+
+export const INVALID_CERTIFICATE_FILE =
+  "El archivo no es un PDF, PNG o JPG válido. Revisa que no sea otro tipo de archivo con la extensión cambiada.";
+
+const SIGNATURES: { mime: CertificateMime; bytes: number[] }[] = [
+  { mime: "application/pdf", bytes: [0x25, 0x50, 0x44, 0x46, 0x2d] }, // %PDF-
+  { mime: "image/png", bytes: [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a] },
+  { mime: "image/jpeg", bytes: [0xff, 0xd8, 0xff] },
+];
+
+function readHead(file: Blob, length: number): Promise<Uint8Array> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(new Uint8Array(reader.result as ArrayBuffer));
+    reader.onerror = () => reject(reader.error ?? new Error("No se pudo leer el archivo."));
+    reader.readAsArrayBuffer(file.slice(0, length));
+  });
+}
+
+/** Tipo real del archivo por su firma (las mismas reglas que el backend); `null` si no es válido. */
+export async function detectCertificateType(file: Blob): Promise<CertificateMime | null> {
+  const head = await readHead(file, 8);
+  const match = SIGNATURES.find(({ bytes }) => bytes.every((byte, index) => head[index] === byte));
+  return match?.mime ?? null;
+}
+
+/** Validación para `FileDropzone`: bloquea un archivo falso antes de guardar nada. */
+export async function validateCertificateFile(file: File): Promise<string | null> {
+  return (await detectCertificateType(file)) ? null : INVALID_CERTIFICATE_FILE;
+}

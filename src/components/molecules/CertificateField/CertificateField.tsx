@@ -17,7 +17,9 @@ type CertificateFieldProps = {
   maxSizeBytes: number;
   hint: string;
   onView?: () => void;
+  /** Solo en certificados opcionales: el obligatorio se reemplaza, no se quita. */
   onRemove?: () => void;
+  validate?: (file: File) => Promise<string | null>;
   disabled?: boolean;
 };
 
@@ -38,6 +40,7 @@ export function CertificateField({
   hint,
   onView,
   onRemove,
+  validate,
   disabled = false,
 }: CertificateFieldProps) {
   return (
@@ -80,6 +83,7 @@ export function CertificateField({
         accept={accept}
         maxSizeBytes={maxSizeBytes}
         disabled={disabled}
+        validate={validate}
         hint={current ? `Para reemplazarlo, elige otro archivo. ${hint}` : hint}
       />
     </div>

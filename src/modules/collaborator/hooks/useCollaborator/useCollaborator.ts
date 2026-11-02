@@ -14,17 +14,19 @@ import type {
 import { getErrorMessage } from "@/utils/get-error-message";
 import { fileNameFromDisposition, openBlob } from "@/utils/open-blob";
 
-/** La experiencia se guardó pero el certificado no: se avisa sin perder lo guardado. */
-export class CertificateUploadError extends Error {
-  constructor(cause: unknown) {
-    super(
-      `La experiencia se guardó, pero el certificado no se pudo subir: ${getErrorMessage(cause, "intenta adjuntarlo de nuevo.")}`,
-    );
-    this.name = "CertificateUploadError";
-  }
-}
-
 const certificateUrl = (experienceId: string) => `/collaborators/me/experience/${experienceId}/certificate`;
+
+/**
+ * Cuerpo de crear o editar una experiencia: JSON, o multipart con `data` (el JSON) y `file`
+ * cuando lleva certificado. La API guarda ambos juntos o ninguno.
+ */
+export function experienceRequest(payload: ExperiencePayload, certificate: File | null) {
+  if (!certificate) return { body: payload as ExperiencePayload | FormData, config: undefined };
+  const form = new FormData();
+  form.append("data", JSON.stringify(payload));
+  form.append("file", certificate);
+  return { body: form, config: { headers: { "Content-Type": "multipart/form-data" } } };
+}
 
 /** Sube el certificado (multipart, campo `file`). */
 export function uploadCertificate(url: string, file: File) {
@@ -101,20 +103,15 @@ export function useCollaborator() {
     deleteExperience: (id: string) =>
       mutate(() => apiClient.delete(`/collaborators/me/experience/${id}`)),
     /**
-     * RF4 (v2.2, E8): crea o actualiza la experiencia y, si se eligió un archivo, sube el
-     * certificado. Si solo falla el certificado lanza `CertificateUploadError`.
+     * RF4 (v2.2, E8): crea o actualiza la experiencia con su certificado en una sola petición;
+     * si el archivo no es válido no se guarda nada.
      */
     saveExperience: (payload: ExperiencePayload, { id, certificate }: { id?: string; certificate: File | null }) =>
-      mutate(async () => {
-        const response = id
-          ? await apiClient.patch<Experience>(`/collaborators/me/experience/${id}`, payload)
-          : await apiClient.post<Experience>("/collaborators/me/experience", payload);
-        if (!certificate) return;
-        try {
-          await uploadCertificate(certificateUrl(response.data.id), certificate);
-        } catch (err) {
-          throw new CertificateUploadError(err);
-        }
+      mutate(() => {
+        const { body, config } = experienceRequest(payload, certificate);
+        return id
+          ? apiClient.patch<Experience>(`/collaborators/me/experience/${id}`, body, config)
+          : apiClient.post<Experience>("/collaborators/me/experience", body, config);
       }),
     deleteCertificate: (experienceId: string) => mutate(() => apiClient.delete(certificateUrl(experienceId))),
     viewCertificate: (experienceId: string) => viewCertificateAt(certificateUrl(experienceId)),

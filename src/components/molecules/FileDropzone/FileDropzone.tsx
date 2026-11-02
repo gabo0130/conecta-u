@@ -13,19 +13,21 @@ type FileDropzoneProps = {
   maxSizeBytes: number;
   disabled?: boolean;
   hint?: string;
+  /** Validación extra del contenido (p. ej. la firma del archivo); devuelve el error o `null`. */
+  validate?: (file: File) => Promise<string | null>;
 };
 
 function formatSize(bytes: number) {
   return bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-/** Zona para arrastrar o elegir un archivo; valida extensión y tamaño antes de aceptarlo. */
-export function FileDropzone({ file, onChange, accept, maxSizeBytes, disabled = false, hint }: FileDropzoneProps) {
+/** Zona para arrastrar o elegir un archivo; valida extensión, tamaño y (opcional) contenido antes de aceptarlo. */
+export function FileDropzone({ file, onChange, accept, maxSizeBytes, disabled = false, hint, validate }: FileDropzoneProps) {
   const inputId = useId();
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState("");
 
-  const pick = (candidate: File | undefined) => {
+  const pick = async (candidate: File | undefined) => {
     if (!candidate) return;
     const name = candidate.name.toLowerCase();
     if (!accept.some((extension) => name.endsWith(extension))) {
@@ -36,6 +38,11 @@ export function FileDropzone({ file, onChange, accept, maxSizeBytes, disabled = 
       setError(`El archivo supera el máximo de ${formatSize(maxSizeBytes)}.`);
       return;
     }
+    const invalid = validate ? await validate(candidate) : null;
+    if (invalid) {
+      setError(invalid);
+      return;
+    }
     setError("");
     onChange(candidate);
   };
@@ -43,11 +50,11 @@ export function FileDropzone({ file, onChange, accept, maxSizeBytes, disabled = 
   const handleDrop = (event: DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
     setIsDragging(false);
-    if (!disabled) pick(event.dataTransfer.files[0]);
+    if (!disabled) void pick(event.dataTransfer.files[0]);
   };
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    pick(event.target.files?.[0]);
+    void pick(event.target.files?.[0]);
     // Permite volver a elegir el mismo archivo después de quitarlo.
     event.target.value = "";
   };

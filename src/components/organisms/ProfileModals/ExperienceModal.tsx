@@ -20,8 +20,8 @@ import {
   CERTIFICATE_MAX_BYTES,
   CERTIFICATE_REQUIRED_MESSAGE,
   requiresCertificate,
+  validateCertificateFile,
 } from "@/modules/collaborator/utils/certificate";
-import { CertificateUploadError } from "@/modules/collaborator/hooks/useCollaborator/useCollaborator";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { notify } from "@/utils/notify";
 import { Checkbox, Input, Modal, Select, Textarea } from "../../atoms";
@@ -31,7 +31,7 @@ import { clean, useProfileSubmit } from "./useProfileSubmit";
 
 type ExperienceModalProps = {
   experience?: Experience;
-  /** Guarda la experiencia y, si se eligió, sube el certificado (RF4, v2.2 E8). */
+  /** Guarda la experiencia junto con el certificado elegido, en una sola operación (RF4, v2.2 E8). */
   onSubmit: (payload: ExperiencePayload, certificate: File | null) => Promise<unknown>;
   onDelete?: () => Promise<unknown>;
   onViewCertificate?: () => Promise<void>;
@@ -77,9 +77,7 @@ export function ExperienceModal({
     if (!onDeleteCertificate) return;
     const confirmed = await notify.confirm({
       title: "¿Quitar el certificado?",
-      message: certificateRequired
-        ? "La experiencia quedará sin soporte hasta que adjuntes otro certificado."
-        : "El certificado se eliminará de esta experiencia.",
+      message: "El certificado se eliminará de esta experiencia.",
       confirmLabel: "Quitar",
       tone: "danger",
     });
@@ -104,20 +102,9 @@ export function ExperienceModal({
     ) {
       return;
     }
-    // Si se guardó la experiencia pero falló el certificado, el modal se cierra (reintentar crearía
-    // otra experiencia) y se avisa qué faltó, después del mensaje de éxito.
-    let partialFailure: CertificateUploadError | null = null;
-    const save = async (payload: ExperiencePayload) => {
-      try {
-        await onSubmit(payload, certificateFile);
-      } catch (err) {
-        if (err instanceof CertificateUploadError) partialFailure = err;
-        else throw err;
-      }
-    };
     void run(
       () =>
-        save(
+        onSubmit(
           {
           type,
           role: clean(role),
@@ -130,12 +117,11 @@ export function ExperienceModal({
           skillIds: technologies.map((skill) => skill.id),
           description: clean(description) || undefined,
           },
+          certificateFile,
         ),
       onClose,
       experience ? "La experiencia se actualizó." : "La experiencia se agregó a tu perfil.",
-    ).then(() => {
-      if (partialFailure) void notify.warning(partialFailure.message);
-    });
+    );
   };
 
   return (
@@ -227,7 +213,11 @@ export function ExperienceModal({
           maxSizeBytes={CERTIFICATE_MAX_BYTES}
           hint={CERTIFICATE_HINT}
           onView={savedCertificate && onViewCertificate ? () => void viewCertificate() : undefined}
-          onRemove={savedCertificate && onDeleteCertificate ? () => void removeCertificate() : undefined}
+          // El certificado obligatorio no se quita: solo se reemplaza (la API también lo bloquea).
+          onRemove={
+            savedCertificate && onDeleteCertificate && !certificateRequired ? () => void removeCertificate() : undefined
+          }
+          validate={validateCertificateFile}
           disabled={isSubmitting}
         />
       )}
