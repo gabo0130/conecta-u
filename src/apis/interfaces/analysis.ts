@@ -1,4 +1,4 @@
-// Análisis de proyectos con IA (RF12–RF14). Copia exacta de notes/backend-iteracion-2.md §12.
+// Análisis de proyectos con IA (RF8–RF10). Copia exacta de notes/backend-iteracion-2.md §12.
 import type { SkillType } from "./catalogs";
 import type { SkillLevel } from "./collaborator";
 import type { PageMeta } from "./pagination";
@@ -24,7 +24,7 @@ export interface RequiredProfile {
   source: ProfileSource;
   name: string;
   description: string;
-  /** Por qué el proyecto necesita el perfil (RF14). En los MANUAL puede ser "". */
+  /** Por qué el proyecto necesita el perfil (RF10). En los MANUAL puede ser "". */
   justification: string;
   quantity: number;
   priority: ProfilePriority;

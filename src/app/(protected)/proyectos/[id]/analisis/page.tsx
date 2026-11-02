@@ -51,7 +51,7 @@ type AnalysisScreenProps = {
   onRefreshProject: () => Promise<unknown>;
 };
 
-/** Análisis con IA de un proyecto (RF12–RF14): perfiles requeridos con su justificación. */
+/** Análisis con IA de un proyecto (RF8–RF10): perfiles requeridos con su justificación. */
 function AnalysisScreen({ project, canEdit, onRefreshProject }: AnalysisScreenProps) {
   const router = useRouter();
   const { analysis, isLoading, error, reload, analyze, isAnalyzing, analyzeState, analyzeError } = useProjectAnalysis(
@@ -208,8 +208,8 @@ function AnalysisScreen({ project, canEdit, onRefreshProject }: AnalysisScreenPr
               {canEdit ? (
                 <>
                   <p className={styles.emptyText}>
-                    La IA lee el título, el resumen, los objetivos, las habilidades conocidas y los entregables, y
-                    propone los perfiles que necesitas (técnicos y de habilidades blandas) con la justificación de cada
+                    La IA lee el título, el resumen, los objetivos, las competencias requeridas y los entregables, y
+                    propone los perfiles que necesitas (técnicos y de competencias blandas) con la justificación de cada
                     uno. Después puedes editarlos, descartarlos o agregar los tuyos.
                   </p>
                   {canAnalyze ? (

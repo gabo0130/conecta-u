@@ -11,9 +11,14 @@ import {
   validateIdentification,
 } from "@/modules/collaborator/utils/identification";
 import { getErrorMessage } from "@/utils/get-error-message";
+import {
+  TRUTHFULNESS_DECLARATION,
+  TRUTHFULNESS_LABEL,
+  TRUTHFULNESS_REQUIRED,
+} from "@/modules/legal/legal-texts";
 import { notify } from "@/utils/notify";
 import { Modal } from "../../atoms";
-import { IdentificationFields } from "../../molecules";
+import { IdentificationFields, LegalCheckbox } from "../../molecules";
 
 type IdentificationModalProps = {
   person: Identification;
@@ -21,7 +26,12 @@ type IdentificationModalProps = {
   email: string;
   /** El ADMIN siempre; la propia persona solo si aún no tiene documento. */
   canChangeDocument: boolean;
-  onSubmit: (payload: Partial<IdentificationPayload>) => Promise<unknown>;
+  /**
+   * v2.2, E2: en «Mi perfil» la persona declara la veracidad de lo que guarda (con su valor actual).
+   * El ADMIN no la declara por ella: sin esta prop no aparece la casilla.
+   */
+  truthfulness?: { declared: boolean };
+  onSubmit: (payload: Partial<IdentificationPayload> & { truthfulnessDeclared?: true }) => Promise<unknown>;
   onClose: () => void;
   successMessage: string;
 };
@@ -31,6 +41,7 @@ export function IdentificationModal({
   person,
   email,
   canChangeDocument,
+  truthfulness,
   onSubmit,
   onClose,
   successMessage,
@@ -38,6 +49,7 @@ export function IdentificationModal({
   const [form, setForm] = useState<IdentificationForm>(() => toIdentificationForm(person));
   const [errors, setErrors] = useState<IdentificationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [declared, setDeclared] = useState(truthfulness?.declared ?? false);
 
   const update = <K extends keyof IdentificationForm>(field: K, value: IdentificationForm[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -50,11 +62,16 @@ export function IdentificationModal({
     if (!canChangeDocument) delete found.documentNumber;
     setErrors(found);
     if (hasErrors(found)) return;
+    if (truthfulness && !declared) {
+      void notify.error(TRUTHFULNESS_REQUIRED);
+      return;
+    }
 
     const { documentType, documentNumber, ...contact } = toIdentificationPayload(form);
+    const fields = canChangeDocument ? { documentType, documentNumber, ...contact } : contact;
     setIsSubmitting(true);
     try {
-      await onSubmit(canChangeDocument ? { documentType, documentNumber, ...contact } : contact);
+      await onSubmit(truthfulness ? { ...fields, truthfulnessDeclared: true } : fields);
       onClose();
       void notify.success(successMessage);
     } catch (err) {
@@ -79,6 +96,15 @@ export function IdentificationModal({
         disabled={isSubmitting}
         documentLocked={!canChangeDocument}
       />
+      {truthfulness ? (
+        <LegalCheckbox
+          label={TRUTHFULNESS_LABEL}
+          href={TRUTHFULNESS_DECLARATION.href}
+          checked={declared}
+          onChange={(event) => setDeclared(event.target.checked)}
+          disabled={isSubmitting}
+        />
+      ) : null}
     </Modal>
   );
 }

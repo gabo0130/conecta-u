@@ -1,5 +1,6 @@
 import { ShieldCheck } from "lucide-react";
 import type { AdminProject } from "@/apis/interfaces/admin";
+import { accessLabel } from "@/modules/collaborator/utils/collaborator-view";
 import { formatDate } from "@/modules/projects/utils/project-view";
 import { ArrowLink, Badge, Card } from "../../atoms";
 import styles from "./AdminProjectInfo.module.css";
@@ -42,7 +43,7 @@ export function AdminProjectInfo({ project }: AdminProjectInfoProps) {
             <dt>Cuenta del líder</dt>
             <dd>
               <Badge tone={leader.active ? "green" : "gray"} dot>
-                {leader.active ? "Activa" : "Inactiva"}
+                {accessLabel(leader.active)}
               </Badge>
             </dd>
           </div>

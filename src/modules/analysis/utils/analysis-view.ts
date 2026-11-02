@@ -14,7 +14,7 @@ import type { SkillLevel } from "@/apis/interfaces/collaborator";
 import { validateInteger, type NumericRange } from "@/modules/collaborator/utils/collaborator-limits";
 import { toOptions } from "@/utils/to-options";
 
-// Etiquetas del análisis con IA (RF12–RF14). Las de nivel están en collaborator-view (LEVEL_LABEL).
+// Etiquetas del análisis con IA (RF8–RF10). Las de nivel están en collaborator-view (LEVEL_LABEL).
 
 export const PRIORITY_LABEL: Record<ProfilePriority, string> = { ALTA: "Alta", MEDIA: "Media", BAJA: "Baja" };
 export const PRIORITY_TONE: Record<ProfilePriority, BadgeTone> = { ALTA: "red", MEDIA: "amber", BAJA: "gray" };

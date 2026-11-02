@@ -23,7 +23,7 @@ export type AdminSkillsFilters = {
   status?: SkillStatus;
 };
 
-/** ADMIN: catálogo de habilidades paginado, con filtros (RF22) — incluye las PENDIENTE por revisar. */
+/** ADMIN: catálogo de habilidades paginado, con filtros (RF18) — incluye las PENDIENTE por revisar. */
 export function useAdminSkills(filters: AdminSkillsFilters) {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [meta, setMeta] = useState<PageMeta | null>(null);

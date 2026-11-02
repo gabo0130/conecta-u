@@ -1,4 +1,4 @@
-import type { PersonType, RegisterCollaboratorPayload, UserRole } from "./auth";
+import type { AccountPersonPayload, PersonType, UserRole } from "./auth";
 import type {
   AvailabilityStatus,
   Collaborator,
@@ -30,7 +30,8 @@ export interface CreateUserPayload {
   password: string;
   role: UserRole;
   /** v2.1: toda cuenta queda vinculada a una persona identificada. */
-  collaborator: RegisterCollaboratorPayload;
+  /** El ADMIN no declara la veracidad por la persona: la acepta ella al entrar a su perfil (v2.2). */
+  collaborator: AccountPersonPayload;
 }
 
 export interface UpdateUserPayload {
@@ -87,6 +88,7 @@ export interface AdminCollaboratorSummary extends Identification {
   source: CollaboratorSource;
   active: boolean;
   dataConsent: boolean;
+  truthfulnessDeclared: boolean;
   skillsCount: number;
   /** A7 (v2.1): cuáles habilidades, no solo cuántas. */
   skills: AdminCollaboratorSkill[];
@@ -116,7 +118,7 @@ export interface AdminCollaboratorDetail extends Collaborator {
   ledProjects: { id: string; title: string; status: ProjectStatus }[];
 }
 
-/* ---- Importación de colaboradores desde Excel (RF23–RF24) ---- */
+/* ---- Importación de colaboradores desde Excel (RF19–RF20) ---- */
 
 export interface ImportRejectedRow {
   sheet: string;

@@ -14,7 +14,13 @@ import {
   IdentificationModal,
   SkillModal,
 } from "@/components/organisms";
-import { SKILL_TYPE_LABEL, SKILL_TYPE_TONE, groupBySoftSkill } from "@/components/organisms/SkillPicker/skill-type";
+import {
+  SKILL_TYPE_GROUP_LABEL,
+  SKILL_TYPE_HINT,
+  SKILL_TYPE_LABEL,
+  SKILL_TYPE_ORDER,
+  SKILL_TYPE_TONE,
+} from "@/components/organisms/SkillPicker/skill-type";
 import { useAuth } from "@/contexts/auth-context";
 import { useCollaborator } from "@/modules/collaborator/hooks/useCollaborator/useCollaborator";
 import { useCreateCollaboratorProfile } from "@/modules/collaborator/hooks/useCreateCollaboratorProfile/useCreateCollaboratorProfile";
@@ -137,10 +143,11 @@ export default function PerfilPage() {
     .filter(Boolean)
     .join(" · ");
   const completeness = getCompleteness(collaborator);
-  const { technical: technicalSkills, soft: softSkills } = groupBySoftSkill(
-    collaborator.skills,
-    (skill) => skill.skill.type,
-  );
+  // v2.2, E6: un grupo por tipo (conocimientos técnicos, competencias técnicas y blandas).
+  const skillGroups = SKILL_TYPE_ORDER.map((type) => ({
+    type,
+    skills: collaborator.skills.filter((skill) => skill.skill.type === type),
+  }));
   const renderSkillChip = (skill: CollaboratorSkill) => (
     <button
       key={skill.id}
@@ -190,35 +197,44 @@ export default function PerfilPage() {
         </div>
       ) : null}
 
+      {/* v2.2, E2: quien fue creado por el admin o importado aún no ha declarado la veracidad. */}
+      {!collaborator.truthfulnessDeclared ? (
+        <div className={styles.identityNotice} role="status">
+          <AlertTriangle size={18} aria-hidden />
+          <p>
+            <strong>Declara que tu información es verídica.</strong> Revisa tus datos y marca la declaración de
+            veracidad al guardar tu perfil.
+          </p>
+          <Button size="sm" onClick={() => setModal({ kind: "profile" })}>
+            Revisar y declarar
+          </Button>
+        </div>
+      ) : null}
+
       <div className={styles.grid}>
         <div className={styles.col}>
-          <Card padding={22}>
-            <div className={styles.cardHead}>
-              <h3 className={styles.cardTitle}>Conocimientos y competencias</h3>
-              <Button variant="link" size="sm" onClick={() => setModal({ kind: "skill" })}>
-                + Agregar
-              </Button>
-            </div>
-            {technicalSkills.length === 0 ? (
-              <p className={styles.completeText}>Aún no has agregado conocimientos ni competencias.</p>
-            ) : (
-              <div className={styles.chips}>{technicalSkills.map(renderSkillChip)}</div>
-            )}
-          </Card>
-
-          <Card padding={22}>
-            <div className={styles.cardHead}>
-              <h3 className={styles.cardTitle}>Habilidades blandas</h3>
-              <Button variant="link" size="sm" onClick={() => setModal({ kind: "skill" })}>
-                + Agregar
-              </Button>
-            </div>
-            {softSkills.length === 0 ? (
-              <p className={styles.completeText}>Aún no has agregado habilidades blandas.</p>
-            ) : (
-              <div className={styles.chips}>{softSkills.map(renderSkillChip)}</div>
-            )}
-          </Card>
+          {skillGroups.map(({ type, skills }) => (
+            <Card key={type} padding={22}>
+              <div className={styles.cardHead}>
+                <h3 className={styles.cardTitle}>{SKILL_TYPE_GROUP_LABEL[type]}</h3>
+                <Button
+                  variant="link"
+                  size="sm"
+                  aria-label={`Agregar ${SKILL_TYPE_LABEL[type].toLowerCase()}`}
+                  onClick={() => setModal({ kind: "skill" })}
+                >
+                  + Agregar
+                </Button>
+              </div>
+              {skills.length === 0 ? (
+                <p className={styles.completeText}>
+                  Aún no has agregado {SKILL_TYPE_GROUP_LABEL[type].toLowerCase()}: {SKILL_TYPE_HINT[type]}.
+                </p>
+              ) : (
+                <div className={styles.chips}>{skills.map(renderSkillChip)}</div>
+              )}
+            </Card>
+          ))}
 
           <Card padding={22}>
             <div className={styles.cardHead}>
@@ -299,6 +315,7 @@ export default function PerfilPage() {
           email={collaborator.email}
           // Puede registrar su documento si aún no lo tiene; cambiarlo es del administrador.
           canChangeDocument={!collaborator.documentNumber}
+          truthfulness={{ declared: collaborator.truthfulnessDeclared }}
           onSubmit={updateProfile}
           onClose={closeModal}
           successMessage="Tus datos de identificación y contacto se guardaron."

@@ -53,7 +53,7 @@ function SkillGroup({ title, skills }: { title: string; skills: RequiredProfileS
   );
 }
 
-/** Perfil requerido por un proyecto (RF13) con su justificación (RF14). */
+/** Perfil requerido por un proyecto (RF9) con su justificación (RF10). */
 export function RequiredProfileCard({ profile, onEdit, onDiscard }: RequiredProfileCardProps) {
   const { technical, soft } = groupBySoftSkill(profile.skills, (skill) => skill.type);
   const isAi = profile.source === "IA";
@@ -99,8 +99,8 @@ export function RequiredProfileCard({ profile, onEdit, onDiscard }: RequiredProf
           <p className={styles.justificationText}>{profile.justification || "Sin justificación registrada."}</p>
         </section>
 
-        <SkillGroup title="Conocimientos y competencias" skills={technical} />
-        <SkillGroup title="Habilidades blandas" skills={soft} />
+        <SkillGroup title="Conocimientos y competencias técnicas" skills={technical} />
+        <SkillGroup title="Competencias blandas" skills={soft} />
 
         {onEdit || onDiscard ? (
           <footer className={styles.actions}>

@@ -10,8 +10,15 @@ import {
   validateInteger,
   validateProfileUrl,
 } from "@/modules/collaborator/utils/collaborator-limits";
-import { DATA_CONSENT_LABEL } from "@/modules/collaborator/utils/collaborator-view";
-import { Checkbox, Input, Modal, Select, Textarea } from "../../atoms";
+import {
+  DATA_CONSENT_LABEL,
+  DATA_TREATMENT,
+  TRUTHFULNESS_DECLARATION,
+  TRUTHFULNESS_LABEL,
+  TRUTHFULNESS_REQUIRED,
+} from "@/modules/legal/legal-texts";
+import { Input, Modal, Select, Textarea } from "../../atoms";
+import { LegalCheckbox } from "../../molecules";
 import { clean, optionalText, useProfileSubmit, type SubmitFn } from "./useProfileSubmit";
 
 type EditProfileModalProps = {
@@ -30,6 +37,8 @@ export function EditProfileModal({ collaborator, onSubmit, onClose }: EditProfil
   const [summary, setSummary] = useState(collaborator.summary ?? "");
   const [profileUrl, setProfileUrl] = useState(collaborator.profileUrl ?? "");
   const [dataConsent, setDataConsent] = useState(collaborator.dataConsent);
+  // v2.2, E2: quien ya declaró la ve marcada; las personas anteriores la aceptan aquí.
+  const [truthfulness, setTruthfulness] = useState(collaborator.truthfulnessDeclared);
   const { isSubmitting, error, run, failWith } = useProfileSubmit();
 
   const handleSubmit = () => {
@@ -38,6 +47,7 @@ export function EditProfileModal({ collaborator, onSubmit, onClose }: EditProfil
         !clean(firstName) || !clean(lastName) ? "Nombres y apellidos son obligatorios." : null,
         validateInteger(semester, SEMESTER, { label: "El semestre", required: false }),
         validateProfileUrl(profileUrl),
+        !truthfulness ? TRUTHFULNESS_REQUIRED : null,
       )
     ) {
       return;
@@ -54,6 +64,7 @@ export function EditProfileModal({ collaborator, onSubmit, onClose }: EditProfil
           summary: optionalText(summary),
           profileUrl: optionalText(profileUrl),
           dataConsent,
+          truthfulnessDeclared: true,
         }),
       onClose,
       "Tus datos se actualizaron.",
@@ -102,7 +113,18 @@ export function EditProfileModal({ collaborator, onSubmit, onClose }: EditProfil
         value={profileUrl}
         onChange={(event) => setProfileUrl(event.target.value)}
       />
-      <Checkbox label={DATA_CONSENT_LABEL} checked={dataConsent} onChange={(event) => setDataConsent(event.target.checked)} />
+      <LegalCheckbox
+        label={DATA_CONSENT_LABEL}
+        href={DATA_TREATMENT.href}
+        checked={dataConsent}
+        onChange={(event) => setDataConsent(event.target.checked)}
+      />
+      <LegalCheckbox
+        label={TRUTHFULNESS_LABEL}
+        href={TRUTHFULNESS_DECLARATION.href}
+        checked={truthfulness}
+        onChange={(event) => setTruthfulness(event.target.checked)}
+      />
     </Modal>
   );
 }

@@ -14,7 +14,7 @@ import {
   formatScore,
 } from "@/modules/recommendations/utils/recommendation-view";
 import { Badge, Button, Modal } from "../../atoms";
-import { LoadingState } from "../../molecules";
+import { LoadingState, VerificationNotice } from "../../molecules";
 import styles from "./RecommendationDetailModal.module.css";
 
 type RecommendationDetailModalProps = {
@@ -24,7 +24,7 @@ type RecommendationDetailModalProps = {
   onClose: () => void;
 };
 
-/** "¿Por qué?" de una recomendación (RF17): de dónde sale cada punto del puntaje. */
+/** "¿Por qué?" de una recomendación (RF13): de dónde sale cada punto del puntaje. */
 export function RecommendationDetailModal({
   projectId,
   recommendation,
@@ -39,6 +39,7 @@ export function RecommendationDetailModal({
         Puntaje <strong>{formatScore(recommendation.score)} de 100</strong> para el perfil{" "}
         <strong>{profileName}</strong>.
       </p>
+      <VerificationNotice />
 
       {isLoading ? <LoadingState variant="section" message="Cargando el detalle…" /> : null}
 

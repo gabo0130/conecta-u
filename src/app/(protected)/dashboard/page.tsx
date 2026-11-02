@@ -141,7 +141,7 @@ function CollaboratorDashboard() {
 
   const stats = [
     {
-      label: "Conocimientos y competencias",
+      label: "Conocimientos y competencias técnicas",
       value: String(collaborator.skills.length),
       hint: "en tu perfil",
       icon: Wrench,

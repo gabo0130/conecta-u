@@ -8,7 +8,7 @@ import { fetchLatestAnalysis, requestAnalysis } from "../../utils/request-analys
 export type AnalyzeState = "idle" | "analyzing" | "error";
 
 /**
- * Último análisis del proyecto (RF12–RF14). Que aún no exista (404) no es un error: `analysis`
+ * Último análisis del proyecto (RF8–RF10). Que aún no exista (404) no es un error: `analysis`
  * queda en null. `analyze()` pide uno nuevo y deja el mensaje del backend (503/409/422) tal cual.
  */
 export function useProjectAnalysis(projectId: string) {

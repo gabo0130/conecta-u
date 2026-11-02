@@ -33,13 +33,18 @@ export type RegisterRole = "LIDER" | "COLABORADOR";
 export type PersonType = "ESTUDIANTE" | "DOCENTE";
 
 /** La persona de la cuenta (v2.1: toda cuenta, de cualquier rol, queda vinculada a una persona). */
-export interface RegisterCollaboratorPayload extends IdentificationPayload {
+export interface AccountPersonPayload extends IdentificationPayload {
   firstName: string;
   lastName: string;
   personType: PersonType;
   programId: string;
   /** Autorización de tratamiento de datos (Ley 1581); el backend guarda también la fecha. */
   dataConsent?: boolean;
+}
+
+/** En el registro público la persona declara además que su información es verídica (v2.2, E2). */
+export interface RegisterCollaboratorPayload extends AccountPersonPayload {
+  truthfulnessDeclared: true;
 }
 
 export interface RegisterPayload {

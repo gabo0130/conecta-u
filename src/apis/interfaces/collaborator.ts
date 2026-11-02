@@ -78,6 +78,9 @@ export interface Collaborator extends Identification {
   summary: string | null;
   profileUrl: string | null;
   dataConsent: boolean;
+  /** Declaración de veracidad (v2.2, E2): solo la ven la propia persona y el ADMIN. */
+  truthfulnessDeclared: boolean;
+  truthfulnessDeclaredAt: string | null;
   source: CollaboratorSource;
   availabilityStatus: AvailabilityStatus;
   weeklyHours: number;
@@ -91,6 +94,8 @@ export interface CreateCollaboratorPayload extends IdentificationPayload {
   personType: PersonType;
   programId: string;
   dataConsent?: boolean;
+  /** v2.2, E2: obligatoria al crear el perfil. */
+  truthfulnessDeclared: true;
 }
 
 export interface UpdateCollaboratorPayload {
@@ -103,6 +108,8 @@ export interface UpdateCollaboratorPayload {
   summary?: string | null;
   profileUrl?: string | null;
   dataConsent?: boolean;
+  /** v2.2, E2: el backend la exige en cada cambio de «Mi perfil»; los modales la piden con su casilla. */
+  truthfulnessDeclared?: true;
   /** El documento solo se puede registrar si aún no lo tiene; cambiarlo es del ADMIN. */
   documentType?: DocumentType;
   documentNumber?: string;

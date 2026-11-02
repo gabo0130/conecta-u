@@ -11,7 +11,7 @@ import type {
 import { projectTypesRequest } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
 import { getErrorMessage } from "@/utils/get-error-message";
 
-/** ADMIN: catálogo de tipos de proyecto, incluidos los inactivos (RF7/RF22). */
+/** ADMIN: catálogo de tipos de proyecto, incluidos los inactivos (RF6/RF18). */
 export function useAdminProjectTypes() {
   const [projectTypes, setProjectTypes] = useState<ProjectType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
