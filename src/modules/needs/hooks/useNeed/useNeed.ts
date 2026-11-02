@@ -1,5 +1,6 @@
 "use client";
 
+import { isAxiosError } from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { AI_REQUEST_CONFIG, apiClient } from "@/apis/client";
 import type { Need, NeedPayload } from "@/apis/interfaces/needs";
@@ -11,14 +12,21 @@ export function useNeed(id: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isCharacterizing, setIsCharacterizing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const reload = useCallback(async () => {
+    setIsLoading(true);
     try {
       const response = await apiClient.get<Need>(`/needs/${id}`);
       setNeed(response.data);
       setError("");
     } catch (err) {
-      setError(getErrorMessage(err, "No se pudo cargar la necesidad."));
+      // Un 404 (borrada o id inexistente) no es una falla de conexión: se dice tal cual.
+      setError(
+        isAxiosError(err) && err.response?.status === 404
+          ? "No se encontró la necesidad."
+          : getErrorMessage(err, "No se pudo cargar la necesidad."),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -41,9 +49,14 @@ export function useNeed(id: string) {
   };
 
   const update = async (payload: Partial<NeedPayload>) => {
-    const response = await apiClient.patch<Need>(`/needs/${id}`, payload);
-    setNeed(response.data);
-    return response.data;
+    setIsSaving(true);
+    try {
+      const response = await apiClient.patch<Need>(`/needs/${id}`, payload);
+      setNeed(response.data);
+      return response.data;
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const discard = async (reason: string | null) => {
@@ -52,5 +65,5 @@ export function useNeed(id: string) {
     return response.data;
   };
 
-  return { need, isLoading, error, reload, characterize, isCharacterizing, update, discard };
+  return { need, isLoading, error, reload, characterize, isCharacterizing, update, isSaving, discard };
 }

@@ -6,15 +6,12 @@ import {
   NEED_KIND_OPTIONS,
   NEED_LIMITS,
   NEED_SCALE_OPTIONS,
+  toNeedScale,
+  type NeedScale,
   validateNeed,
 } from "@/modules/needs/utils/need-view";
 import { Button, Card, FormError, FormRow, Input, Select, Textarea } from "../../atoms";
 import styles from "./NeedForm.module.css";
-
-type Scale = "1" | "2" | "3" | "4" | "5";
-const SCALES: Scale[] = ["1", "2", "3", "4", "5"];
-const toScale = (value: number | undefined, fallback: Scale): Scale =>
-  SCALES.find((scale) => scale === String(value)) ?? fallback;
 
 type NeedFormProps = {
   initial?: Need;
@@ -29,8 +26,8 @@ export function NeedForm({ initial, submitLabel, isSaving, onSubmit, onCancel }:
   const [title, setTitle] = useState(initial?.title ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [kind, setKind] = useState<NeedKind>(initial?.kind ?? "ACADEMICA");
-  const [urgency, setUrgency] = useState<Scale>(toScale(initial?.urgency, "3"));
-  const [impact, setImpact] = useState<Scale>(toScale(initial?.impact, "3"));
+  const [urgency, setUrgency] = useState<NeedScale>(toNeedScale(initial?.urgency));
+  const [impact, setImpact] = useState<NeedScale>(toNeedScale(initial?.impact));
   const [deadline, setDeadline] = useState(initial?.deadline ?? "");
   const [dependency, setDependency] = useState(initial?.dependency ?? "");
   const [validation, setValidation] = useState("");

@@ -1,3 +1,5 @@
+import type { BadgeTone } from "@/components/atoms";
+import type { FeedbackDecision } from "@/apis/interfaces/recommendations";
 import type { MatchComponents } from "@/apis/interfaces/recommendations";
 
 // Presentación de las recomendaciones (RF11–RF13). Etiquetas de disponibilidad, tipo de persona y
@@ -60,3 +62,9 @@ export function componentContributions(components: MatchComponents, weights: Mat
     points: Math.round(components[key] * weights[key] * 1000) / 10,
   }));
 }
+
+/** Tesis (T7): decisión del líder sobre una persona recomendada. */
+export const DECISION_VIEW: Record<FeedbackDecision, { label: string; tone: BadgeTone }> = {
+  ACEPTADA: { label: "Aceptada", tone: "green" },
+  DESCARTADA: { label: "Descartada", tone: "gray" },
+};

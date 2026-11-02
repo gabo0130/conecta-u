@@ -1,4 +1,4 @@
-import { formatScore, isOpenNeed, NEED_STATUS_FILTER_OPTIONS, validateNeed } from "./need-view";
+import { formatPriorityScore, isOpenNeed, NEED_STATUS_FILTER_OPTIONS, validateNeed } from "./need-view";
 
 describe("need-view", () => {
   it("valida título y descripción con los mismos mínimos que el backend", () => {
@@ -15,8 +15,8 @@ describe("need-view", () => {
   });
 
   it("formatea los puntajes con coma decimal", () => {
-    expect(formatScore(72.5)).toBe("72,5");
-    expect(formatScore(80)).toBe("80");
+    expect(formatPriorityScore(72.5)).toBe("72,5");
+    expect(formatPriorityScore(80)).toBe("80");
   });
 
   it("el filtro de estado empieza por «Todos»", () => {

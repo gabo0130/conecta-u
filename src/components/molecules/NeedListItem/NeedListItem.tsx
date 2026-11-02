@@ -1,5 +1,6 @@
 import { Eye } from "lucide-react";
-import { Badge, BadgeTone, IconButton } from "../../atoms";
+import { Badge, IconButton } from "../../atoms";
+import type { BadgeTone } from "../../atoms";
 import { ScoreMeter } from "../ScoreMeter/ScoreMeter";
 import styles from "./NeedListItem.module.css";
 

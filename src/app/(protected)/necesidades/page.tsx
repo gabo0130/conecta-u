@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
-import { AppShell, PageGrid } from "@/components/templates";
+import { AppShell, PageGrid, RolePage } from "@/components/templates";
 import { Button, Card, Select } from "@/components/atoms";
 import { LoadingState, NeedListItem, Pagination } from "@/components/molecules";
 import { useAuth } from "@/contexts/auth-context";
@@ -13,13 +13,13 @@ import {
   NEED_STATUS_FILTER_OPTIONS,
   NEED_STATUS_VIEW,
   PRIORITY_VIEW,
-  formatScore,
+  formatPriorityScore,
 } from "@/modules/needs/utils/need-view";
 import { formatDate } from "@/modules/projects/utils/project-view";
 import styles from "./necesidades.module.css";
 
 /** Tesis (D1, D4): necesidades con su prioridad y completitud. El LIDER ve las suyas; el ADMIN, todas. */
-export default function NecesidadesPage() {
+function NecesidadesScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
@@ -86,7 +86,7 @@ export default function NecesidadesPage() {
                     status: NEED_STATUS_VIEW[need.status],
                     priority: {
                       ...PRIORITY_VIEW[need.priorityLevel],
-                      score: formatScore(need.priorityScore),
+                      score: formatPriorityScore(need.priorityScore),
                       value: need.priorityScore,
                     },
                     completeness: need.completeness,
@@ -99,5 +99,13 @@ export default function NecesidadesPage() {
         </Card>
       </PageGrid>
     </AppShell>
+  );
+}
+
+export default function NecesidadesPage() {
+  return (
+    <RolePage roles={["LIDER", "ADMIN"]}>
+      <NecesidadesScreen />
+    </RolePage>
   );
 }

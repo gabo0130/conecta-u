@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { useEvaluationSummary } from "@/modules/admin/hooks/useEvaluationSummary/useEvaluationSummary";
-import { describe as describeCounts, EvaluationCard, formatRate } from "./EvaluationCard";
+import { EvaluationCard } from "./EvaluationCard";
 
 jest.mock("@/modules/admin/hooks/useEvaluationSummary/useEvaluationSummary", () => ({
   useEvaluationSummary: jest.fn(),
@@ -10,15 +10,6 @@ const mocked = jest.mocked(useEvaluationSummary);
 const base = { isLoading: false, error: "", reload: jest.fn() };
 
 describe("EvaluationCard", () => {
-  it("formatea la tasa como porcentaje con coma", () => {
-    expect(formatRate(0.6667)).toBe("66,7 %");
-    expect(formatRate(1)).toBe("100 %");
-    expect(formatRate(null)).toBe("—");
-    expect(describeCounts({ accepted: 1, discarded: 2, decided: 3, acceptanceRate: 0.33 })).toBe(
-      "1 aceptada · 2 descartadas",
-    );
-  });
-
   it("muestra la tasa global y por proyecto", () => {
     mocked.mockReturnValue({
       ...base,

@@ -38,3 +38,4 @@ export { InvitationModal } from "./InvitationModal/InvitationModal";
 export { InvitationHistory } from "./InvitationHistory/InvitationHistory";
 export { NeedForm } from "./NeedForm/NeedForm";
 export { EvaluationCard } from "./EvaluationCard/EvaluationCard";
+export { NeedView, NeedScores } from "./NeedView/NeedView";

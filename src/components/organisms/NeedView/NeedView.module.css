@@ -1,0 +1,131 @@
+.breadcrumbSep {
+  color: var(--c-muted-3);
+}
+.breadcrumbCurrent {
+  display: inline-block;
+  max-width: 32ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  color: var(--c-ink);
+  font-weight: 600;
+}
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.headText {
+  min-width: 0;
+}
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.h1 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.sub {
+  color: var(--c-muted);
+  font-size: 14.5px;
+  margin-top: 6px;
+}
+.headActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--c-line-soft);
+}
+.state {
+  color: var(--c-muted);
+  font-size: 14.5px;
+  padding: 28px 22px;
+  margin: 0;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.text {
+  font-size: 14.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px 20px;
+  margin: 0;
+}
+.field dt {
+  font-size: 12.5px;
+  color: var(--c-muted);
+  margin-bottom: 3px;
+}
+.field dd {
+  margin: 0;
+  font-size: 14.5px;
+  overflow-wrap: anywhere;
+}
+.list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.meters {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.missing {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13.5px;
+}
+.missing li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--c-ink-2);
+}
+.weight {
+  color: var(--c-muted);
+  font-variant-numeric: tabular-nums;
+}
+.note {
+  font-size: 13px;
+  color: var(--c-muted);
+  margin-top: 10px;
+}

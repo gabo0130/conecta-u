@@ -80,7 +80,7 @@ export function CollaboratorView({
         <Card padding={24} className={styles.o1}>
           <h2 className={styles.sectionTitle}>Datos del perfil</h2>
           {collaborator.summary ? <p className={styles.text}>{collaborator.summary}</p> : null}
-          {collaborator.interests?.length ? (
+          {collaborator.interests.length > 0 ? (
             <div className={styles.interests} aria-label="Intereses">
               <span className={styles.interestsLabel}>Intereses</span>
               {collaborator.interests.map((interest) => (

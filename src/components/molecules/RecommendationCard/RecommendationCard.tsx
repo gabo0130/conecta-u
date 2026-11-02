@@ -2,7 +2,7 @@ import { CSSProperties } from "react";
 import { Check, GraduationCap, HelpCircle, UserX, X } from "lucide-react";
 import type { FeedbackDecision, RecommendationItem } from "@/apis/interfaces/recommendations";
 import { AVAILABILITY_VIEW, PERSON_TYPE_LABEL } from "@/modules/collaborator/utils/collaborator-view";
-import { barWidth, formatScore, scoreTone } from "@/modules/recommendations/utils/recommendation-view";
+import { barWidth, DECISION_VIEW, formatScore, scoreTone } from "@/modules/recommendations/utils/recommendation-view";
 import { Badge, Button, Card, Checkbox } from "../../atoms";
 import styles from "./RecommendationCard.module.css";
 
@@ -18,10 +18,6 @@ type RecommendationCardProps = {
   isDeciding?: boolean;
 };
 
-const DECISION_VIEW: Record<FeedbackDecision, { label: string; tone: "green" | "gray" }> = {
-  ACEPTADA: { label: "Aceptada", tone: "green" },
-  DESCARTADA: { label: "Descartada", tone: "gray" },
-};
 
 /** Una persona recomendada para un perfil (RF12): puesto, puntaje y datos sin contacto. */
 export function RecommendationCard({

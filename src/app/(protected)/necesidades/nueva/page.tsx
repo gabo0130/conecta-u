@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AppShell, PageGrid } from "@/components/templates";
+import { AppShell, PageGrid, RolePage } from "@/components/templates";
 import { NeedForm } from "@/components/organisms";
 import { useCreateNeed } from "@/modules/needs/hooks/useCreateNeed/useCreateNeed";
 import { getErrorMessage } from "@/utils/get-error-message";
@@ -16,7 +16,7 @@ const breadcrumb = (
   </>
 );
 
-export default function NuevaNecesidadPage() {
+function NuevaNecesidadScreen() {
   const router = useRouter();
   const { createNeed, isSaving } = useCreateNeed();
 
@@ -51,5 +51,13 @@ export default function NuevaNecesidadPage() {
         />
       </PageGrid>
     </AppShell>
+  );
+}
+
+export default function NuevaNecesidadPage() {
+  return (
+    <RolePage roles={["LIDER"]}>
+      <NuevaNecesidadScreen />
+    </RolePage>
   );
 }

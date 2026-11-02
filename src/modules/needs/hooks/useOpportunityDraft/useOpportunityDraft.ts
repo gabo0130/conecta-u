@@ -17,6 +17,7 @@ export function useOpportunityDraft(needId: string) {
   const [isSaving, setIsSaving] = useState(false);
 
   const reload = useCallback(async () => {
+    setIsLoading(true);
     try {
       const response = await apiClient.get<OpportunityDraft>(`/needs/${needId}/opportunity-draft`);
       setDraft(response.data);

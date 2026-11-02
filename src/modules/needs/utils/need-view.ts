@@ -32,8 +32,16 @@ export const NEED_SORT_LABEL: Record<NeedSort, string> = {
   recent: "Más recientes primero",
 };
 
-/** Escala 1–5 de urgencia e impacto, con lo que significa cada valor. */
-export const NEED_SCALE_LABEL: Record<"1" | "2" | "3" | "4" | "5", string> = {
+/** Escala 1–5 de urgencia e impacto (como texto, para los `Select`). */
+export type NeedScale = "1" | "2" | "3" | "4" | "5";
+const NEED_SCALES: NeedScale[] = ["1", "2", "3", "4", "5"];
+
+/** 1–5 → valor de la escala; fuera de rango (o sin valor), `fallback`. */
+export const toNeedScale = (value: number | undefined, fallback: NeedScale = "3"): NeedScale =>
+  NEED_SCALES.find((scale) => scale === String(value)) ?? fallback;
+
+/** Lo que significa cada valor de la escala. */
+export const NEED_SCALE_LABEL: Record<NeedScale, string> = {
   "1": "1 · Muy baja",
   "2": "2 · Baja",
   "3": "3 · Media",
@@ -51,8 +59,8 @@ export const NEED_STATUS_FILTER_OPTIONS = [
 
 export const isOpenNeed = (status: NeedStatus) => status === "REGISTRADA" || status === "CARACTERIZADA";
 
-/** 72.5 → "72,5"; los puntajes se muestran sin decimales de más. */
-export const formatScore = (value: number) =>
+/** Puntaje de prioridad: 72.5 → "72,5" (un decimal como máximo, a diferencia del de recomendaciones). */
+export const formatPriorityScore = (value: number) =>
   value.toLocaleString("es-CO", { maximumFractionDigits: 1 });
 
 export const NEED_LIMITS = {

@@ -219,7 +219,12 @@ export default function PerfilPage() {
           <Card padding={22}>
             <div className={styles.cardHead}>
               <h3 className={styles.cardTitle}>Intereses</h3>
-              <Button variant="link" size="sm" aria-label="Editar intereses" onClick={() => setModal({ kind: "profile" })}>
+              <Button
+                variant="link"
+                size="sm"
+                aria-label={collaborator.interests.length > 0 ? "Editar intereses" : "Agregar intereses"}
+                onClick={() => setModal({ kind: "profile" })}
+              >
                 {collaborator.interests.length > 0 ? "Editar" : "+ Agregar"}
               </Button>
             </div>

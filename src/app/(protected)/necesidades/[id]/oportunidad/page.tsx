@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { AppShell, PageGrid } from "@/components/templates";
+import { AppShell, PageGrid, RolePage } from "@/components/templates";
 import { ArrowLink, Card } from "@/components/atoms";
 import { LoadingState } from "@/components/molecules";
 import { ProjectForm, ProjectFormTips } from "@/components/organisms";
@@ -19,7 +19,7 @@ const breadcrumb = (
 );
 
 /** Tesis (T5): el formulario de proyecto llega precargado desde la caracterización de la necesidad. */
-export default function ConvertirNecesidadPage() {
+function ConvertirNecesidadScreen() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { draft, isLoading, error, convert, isSaving } = useOpportunityDraft(id);
@@ -66,5 +66,13 @@ export default function ConvertirNecesidadPage() {
         ) : null}
       </PageGrid>
     </AppShell>
+  );
+}
+
+export default function ConvertirNecesidadPage() {
+  return (
+    <RolePage roles={["LIDER"]}>
+      <ConvertirNecesidadScreen />
+    </RolePage>
   );
 }

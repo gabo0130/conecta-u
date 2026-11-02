@@ -37,7 +37,7 @@ export function EditProfileModal({ collaborator, onSubmit, onClose }: EditProfil
   const [semester, setSemester] = useState(collaborator.semester?.toString() ?? "");
   const [researchGroup, setResearchGroup] = useState(collaborator.researchGroup ?? "");
   const [summary, setSummary] = useState(collaborator.summary ?? "");
-  const [interests, setInterests] = useState<string[]>(collaborator.interests ?? []);
+  const [interests, setInterests] = useState<string[]>(collaborator.interests);
   const [profileUrl, setProfileUrl] = useState(collaborator.profileUrl ?? "");
   const [dataConsent, setDataConsent] = useState(collaborator.dataConsent);
   // v2.2, E2: quien ya declaró la ve marcada; las personas anteriores la aceptan aquí.
