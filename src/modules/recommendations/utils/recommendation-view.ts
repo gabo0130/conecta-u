@@ -1,7 +1,11 @@
 import type { MatchComponents } from "@/apis/interfaces/recommendations";
 
-// Presentación de las recomendaciones (RF15–RF17). Etiquetas de disponibilidad, tipo de persona y
+// Presentación de las recomendaciones (RF11–RF13). Etiquetas de disponibilidad, tipo de persona y
 // nivel en collaborator-view; las de prioridad e importancia en analysis-view.
+
+/** v2.2, E4: aviso visible en la lista y en «¿Por qué?» (la información la declara cada persona). */
+export const VERIFICATION_NOTICE =
+  "Recomendación basada en la información declarada por cada persona; sujeta a verificación de su experiencia y conocimientos.";
 
 export type ScoreTone = "high" | "medium" | "low";
 

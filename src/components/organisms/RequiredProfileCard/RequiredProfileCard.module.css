@@ -72,7 +72,7 @@
   color: var(--c-ink-3);
   line-height: 1.55;
 }
-/* RF14: la justificación es lo que el líder lee para decidir; va destacada. */
+/* RF10: la justificación es lo que el líder lee para decidir; va destacada. */
 .justification {
   border-left: 3px solid var(--c-red);
   background: var(--c-bg);

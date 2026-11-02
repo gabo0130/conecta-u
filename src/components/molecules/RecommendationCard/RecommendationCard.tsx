@@ -11,7 +11,7 @@ type RecommendationCardProps = {
   onExplain: () => void;
 };
 
-/** Una persona recomendada para un perfil (RF16): puesto, puntaje y datos sin contacto. */
+/** Una persona recomendada para un perfil (RF12): puesto, puntaje y datos sin contacto. */
 export function RecommendationCard({ recommendation, onExplain }: RecommendationCardProps) {
   const { rank, score, matchedSkillCount, requiredSkillCount, collaborator } = recommendation;
   const availability = AVAILABILITY_VIEW[collaborator.availabilityStatus];

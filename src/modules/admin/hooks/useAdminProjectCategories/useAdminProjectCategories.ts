@@ -11,7 +11,7 @@ import type {
 import { projectCategoriesRequest } from "@/modules/catalogs/hooks/useProjectCategoriesCatalog/useProjectCategoriesCatalog";
 import { getErrorMessage } from "@/utils/get-error-message";
 
-/** ADMIN: catálogo de categorías de proyecto, incluidas las inactivas (RF22). */
+/** ADMIN: catálogo de categorías de proyecto, incluidas las inactivas (RF18). */
 export function useAdminProjectCategories() {
   const [projectCategories, setProjectCategories] = useState<ProjectCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);

@@ -11,7 +11,7 @@ import { useUsers } from "@/modules/admin/hooks/useUsers/useUsers";
 import { usePagedTable } from "@/hooks/usePagedTable";
 import type { SortAccessors } from "@/utils/sort";
 import type { AdminUser } from "@/apis/interfaces/admin";
-import { ROLE_LABEL } from "@/modules/collaborator/utils/collaborator-view";
+import { ROLE_LABEL, accessLabel } from "@/modules/collaborator/utils/collaborator-view";
 import styles from "./users.module.css";
 
 type UserSortKey = "name" | "email" | "role" | "status";
@@ -20,7 +20,7 @@ const USER_SORT: SortAccessors<AdminUser, UserSortKey> = {
   name: (row) => row.fullName,
   email: (row) => row.email,
   role: (row) => ROLE_LABEL[row.role],
-  status: (row) => (row.active ? "Activo" : "Inactivo"),
+  status: (row) => accessLabel(row.active),
 };
 
 const PAGE_SIZE = 20;
@@ -90,7 +90,7 @@ function UsersList() {
                     <td>{ROLE_LABEL[row.role]}</td>
                     <td>
                       <Badge tone={row.active ? "green" : "gray"} dot>
-                        {row.active ? "Activo" : "Inactivo"}
+                        {accessLabel(row.active)}
                       </Badge>
                     </td>
                     <td className={styles.editCol}>

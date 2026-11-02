@@ -1,0 +1,20 @@
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--r-lg);
+  background: var(--c-amber-soft);
+  color: var(--c-ink);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.notice > svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--c-amber);
+}
+.notice p {
+  margin: 0;
+  min-width: 0;
+}

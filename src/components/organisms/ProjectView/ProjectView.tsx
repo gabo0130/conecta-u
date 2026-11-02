@@ -8,6 +8,7 @@ import { useProjectCategoriesCatalog } from "@/modules/catalogs/hooks/useProject
 import { useProjectTypesCatalog } from "@/modules/catalogs/hooks/useProjectTypesCatalog/useProjectTypesCatalog";
 import { Card, Chip, Spinner } from "../../atoms";
 import { SKILL_TYPE_TONE, groupBySoftSkill } from "../SkillPicker/skill-type";
+import { formatDuration } from "@/modules/projects/utils/project-limits";
 import { formatCOP } from "@/modules/projects/utils/type-data";
 import { formatDate } from "@/utils/dates";
 import styles from "./ProjectView.module.css";
@@ -54,7 +55,7 @@ export function ProjectView({ project, asideTop }: ProjectViewProps) {
   const { technical: technicalSkills, soft: softSkills } = groupBySoftSkill(skills, (skill) => skill.type);
 
   return (
-    // Móvil: una columna (descripción → clasificación → habilidades → entregables).
+    // Móvil: una columna (descripción → clasificación → competencias → entregables).
     // xl: principal (descripción y entregables) + lateral (clasificación y habilidades).
     <div className={styles.view}>
       <div className={styles.primary}>
@@ -106,6 +107,18 @@ export function ProjectView({ project, asideTop }: ProjectViewProps) {
               <dt>Programa</dt>
               <dd>{pending(isLoadingPrograms, program?.name ?? "Sin programa asociado")}</dd>
             </div>
+            <div className={styles.field}>
+              <dt>Entidad ejecutora</dt>
+              <dd>{project.executingEntity ?? EMPTY}</dd>
+            </div>
+            <div className={styles.field}>
+              <dt>Entidad patrocinadora</dt>
+              <dd>{project.sponsorEntity ?? "Sin patrocinadora"}</dd>
+            </div>
+            <div className={styles.field}>
+              <dt>Duración</dt>
+              <dd>{formatDuration(project.durationMonths) ?? EMPTY}</dd>
+            </div>
             {typeFields.map(({ key, label, field }) => (
               <div key={key} className={styles.field}>
                 <dt>{label}</dt>
@@ -115,7 +128,7 @@ export function ProjectView({ project, asideTop }: ProjectViewProps) {
           </dl>
         </Card>
         <Card padding={24} className={styles.skills}>
-          <h2 className={styles.sectionTitle}>Conocimientos y competencias conocidas</h2>
+          <h2 className={styles.sectionTitle}>Competencias técnicas requeridas por el proyecto</h2>
           {technicalSkills.length > 0 ? (
             <div className={styles.chips}>
               {technicalSkills.map((skill) => (
@@ -125,11 +138,11 @@ export function ProjectView({ project, asideTop }: ProjectViewProps) {
               ))}
             </div>
           ) : (
-            <p className={styles.empty}>Aún no se registraron conocimientos ni competencias.</p>
+            <p className={styles.empty}>Aún no se registraron competencias técnicas requeridas.</p>
           )}
         </Card>
         <Card padding={24} className={styles.skills}>
-          <h2 className={styles.sectionTitle}>Habilidades blandas conocidas</h2>
+          <h2 className={styles.sectionTitle}>Competencias blandas requeridas por el proyecto</h2>
           {softSkills.length > 0 ? (
             <div className={styles.chips}>
               {softSkills.map((skill) => (
@@ -139,7 +152,7 @@ export function ProjectView({ project, asideTop }: ProjectViewProps) {
               ))}
             </div>
           ) : (
-            <p className={styles.empty}>Aún no se registraron habilidades blandas.</p>
+            <p className={styles.empty}>Aún no se registraron competencias blandas requeridas.</p>
           )}
         </Card>
       </div>

@@ -6,7 +6,7 @@ import type { GenerateRecommendationsPayload, RecommendationsResponse } from "@/
 import { getErrorMessage } from "@/utils/get-error-message";
 
 /**
- * Recomendaciones del proyecto por perfil requerido (RF15–RF16). El GET siempre responde 200: si
+ * Recomendaciones del proyecto por perfil requerido (RF11–RF12). El GET siempre responde 200: si
  * nunca se generaron, `generatedAt` es null y cada perfil trae una lista vacía.
  * `includeUnavailable` filtra la vista y se manda también al generar.
  */

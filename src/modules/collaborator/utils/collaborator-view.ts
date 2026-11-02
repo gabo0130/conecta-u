@@ -83,5 +83,9 @@ export const REGISTERABLE_ROLE_OPTIONS = ROLE_OPTIONS.filter(
 );
 export const AVAILABILITY_OPTIONS = toOptions(AVAILABILITY_VIEW, (view) => view.label);
 
-export const DATA_CONSENT_LABEL =
-  "Autorizo el tratamiento de mis datos personales para las recomendaciones y convocatorias de Conecta U (Ley 1581 de 2012).";
+/**
+ * v2.2, E7: el ADMIN inhabilita el acceso de quien deja la UFPS (`active=false` impide el login).
+ * La persona y sus datos se conservan; por eso se habla de acceso, no de borrar o desactivar.
+ */
+export const accessLabel = (active: boolean) => (active ? "Acceso habilitado" : "Acceso inhabilitado");
+export const ACCESS_HELP = "La persona no podrá iniciar sesión; sus datos se conservan.";

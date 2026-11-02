@@ -60,7 +60,7 @@ export interface ProposeSkillPayload {
   category?: SkillCategory;
 }
 
-/* ---- Gestión de catálogos por el ADMIN (RF22) ---- */
+/* ---- Gestión de catálogos por el ADMIN (RF18) ---- */
 
 export interface AdminCreateSkillPayload {
   name: string;

@@ -17,7 +17,7 @@ function touchesEmbedding(payload: UpdateRequiredProfilePayload) {
 }
 
 /**
- * Perfiles requeridos de un proyecto (RF13): crear uno manual, editar (también los de la IA) y
+ * Perfiles requeridos de un proyecto (RF9): crear uno manual, editar (también los de la IA) y
  * descartar. Tras cada cambio llama a `onChanged` para refrescar el análisis que los muestra.
  */
 export function useRequiredProfiles(projectId: string, onChanged: () => Promise<unknown>) {

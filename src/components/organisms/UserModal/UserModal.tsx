@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { AdminUser, CreateUserPayload, UpdateUserPayload } from "@/apis/interfaces/admin";
 import type { PersonType, UserRole } from "@/apis/interfaces/auth";
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
-import { PERSON_TYPE_OPTIONS, ROLE_OPTIONS } from "@/modules/collaborator/utils/collaborator-view";
+import { ACCESS_HELP, PERSON_TYPE_OPTIONS, ROLE_OPTIONS } from "@/modules/collaborator/utils/collaborator-view";
 import {
   type IdentificationErrors,
   type IdentificationForm,
@@ -21,8 +21,8 @@ import { IdentificationFields } from "../../molecules";
 type ActiveValue = "true" | "false";
 
 const ACTIVE_OPTIONS: SelectOption<ActiveValue>[] = [
-  { value: "true", label: "Activo" },
-  { value: "false", label: "Inactivo" },
+  { value: "true", label: "Habilitar acceso" },
+  { value: "false", label: "Inhabilitar acceso" },
 ];
 
 type UserModalProps = {
@@ -167,7 +167,13 @@ export function UserModal({ user, onCreate, onUpdate, onDelete, onClose, readOnl
         {isCreating ? (
           <Select label="Tipo de persona" options={PERSON_TYPE_OPTIONS} value={personType} onValueChange={setPersonType} />
         ) : (
-          <Select label="Estado" options={ACTIVE_OPTIONS} value={active} onValueChange={setActive} />
+          <Select
+            label="Acceso a la plataforma"
+            options={ACTIVE_OPTIONS}
+            value={active}
+            onValueChange={setActive}
+            helperText={ACCESS_HELP}
+          />
         )}
       </FormRow>
       {isCreating ? (

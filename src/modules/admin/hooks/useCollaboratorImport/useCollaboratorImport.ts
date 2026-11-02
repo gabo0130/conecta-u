@@ -6,7 +6,7 @@ import type { ImportCollaboratorsResult } from "@/apis/interfaces/admin";
 
 const TEMPLATE_FILE_NAME = "Plantilla Carga Colaboradores - Conecta U.xlsx";
 
-/** ADMIN: descarga la plantilla Excel e importa colaboradores (RF23–RF24). */
+/** ADMIN: descarga la plantilla Excel e importa colaboradores (RF19–RF20). */
 export function useCollaboratorImport() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);

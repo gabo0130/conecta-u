@@ -2,10 +2,28 @@ import type { SkillCategory, SkillStatus, SkillType } from "@/apis/interfaces/ca
 import { toOptions } from "@/utils/to-options";
 import type { BadgeTone, ChipTone } from "../../atoms";
 
+/** Clasificación v2.2 (E6): solo cambian las etiquetas; los valores del enum son los mismos. */
 export const SKILL_TYPE_LABEL: Record<SkillType, string> = {
-  CONOCIMIENTO: "Conocimiento",
-  COMPETENCIA: "Competencia",
-  HABILIDAD_BLANDA: "Habilidad blanda",
+  CONOCIMIENTO: "Conocimiento técnico",
+  COMPETENCIA: "Competencia técnica",
+  HABILIDAD_BLANDA: "Competencia blanda",
+};
+
+/** Qué es cada tipo, con ejemplos (guía de importación y ayudas). */
+export const SKILL_TYPE_HINT: Record<SkillType, string> = {
+  CONOCIMIENTO: "herramientas y tecnologías que sabes usar (Python, AutoCAD, SPSS)",
+  COMPETENCIA: "el rol o la disciplina que ejerces (investigador, desarrollador, analista)",
+  HABILIDAD_BLANDA: "cómo trabajas con otros (liderazgo, comunicación, trabajo en equipo)",
+};
+
+/** Orden en que se muestran los tres tipos (perfil, guía de importación). */
+export const SKILL_TYPE_ORDER: SkillType[] = ["CONOCIMIENTO", "COMPETENCIA", "HABILIDAD_BLANDA"];
+
+/** Título de cada grupo en plural ("Conocimientos técnicos"). */
+export const SKILL_TYPE_GROUP_LABEL: Record<SkillType, string> = {
+  CONOCIMIENTO: "Conocimientos técnicos",
+  COMPETENCIA: "Competencias técnicas",
+  HABILIDAD_BLANDA: "Competencias blandas",
 };
 
 export const SKILL_TYPE_TONE: Record<SkillType, ChipTone> = {
@@ -16,7 +34,7 @@ export const SKILL_TYPE_TONE: Record<SkillType, ChipTone> = {
 
 export const SKILL_TYPE_OPTIONS = toOptions(SKILL_TYPE_LABEL);
 
-/** Separa conocimientos/competencias de habilidades blandas para mostrarlas en bloques aparte. */
+/** Separa lo técnico (conocimientos y competencias técnicas) de las competencias blandas. */
 export function groupBySoftSkill<T>(items: T[], getType: (item: T) => SkillType) {
   return {
     technical: items.filter((item) => getType(item) !== "HABILIDAD_BLANDA"),

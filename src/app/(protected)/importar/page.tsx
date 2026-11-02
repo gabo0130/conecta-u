@@ -12,11 +12,14 @@ import { ImportResultTable, RoleGuard } from "@/components/organisms";
 import { useCollaboratorImport } from "@/modules/admin/hooks/useCollaboratorImport/useCollaboratorImport";
 import { getErrorMessage } from "@/utils/get-error-message";
 import { loading } from "@/utils/loading";
+import { SKILL_TYPE_HINT, SKILL_TYPE_LABEL, SKILL_TYPE_ORDER } from "@/components/organisms/SkillPicker/skill-type";
 import { notify } from "@/utils/notify";
 import styles from "./importar.module.css";
 
 // Mismo límite que valida el backend (MAX_IMPORT_FILE_SIZE_MB).
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
+
+const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 // Mismos valores que la hoja "Guía" de la plantilla y que valida el backend
 // (import-collaborators.constants.ts) — si cambian allá, cambian aquí también.
@@ -29,7 +32,7 @@ const SHEETS = [
   {
     name: "Habilidades",
     fields:
-      "numero_documento (o correo), habilidad (nombre o sinónimo del catálogo), tipo (Conocimiento, Competencia, Habilidad blanda), nivel (Básico, Intermedio, Avanzado, Experto) y meses_experiencia.",
+      "numero_documento (o correo), habilidad (nombre o sinónimo del catálogo), tipo (Conocimiento técnico, Competencia técnica, Competencia blanda), nivel (Básico, Intermedio, Avanzado, Experto) y meses_experiencia.",
   },
   {
     name: "Experiencia",
@@ -56,8 +59,21 @@ function ImportGuide() {
           </div>
         ))}
       </dl>
+      <h3 className={styles.guideSubtitle}>Los tres tipos de habilidad</h3>
+      <dl className={styles.sheets}>
+        {SKILL_TYPE_ORDER.map((type) => (
+          <div key={type}>
+            <dt>{SKILL_TYPE_LABEL[type]}</dt>
+            <dd>{capitalize(SKILL_TYPE_HINT[type])}.</dd>
+          </div>
+        ))}
+      </dl>
       <ul className={styles.notes}>
         <li>Escribe exactamente esos valores (con mayúscula inicial); el desplegable te evita errores de tipeo.</li>
+        <li>
+          Los archivos llenados con las etiquetas anteriores (Conocimiento, Competencia, Habilidad blanda) se siguen
+          aceptando.
+        </li>
         <li>Una habilidad que no está en el catálogo se crea como pendiente de revisión.</li>
         <li>Las filas con errores se rechazan una a una; las válidas se guardan igual.</li>
         <li>Usa solo datos ficticios en las pruebas.</li>
