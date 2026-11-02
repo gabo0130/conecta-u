@@ -23,3 +23,5 @@ export { VerificationNotice } from "./VerificationNotice/VerificationNotice";
 export { CertificateField } from "./CertificateField/CertificateField";
 export { BarList } from "./BarList/BarList";
 export type { BarListItem } from "./BarList/BarList";
+export { BarChart, SERIES_COLORS } from "./BarChart/BarChart";
+export type { BarChartSeries } from "./BarChart/BarChart";

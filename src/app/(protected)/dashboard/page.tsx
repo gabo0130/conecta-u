@@ -19,9 +19,17 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import { AppShell } from "@/components/templates";
 import { ArrowLink, Button, Card } from "@/components/atoms";
-import { BarList, LoadingState, ProjectListItem, StatCard, type BarListItem } from "@/components/molecules";
-import { ReportsCard } from "@/components/organisms";
-import type { CountBy, PlatformStats, SkillBalance } from "@/apis/interfaces/admin";
+import {
+  BarChart,
+  BarList,
+  LoadingState,
+  ProjectListItem,
+  StatCard,
+  type BarChartSeries,
+  type BarListItem,
+} from "@/components/molecules";
+import { ReportsCard, StatsFiltersBar } from "@/components/organisms";
+import type { CountBy, PlatformStats, SkillBalance, StatsFilters } from "@/apis/interfaces/admin";
 import { usePlatformStats } from "@/modules/admin/hooks/usePlatformStats/usePlatformStats";
 import { AVAILABILITY_VIEW, PERSON_TYPE_LABEL } from "@/modules/collaborator/utils/collaborator-view";
 import { isAvailability, isPersonType, isProjectStatus } from "@/modules/admin/utils/stats-keys";
@@ -196,6 +204,15 @@ const skillBars = (skills: SkillBalance[], value: (skill: SkillBalance) => numbe
 
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
 
+type ChartSection = {
+  title: string;
+  hint?: string;
+  label: string;
+  categories: string[];
+  series: BarChartSeries[];
+  empty?: string;
+};
+
 /** RF15: indicadores de proyectos, personas, perfiles y disponibilidad, con acceso a la gestión. */
 function AdminStats({ stats }: { stats: PlatformStats }) {
   const { projects, people, availability, profiles, skills, certificates, invitations } = stats;
@@ -226,54 +243,61 @@ function AdminStats({ stats }: { stats: PlatformStats }) {
     },
   ];
 
-  const sections: { title: string; hint?: string; label: string; items: BarListItem[]; tone?: "red" | "green" | "amber" | "info"; empty?: string }[] = [
-    { title: "Proyectos por tipo", label: "Proyectos por tipo", items: toBars(projects.byType) },
-    { title: "Proyectos por categoría", label: "Proyectos por categoría", items: toBars(projects.byCategory) },
+  const single = (name: string, items: BarListItem[]): Pick<ChartSection, "categories" | "series"> => ({
+    categories: items.map((item) => item.label),
+    series: [{ name, values: items.map((item) => item.value), display: items.map((item) => item.display ?? String(item.value)) }],
+  });
+
+  const sections: ChartSection[] = [
+    { title: "Proyectos por tipo", label: "Proyectos por tipo", ...single("Proyectos", toBars(projects.byType)) },
+    { title: "Proyectos por categoría", label: "Proyectos por categoría", ...single("Proyectos", toBars(projects.byCategory)) },
     {
       title: "Proyectos por estado",
       label: "Proyectos por estado",
-      items: toBars(projects.byStatus, (key, label) => (isProjectStatus(key) ? getStatusView(key).label : label)),
-      tone: "info",
+      ...single("Proyectos", toBars(projects.byStatus, (key, label) => (isProjectStatus(key) ? getStatusView(key).label : label))),
     },
     {
       title: "Personas por tipo",
       label: "Personas activas por tipo",
-      items: toBars(people.byPersonType, (key, label) => (isPersonType(key) ? PERSON_TYPE_LABEL[key] : label)),
-      tone: "info",
+      ...single("Personas", toBars(people.byPersonType, (key, label) => (isPersonType(key) ? PERSON_TYPE_LABEL[key] : label))),
     },
     {
       title: "Disponibilidad",
       hint: `${availability.averageWeeklyHours} h/semana en promedio · ${availability.totalWeeklyHoursAvailable} h disponibles`,
       label: "Personas por disponibilidad",
-      items: toBars(availability.byStatus, (key, label) => (isAvailability(key) ? AVAILABILITY_VIEW[key].label : label)),
-      tone: "green",
+      ...single("Personas", toBars(availability.byStatus, (key, label) => (isAvailability(key) ? AVAILABILITY_VIEW[key].label : label))),
     },
-    { title: "Programas con más personas", label: "Personas por programa", items: toBars(people.byProgram), tone: "info" },
+    { title: "Programas con más personas", label: "Personas por programa", ...single("Personas", toBars(people.byProgram)) },
     {
       title: "Habilidades más ofrecidas",
       label: "Habilidades más ofrecidas",
-      items: skillBars(skills.topOffered, (skill) => skill.offered, (skill) => plural(skill.offered, "persona", "personas")),
-      tone: "green",
+      ...single("Personas", skillBars(skills.topOffered, (skill) => skill.offered, (skill) => plural(skill.offered, "persona", "personas"))),
     },
     {
       title: "Habilidades más pedidas",
       label: "Habilidades más pedidas por los perfiles requeridos",
-      items: skillBars(skills.topDemanded, (skill) => skill.demanded, (skill) => plural(skill.demanded, "perfil", "perfiles")),
+      ...single("Perfiles", skillBars(skills.topDemanded, (skill) => skill.demanded, (skill) => plural(skill.demanded, "perfil", "perfiles"))),
       empty: "Aún no hay perfiles requeridos analizados.",
     },
     {
       title: "Brechas de capacidades",
       hint: "Habilidades pedidas que menos personas ofrecen.",
-      label: "Brechas de capacidades",
-      items: skillBars(
-        skills.gaps,
-        (skill) => skill.demanded,
-        (skill) => `${skill.offered} ofrecen · ${skill.demanded} piden`,
-      ),
-      tone: "amber",
+      label: "Brechas de capacidades: personas que ofrecen y perfiles que piden cada habilidad",
+      categories: skills.gaps.map((skill) => skill.name),
+      series: [
+        {
+          name: "Personas que la ofrecen",
+          values: skills.gaps.map((skill) => skill.offered),
+          display: skills.gaps.map((skill) => plural(skill.offered, "persona", "personas")),
+        },
+        {
+          name: "Perfiles que la piden",
+          values: skills.gaps.map((skill) => skill.demanded),
+          display: skills.gaps.map((skill) => plural(skill.demanded, "perfil", "perfiles")),
+        },
+      ],
       empty: "Aún no hay perfiles requeridos analizados.",
     },
-    { title: "Calidad de los perfiles", label: "Calidad de los perfiles", items: quality, tone: "green" },
   ];
 
   const kpis = [
@@ -319,10 +343,16 @@ function AdminStats({ stats }: { stats: PlatformStats }) {
             <h3 className={styles.listTitle}>{section.title}</h3>
             {section.hint ? <p className={styles.sectionHint}>{section.hint}</p> : null}
             <div className={styles.sectionBody}>
-              <BarList label={section.label} items={section.items} tone={section.tone} emptyMessage={section.empty} />
+              <BarChart label={section.label} categories={section.categories} series={section.series} emptyMessage={section.empty} />
             </div>
           </Card>
         ))}
+        <Card padding={20}>
+          <h3 className={styles.listTitle}>Calidad de los perfiles</h3>
+          <div className={styles.sectionBody}>
+            <BarList label="Calidad de los perfiles" items={quality} tone="green" />
+          </div>
+        </Card>
       </div>
     </>
   );
@@ -332,12 +362,14 @@ function AdminStats({ stats }: { stats: PlatformStats }) {
 function AdminDashboard() {
   const router = useRouter();
   const { projects, isLoading: isLoadingProjects, error: projectsError } = useAdminProjects();
-  const { stats, isLoading: isLoadingStats, error: statsError, reload: reloadStats } = usePlatformStats();
+  const [filters, setFilters] = useState<StatsFilters>({});
+  const { stats, isLoading: isLoadingStats, isRefreshing, error: statsError, reload: reloadStats } = usePlatformStats(filters);
   const projectMeta = useProjectMeta();
   const recent = projects.slice(0, 5);
 
   return (
     <>
+      <StatsFiltersBar value={filters} onChange={setFilters} isRefreshing={isRefreshing && !isLoadingStats} />
       {isLoadingStats ? <LoadingState message="Calculando indicadores…" /> : null}
       {!isLoadingStats && statsError ? (
         <Card padding={20}>

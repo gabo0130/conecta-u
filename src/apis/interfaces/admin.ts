@@ -201,6 +201,16 @@ export interface SkillBalance {
   demanded: number;
 }
 
+/** Filtros de `GET /admin/stats` (HU-14). Fechas AAAA-MM-DD; todos opcionales. */
+export interface StatsFilters {
+  from?: string;
+  to?: string;
+  projectTypeId?: string;
+  categoryId?: string;
+  programId?: string;
+  personType?: PersonType;
+}
+
 export interface PlatformStats {
   generatedAt: string;
   projects: {

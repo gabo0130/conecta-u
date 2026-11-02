@@ -1,0 +1,26 @@
+.figure {
+  margin: 0;
+}
+
+.canvas {
+  position: relative;
+  width: 100%;
+}
+
+.empty {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--c-muted);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

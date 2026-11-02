@@ -35,3 +35,4 @@ export { PersonModal } from "./PersonModal/PersonModal";
 export { ReportsCard } from "./ReportsCard/ReportsCard";
 export { InvitationModal } from "./InvitationModal/InvitationModal";
 export { InvitationHistory } from "./InvitationHistory/InvitationHistory";
+export { StatsFiltersBar } from "./StatsFiltersBar/StatsFiltersBar";
