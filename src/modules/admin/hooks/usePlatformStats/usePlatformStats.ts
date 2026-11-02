@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { isCancel } from "axios";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { apiClient } from "@/apis/client";
 import type { PlatformStats, StatsFilters } from "@/apis/interfaces/admin";
 import { getErrorMessage } from "@/utils/get-error-message";
@@ -13,7 +14,7 @@ export function toStatsParams(filters: StatsFilters): Record<string, string> {
 /**
  * RF15 (HU-14): indicadores del dashboard del ADMIN, calculados por el backend (`GET /admin/stats`)
  * con los filtros elegidos. Al cambiar un filtro conserva los datos anteriores mientras recalcula
- * (`isRefreshing`), para que el tablero no parpadee.
+ * (`isRefreshing`) y cancela la petición anterior, para que una respuesta vieja no pise la nueva.
  */
 export function usePlatformStats(filters: StatsFilters = {}) {
   const [stats, setStats] = useState<PlatformStats | null>(null);
@@ -21,25 +22,32 @@ export function usePlatformStats(filters: StatsFilters = {}) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
   const key = JSON.stringify(toStatsParams(filters));
+  const params = useMemo(() => JSON.parse(key) as Record<string, string>, [key]);
+  const inFlight = useRef<AbortController | null>(null);
 
   const reload = useCallback(async () => {
+    inFlight.current?.abort();
+    const controller = new AbortController();
+    inFlight.current = controller;
     setIsRefreshing(true);
     try {
-      const response = await apiClient.get<PlatformStats>("/admin/stats", {
-        params: JSON.parse(key) as Record<string, string>,
-      });
+      const response = await apiClient.get<PlatformStats>("/admin/stats", { params, signal: controller.signal });
       setStats(response.data);
       setError("");
     } catch (err) {
+      if (isCancel(err)) return;
       setError(getErrorMessage(err, "No se pudieron cargar las estadísticas."));
     } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
+      if (inFlight.current === controller) {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
     }
-  }, [key]);
+  }, [params]);
 
   useEffect(() => {
     void reload();
+    return () => inFlight.current?.abort();
   }, [reload]);
 
   return { stats, isLoading, isRefreshing, error, reload };

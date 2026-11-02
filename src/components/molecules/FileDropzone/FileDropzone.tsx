@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, DragEvent, useId, useState } from "react";
+import { ChangeEvent, DragEvent, useId, useRef, useState } from "react";
 import { FileSpreadsheet, UploadCloud, X } from "lucide-react";
 import { IconButton } from "../../atoms";
 import styles from "./FileDropzone.module.css";
@@ -26,6 +26,8 @@ export function FileDropzone({ file, onChange, accept, maxSizeBytes, disabled = 
   const inputId = useId();
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState("");
+  // Si se elige otro archivo mientras se valida el anterior, solo cuenta el último.
+  const latest = useRef<File | null>(null);
 
   const pick = async (candidate: File | undefined) => {
     if (!candidate) return;
@@ -38,7 +40,14 @@ export function FileDropzone({ file, onChange, accept, maxSizeBytes, disabled = 
       setError(`El archivo supera el máximo de ${formatSize(maxSizeBytes)}.`);
       return;
     }
-    const invalid = validate ? await validate(candidate) : null;
+    latest.current = candidate;
+    let invalid: string | null = null;
+    try {
+      invalid = validate ? await validate(candidate) : null;
+    } catch {
+      invalid = "No se pudo leer el archivo. Intenta elegirlo de nuevo.";
+    }
+    if (latest.current !== candidate) return;
     if (invalid) {
       setError(invalid);
       return;

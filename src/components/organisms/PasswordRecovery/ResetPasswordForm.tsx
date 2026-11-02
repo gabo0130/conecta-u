@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Check, CircleAlert, Eye, EyeOff, ShieldCheck } from "lucide-react";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useResetPassword } from "@/modules/auth/hooks/usePasswordRecovery/usePasswordRecovery";
 import { isValidPassword, passwordRules, readResetToken } from "@/modules/auth/utils/password-rules";
 import { Button, FormError, Input, Spinner } from "../../atoms";
@@ -20,10 +20,16 @@ export function ResetPasswordForm() {
   const [show, setShow] = useState(false);
   const [localError, setLocalError] = useState("");
 
+  // El token se lee una sola vez (en modo estricto React corre el efecto dos veces).
+  const read = useRef<string | null | undefined>(undefined);
+
   useEffect(() => {
-    const found = readResetToken(window.location.hash);
-    // El token no se deja en la barra de direcciones ni en el historial.
-    window.history.replaceState(null, "", window.location.pathname);
+    if (read.current === undefined) {
+      read.current = readResetToken(window.location.hash);
+      // El token no se deja en la barra de direcciones ni en el historial.
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+    const found = read.current;
     void (found ? check(found) : Promise.resolve(false)).then((valid) => {
       setToken(found);
       setStage(valid ? "form" : "invalid");

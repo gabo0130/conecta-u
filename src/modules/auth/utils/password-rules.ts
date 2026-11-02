@@ -18,7 +18,7 @@ export function passwordRules(password: string): PasswordRule[] {
   return [
     { id: "length", label: `Al menos ${PASSWORD_MIN_LENGTH} caracteres`, ok: password.length >= PASSWORD_MIN_LENGTH },
     { id: "letters", label: "Letras y números", ok: /\p{L}/u.test(password) && /\d/.test(password) },
-    { id: "max", label: `Máximo ${PASSWORD_MAX_BYTES} caracteres`, ok: byteLength(password) <= PASSWORD_MAX_BYTES },
+    { id: "max", label: `Máximo ${PASSWORD_MAX_BYTES} bytes (las tildes y la ñ ocupan dos)`, ok: byteLength(password) <= PASSWORD_MAX_BYTES },
   ];
 }
 
