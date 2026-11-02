@@ -33,6 +33,23 @@ export interface RecommendationItem {
   matchedSkillCount: number;
   requiredSkillCount: number;
   collaborator: RecommendedPerson;
+  /** Tesis (D6): decisión del líder sobre la persona en este perfil; se conserva al regenerar. */
+  feedback: RecommendationFeedback | null;
+}
+
+export type FeedbackDecision = "ACEPTADA" | "DESCARTADA";
+
+export interface RecommendationFeedback {
+  decision: FeedbackDecision;
+  reason: string | null;
+  rankAtDecision: number;
+  scoreAtDecision: number;
+  decidedAt: string;
+}
+
+export interface RecommendationFeedbackPayload {
+  decision: FeedbackDecision;
+  reason?: string | null;
 }
 
 export interface ProfileRecommendations {

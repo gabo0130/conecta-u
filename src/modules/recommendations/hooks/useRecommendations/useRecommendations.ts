@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AI_REQUEST_CONFIG, apiClient } from "@/apis/client";
-import type { GenerateRecommendationsPayload, RecommendationsResponse } from "@/apis/interfaces/recommendations";
+import type {
+  GenerateRecommendationsPayload,
+  RecommendationFeedback,
+  RecommendationFeedbackPayload,
+  RecommendationsResponse,
+} from "@/apis/interfaces/recommendations";
 import { getErrorMessage } from "@/utils/get-error-message";
 
 /**
@@ -62,7 +67,36 @@ export function useRecommendations(projectId: string) {
     }
   }, [projectId, includeUnavailable]);
 
+  /**
+   * Tesis (T7): el líder acepta o descarta a la persona; vale la última decisión. Se aplica la
+   * respuesta del servidor a esa tarjeta (sin recargar la lista, que parpadearía).
+   */
+  const recordFeedback = useCallback(
+    async (recommendationId: string, payload: RecommendationFeedbackPayload) => {
+      const response = await apiClient.put<RecommendationFeedback & { recommendationId: string }>(
+        `/projects/${projectId}/recommendations/${recommendationId}/feedback`,
+        payload,
+      );
+      const { recommendationId: id, ...feedback } = response.data;
+      setData((current) =>
+        current
+          ? {
+              ...current,
+              profiles: current.profiles.map((profile) => ({
+                ...profile,
+                recommendations: profile.recommendations.map((item) =>
+                  item.id === id ? { ...item, feedback } : item,
+                ),
+              })),
+            }
+          : current,
+      );
+    },
+    [projectId],
+  );
+
   return {
+    recordFeedback,
     recommendations: data,
     profiles: data?.profiles ?? [],
     generatedAt: data?.generatedAt ?? null,

@@ -4,6 +4,8 @@ import { useState } from "react";
 import type { Collaborator, UpdateCollaboratorPayload } from "@/apis/interfaces/collaborator";
 import { useProgramsCatalog } from "@/modules/catalogs/hooks/useProgramsCatalog/useProgramsCatalog";
 import {
+  INTEREST_MAX_LENGTH,
+  INTERESTS_MAX,
   optionalInteger,
   PROFILE_URL_MAX_LENGTH,
   SEMESTER,
@@ -18,7 +20,7 @@ import {
   TRUTHFULNESS_REQUIRED,
 } from "@/modules/legal/legal-texts";
 import { Input, Modal, Select, Textarea } from "../../atoms";
-import { LegalCheckbox } from "../../molecules";
+import { LegalCheckbox, TagsInput } from "../../molecules";
 import { clean, optionalText, useProfileSubmit, type SubmitFn } from "./useProfileSubmit";
 
 type EditProfileModalProps = {
@@ -35,6 +37,7 @@ export function EditProfileModal({ collaborator, onSubmit, onClose }: EditProfil
   const [semester, setSemester] = useState(collaborator.semester?.toString() ?? "");
   const [researchGroup, setResearchGroup] = useState(collaborator.researchGroup ?? "");
   const [summary, setSummary] = useState(collaborator.summary ?? "");
+  const [interests, setInterests] = useState<string[]>(collaborator.interests ?? []);
   const [profileUrl, setProfileUrl] = useState(collaborator.profileUrl ?? "");
   const [dataConsent, setDataConsent] = useState(collaborator.dataConsent);
   // v2.2, E2: quien ya declaró la ve marcada; las personas anteriores la aceptan aquí.
@@ -62,6 +65,7 @@ export function EditProfileModal({ collaborator, onSubmit, onClose }: EditProfil
           semester: optionalInteger(semester),
           researchGroup: optionalText(researchGroup),
           summary: optionalText(summary),
+          interests,
           profileUrl: optionalText(profileUrl),
           dataConsent,
           truthfulnessDeclared: true,
@@ -104,6 +108,15 @@ export function EditProfileModal({ collaborator, onSubmit, onClose }: EditProfil
         onChange={(event) => setResearchGroup(event.target.value)}
       />
       <Textarea label="Resumen (opcional)" rows={3} value={summary} onChange={(event) => setSummary(event.target.value)} />
+      <TagsInput
+        label="Intereses (opcional)"
+        value={interests}
+        onChange={setInterests}
+        max={INTERESTS_MAX}
+        maxItemLength={INTEREST_MAX_LENGTH}
+        itemNoun={{ singular: "interés", plural: "intereses" }}
+        helperText={`Temas en los que te gustaría trabajar (hasta ${INTERESTS_MAX}). Ayudan a recomendarte en proyectos afines.`}
+      />
       <Input
         label="Enlace de portafolio (opcional)"
         type="url"

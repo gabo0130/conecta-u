@@ -5,12 +5,13 @@ import { NEVER_GENERATED, RECOMMENDATIONS } from "../../test-fixtures";
 import { useRecommendations } from "./useRecommendations";
 
 jest.mock("@/apis/client", () => ({
-  apiClient: { get: jest.fn(), post: jest.fn() },
+  apiClient: { get: jest.fn(), post: jest.fn(), put: jest.fn() },
   AI_REQUEST_CONFIG: { timeout: 60_000 },
 }));
 
 const get = jest.mocked(apiClient.get);
 const post = jest.mocked(apiClient.post);
+const put = jest.mocked(apiClient.put);
 
 beforeEach(() => {
   get.mockReset();
@@ -96,5 +97,27 @@ describe("useRecommendations", () => {
 
     expect(result.current.generatedAt).toBeNull();
     expect(result.current.isGenerating).toBe(false);
+  });
+
+  it("registra la decisión y la aplica solo a esa tarjeta, sin recargar (tesis, T7)", async () => {
+    get.mockResolvedValue({ data: RECOMMENDATIONS });
+    const { result } = await renderLoaded();
+    const target = result.current.profiles[0].recommendations[0];
+    put.mockResolvedValue({
+      data: {
+        recommendationId: target.id,
+        decision: "ACEPTADA",
+        reason: null,
+        rankAtDecision: target.rank,
+        scoreAtDecision: target.score,
+        decidedAt: "2026-11-02T00:00:00Z",
+      },
+    });
+
+    await act(() => result.current.recordFeedback(target.id, { decision: "ACEPTADA" }));
+
+    expect(put).toHaveBeenCalledWith(`/projects/p1/recommendations/${target.id}/feedback`, { decision: "ACEPTADA" });
+    expect(get).toHaveBeenCalledTimes(1);
+    expect(result.current.profiles[0].recommendations[0].feedback?.decision).toBe("ACEPTADA");
   });
 });

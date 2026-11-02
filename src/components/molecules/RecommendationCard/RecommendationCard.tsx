@@ -1,6 +1,6 @@
 import { CSSProperties } from "react";
-import { GraduationCap, HelpCircle, UserX } from "lucide-react";
-import type { RecommendationItem } from "@/apis/interfaces/recommendations";
+import { Check, GraduationCap, HelpCircle, UserX, X } from "lucide-react";
+import type { FeedbackDecision, RecommendationItem } from "@/apis/interfaces/recommendations";
 import { AVAILABILITY_VIEW, PERSON_TYPE_LABEL } from "@/modules/collaborator/utils/collaborator-view";
 import { barWidth, formatScore, scoreTone } from "@/modules/recommendations/utils/recommendation-view";
 import { Badge, Button, Card, Checkbox } from "../../atoms";
@@ -13,11 +13,27 @@ type RecommendationCardProps = {
   selection?: { checked: boolean; onChange: (checked: boolean) => void; disabled?: boolean };
   /** RF22: ya se le envió una convocatoria (p. ej. "Convocada el 3 nov."). */
   invitedLabel?: string | null;
+  /** Tesis (T7): solo el líder dueño decide; sin esto la decisión se muestra en solo lectura. */
+  onDecide?: (decision: FeedbackDecision) => void;
+  isDeciding?: boolean;
+};
+
+const DECISION_VIEW: Record<FeedbackDecision, { label: string; tone: "green" | "gray" }> = {
+  ACEPTADA: { label: "Aceptada", tone: "green" },
+  DESCARTADA: { label: "Descartada", tone: "gray" },
 };
 
 /** Una persona recomendada para un perfil (RF12): puesto, puntaje y datos sin contacto. */
-export function RecommendationCard({ recommendation, onExplain, selection, invitedLabel }: RecommendationCardProps) {
-  const { rank, score, matchedSkillCount, requiredSkillCount, collaborator } = recommendation;
+export function RecommendationCard({
+  recommendation,
+  onExplain,
+  selection,
+  invitedLabel,
+  onDecide,
+  isDeciding = false,
+}: RecommendationCardProps) {
+  const { rank, score, matchedSkillCount, requiredSkillCount, collaborator, feedback } = recommendation;
+  const decision = feedback?.decision ?? null;
   const availability = AVAILABILITY_VIEW[collaborator.availabilityStatus];
   const tone = scoreTone(score);
   const scoreLabel = `Puntaje ${formatScore(score)} de 100`;
@@ -54,7 +70,32 @@ export function RecommendationCard({ recommendation, onExplain, selection, invit
               {matchedSkillCount} de {requiredSkillCount} habilidades
             </span>
             {invitedLabel ? <Badge tone="green">{invitedLabel}</Badge> : null}
+            {decision ? <Badge tone={DECISION_VIEW[decision].tone}>{DECISION_VIEW[decision].label}</Badge> : null}
           </div>
+          {onDecide ? (
+            <div className={styles.decision} role="group" aria-label={`Decisión sobre ${collaborator.fullName}`}>
+              <Button
+                variant={decision === "ACEPTADA" ? "primary" : "ghost"}
+                size="sm"
+                leftIcon={<Check />}
+                aria-pressed={decision === "ACEPTADA"}
+                disabled={isDeciding || decision === "ACEPTADA"}
+                onClick={() => onDecide("ACEPTADA")}
+              >
+                Aceptar
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                leftIcon={<X />}
+                aria-pressed={decision === "DESCARTADA"}
+                disabled={isDeciding || decision === "DESCARTADA"}
+                onClick={() => onDecide("DESCARTADA")}
+              >
+                Descartar
+              </Button>
+            </div>
+          ) : null}
           {selection ? (
             <Checkbox
               size="sm"

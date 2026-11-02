@@ -55,3 +55,7 @@ export function validateProfileUrl(value: string) {
     return message;
   }
 }
+
+/** Tesis (D5, T6): intereses del perfil, mismos límites que el backend (`collaborator-limits.ts`). */
+export const INTERESTS_MAX = 10;
+export const INTEREST_MAX_LENGTH = 60;

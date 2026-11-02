@@ -1,0 +1,39 @@
+.title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.subtitle {
+  color: var(--c-muted);
+  font-size: 13.5px;
+  margin-top: 4px;
+}
+.state {
+  color: var(--c-muted);
+  font-size: 14px;
+  margin-top: 14px;
+}
+.global {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+.rate {
+  font-family: var(--font-display), sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--c-red);
+}
+.counts {
+  color: var(--c-muted);
+  font-size: 13.5px;
+}
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}

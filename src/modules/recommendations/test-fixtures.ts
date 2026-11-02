@@ -23,6 +23,7 @@ export const RECOMMENDATION: RecommendationItem = {
     weeklyHours: 10,
     hasUser: true,
   },
+  feedback: null,
 };
 
 export const IMPORTED_RECOMMENDATION: RecommendationItem = {

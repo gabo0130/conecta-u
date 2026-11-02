@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { Input } from "../../atoms";
 import styles from "./TagsInput.module.css";
 
-/** Mismo límite que el backend (TAG_MAX_LENGTH). */
+/** Mismo límite que el backend (TAG_MAX_LENGTH) para las palabras clave de la plantilla. */
 const TAG_MAX_LENGTH = 40;
 
 type TagsInputProps = {
@@ -16,10 +16,25 @@ type TagsInputProps = {
   max?: number;
   helperText?: string;
   disabled?: boolean;
+  /** Largo máximo de cada elemento (por defecto el de las palabras clave). */
+  maxItemLength?: number;
+  /** Cómo se llama cada elemento en los mensajes, en singular y plural. */
+  itemNoun?: { singular: string; plural: string };
 };
 
+const KEYWORD = { singular: "palabra clave", plural: "palabras clave" };
+
 /** Lista de palabras clave (v2.1, A6): Enter o coma agrega, la × de cada chip la quita. */
-export function TagsInput({ label, value, onChange, max, helperText, disabled = false }: TagsInputProps) {
+export function TagsInput({
+  label,
+  value,
+  onChange,
+  max,
+  helperText,
+  disabled = false,
+  maxItemLength = TAG_MAX_LENGTH,
+  itemNoun = KEYWORD,
+}: TagsInputProps) {
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
   const isFull = max !== undefined && value.length >= max;
@@ -27,8 +42,8 @@ export function TagsInput({ label, value, onChange, max, helperText, disabled = 
   const add = () => {
     const tag = draft.trim().replace(/,+$/, "").trim();
     if (!tag) return;
-    if (tag.length > TAG_MAX_LENGTH) {
-      setError(`Cada palabra clave admite máximo ${TAG_MAX_LENGTH} caracteres.`);
+    if (tag.length > maxItemLength) {
+      setError(`Cada ${itemNoun.singular} admite máximo ${maxItemLength} caracteres.`);
       return;
     }
     if (value.some((existing) => existing.toLowerCase() === tag.toLowerCase())) {
@@ -55,7 +70,7 @@ export function TagsInput({ label, value, onChange, max, helperText, disabled = 
       <Input
         label={label}
         value={draft}
-        placeholder={isFull ? "Llegaste al máximo de palabras clave" : "Escribe y pulsa Enter"}
+        placeholder={isFull ? `Llegaste al máximo de ${itemNoun.plural}` : "Escribe y pulsa Enter"}
         onChange={(event) => {
           setDraft(event.target.value);
           setError("");

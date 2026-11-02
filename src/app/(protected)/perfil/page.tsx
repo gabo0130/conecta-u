@@ -215,6 +215,26 @@ export default function PerfilPage() {
 
       <div className={styles.grid}>
         <div className={styles.col}>
+          {/* Tesis (D5): intereses temáticos; ayudan a la parte semántica de la recomendación. */}
+          <Card padding={22}>
+            <div className={styles.cardHead}>
+              <h3 className={styles.cardTitle}>Intereses</h3>
+              <Button variant="link" size="sm" aria-label="Editar intereses" onClick={() => setModal({ kind: "profile" })}>
+                {collaborator.interests.length > 0 ? "Editar" : "+ Agregar"}
+              </Button>
+            </div>
+            {collaborator.interests.length === 0 ? (
+              <p className={styles.completeText}>
+                Aún no has agregado intereses: temas en los que te gustaría trabajar (p. ej. IA aplicada a la salud).
+              </p>
+            ) : (
+              <div className={styles.chips}>
+                {collaborator.interests.map((interest) => (
+                  <Chip key={interest}>{interest}</Chip>
+                ))}
+              </div>
+            )}
+          </Card>
           {skillGroups.map(({ type, skills }) => (
             <Card key={type} padding={22}>
               <div className={styles.cardHead}>

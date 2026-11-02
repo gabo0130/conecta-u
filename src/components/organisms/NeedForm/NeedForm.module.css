@@ -1,0 +1,34 @@
+.root {
+  display: flex;
+  flex-direction: column;
+}
+.formCard {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--field-stack-gap) + 4px);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.label {
+  font-size: var(--field-label-font);
+  font-weight: 600;
+  color: var(--field-label);
+}
+/* Móvil: botones a lo ancho, el principal arriba. */
+.actions {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+@media (min-width: 640px) {
+  .actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+}

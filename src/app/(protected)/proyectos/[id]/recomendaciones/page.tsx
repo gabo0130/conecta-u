@@ -4,7 +4,11 @@ import { useState, type ReactNode } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Info, Mail, RefreshCw, Sparkles, Users } from "lucide-react";
 import type { Project } from "@/apis/interfaces/projects";
-import type { ProfileRecommendations, RecommendationItem } from "@/apis/interfaces/recommendations";
+import type {
+  FeedbackDecision,
+  ProfileRecommendations,
+  RecommendationItem,
+} from "@/apis/interfaces/recommendations";
 import { AppShell, PageGrid } from "@/components/templates";
 import { Badge, Button, Card, Checkbox } from "@/components/atoms";
 import { LoadingState, RecommendationCard, VerificationNotice } from "@/components/molecules";
@@ -72,7 +76,9 @@ function RecommendationsScreen({ project, canGenerate }: RecommendationsScreenPr
     setIncludeUnavailable,
     generate,
     isGenerating,
+    recordFeedback,
   } = useRecommendations(project.id);
+  const [decidingId, setDecidingId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [explaining, setExplaining] = useState<Explaining | null>(null);
   // RF21: personas marcadas para convocar, por perfil (se limpia al cambiar de perfil).
@@ -98,6 +104,22 @@ function RecommendationsScreen({ project, canGenerate }: RecommendationsScreenPr
       );
     } catch (err) {
       void notify.error(getErrorMessage(err, "No se pudieron generar las recomendaciones."));
+    }
+  };
+
+  const decide = async (recommendation: RecommendationItem, decision: FeedbackDecision) => {
+    setDecidingId(recommendation.id);
+    try {
+      await recordFeedback(recommendation.id, { decision });
+      void notify.success(
+        decision === "ACEPTADA"
+          ? `Aceptaste a ${recommendation.collaborator.fullName} para este perfil.`
+          : `Descartaste a ${recommendation.collaborator.fullName} para este perfil.`,
+      );
+    } catch (err) {
+      void notify.error(getErrorMessage(err, "No se pudo guardar tu decisión."));
+    } finally {
+      setDecidingId(null);
     }
   };
 
@@ -202,6 +224,8 @@ function RecommendationsScreen({ project, canGenerate }: RecommendationsScreenPr
               generateButton={canGenerate ? generateButton : null}
               onExplain={(recommendation) => setExplaining({ recommendation, profileName: selected.name })}
               invitedLabelOf={(collaboratorId) => invitedLabel(sentByPerson.get(collaboratorId))}
+              onDecide={canGenerate ? decide : null}
+              decidingId={decidingId}
               invitation={
                 canGenerate
                   ? {
@@ -265,6 +289,9 @@ type ProfileSectionProps = {
   generateButton: ReactNode;
   onExplain: (recommendation: RecommendationItem) => void;
   invitedLabelOf: (collaboratorId: string) => string | null;
+  /** Tesis (T7): solo el LIDER dueño acepta o descarta; el ADMIN ve la decisión. */
+  onDecide: ((recommendation: RecommendationItem, decision: FeedbackDecision) => void) | null;
+  decidingId: string | null;
   /** RF21: solo el LIDER dueño convoca; el ADMIN ve la lista sin selección. */
   invitation: {
     selected: Set<string>;
@@ -281,6 +308,8 @@ function ProfileSection({
   generateButton,
   onExplain,
   invitedLabelOf,
+  onDecide,
+  decidingId,
   invitation,
 }: ProfileSectionProps) {
   const selectedCount = invitation
@@ -359,6 +388,8 @@ function ProfileSection({
                 recommendation={recommendation}
                 onExplain={() => onExplain(recommendation)}
                 invitedLabel={invitedLabelOf(recommendation.collaborator.id)}
+                onDecide={onDecide ? (decision) => onDecide(recommendation, decision) : undefined}
+                isDeciding={decidingId === recommendation.id}
                 selection={
                   invitation
                     ? {

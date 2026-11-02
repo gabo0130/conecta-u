@@ -19,8 +19,22 @@ import styles from "./ProjectForm.module.css";
 
 const EMPTY_DELIVERABLES: Deliverable[] = [{ name: "", scope: "" }];
 
+/** Valores con que se precarga un proyecto nuevo (p. ej. desde una necesidad, tesis T10). */
+export type ProjectDefaults = {
+  title?: string;
+  summary?: string;
+  objectives?: string;
+  executingEntity?: string | null;
+  durationMonths?: number | null;
+  typeId?: string | null;
+  knownSkills?: Skill[];
+  deliverables?: Deliverable[];
+};
+
 type ProjectFormProps = {
   initial?: Project;
+  /** Solo al crear: precarga los campos, pero el formulario sigue en modo «nuevo». */
+  defaults?: ProjectDefaults;
   submitLabel: string;
   isSaving: boolean;
   onSubmit: (payload: ProjectPayload) => void;
@@ -29,24 +43,25 @@ type ProjectFormProps = {
   size?: ControlSize;
 };
 
-export function ProjectForm({ initial, submitLabel, isSaving, onSubmit, onCancel, size }: ProjectFormProps) {
+export function ProjectForm({ initial, defaults, submitLabel, isSaving, onSubmit, onCancel, size }: ProjectFormProps) {
+  const start = initial ?? defaults;
   const { projectTypes, isLoading: isLoadingTypes, error: typesError } = useProjectTypesCatalog();
   const { projectCategories, isLoading: isLoadingCategories, error: categoriesError } = useProjectCategoriesCatalog();
   const { programs, isLoading: isLoadingPrograms, error: programsError } = useProgramsCatalog();
 
-  const [title, setTitle] = useState(initial?.title ?? "");
-  const [summary, setSummary] = useState(initial?.summary ?? "");
-  const [objectives, setObjectives] = useState(initial?.objectives ?? "");
-  const [executingEntity, setExecutingEntity] = useState(initial?.executingEntity ?? "");
+  const [title, setTitle] = useState(start?.title ?? "");
+  const [summary, setSummary] = useState(start?.summary ?? "");
+  const [objectives, setObjectives] = useState(start?.objectives ?? "");
+  const [executingEntity, setExecutingEntity] = useState(start?.executingEntity ?? "");
   const [sponsorEntity, setSponsorEntity] = useState(initial?.sponsorEntity ?? "");
-  const [durationMonths, setDurationMonths] = useState(initial?.durationMonths?.toString() ?? "");
-  const [typeId, setTypeId] = useState(initial?.typeId ?? "");
+  const [durationMonths, setDurationMonths] = useState(start?.durationMonths?.toString() ?? "");
+  const [typeId, setTypeId] = useState(start?.typeId ?? "");
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
   const [programId, setProgramId] = useState(initial?.programId ?? "");
   const [typeData, setTypeData] = useState<Record<string, unknown>>(initial?.typeData ?? {});
-  const [knownSkills, setKnownSkills] = useState<Skill[]>(initial?.knownSkills ?? []);
+  const [knownSkills, setKnownSkills] = useState<Skill[]>(start?.knownSkills ?? []);
   const [deliverables, setDeliverables] = useState<Deliverable[]>(
-    initial?.deliverables && initial.deliverables.length > 0 ? initial.deliverables : EMPTY_DELIVERABLES,
+    start?.deliverables && start.deliverables.length > 0 ? start.deliverables : EMPTY_DELIVERABLES,
   );
   const [validation, setValidation] = useState("");
 

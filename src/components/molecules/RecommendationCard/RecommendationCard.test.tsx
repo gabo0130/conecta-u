@@ -51,4 +51,41 @@ describe("RecommendationCard", () => {
     render(<RecommendationCard recommendation={RECOMMENDATION} onExplain={jest.fn()} />);
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
   });
+
+  it("el líder acepta o descarta (tesis, T7) y ve su decisión", () => {
+    const onDecide = jest.fn();
+    const { rerender } = render(
+      <RecommendationCard recommendation={RECOMMENDATION} onExplain={jest.fn()} onDecide={onDecide} />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Aceptar" }));
+    expect(onDecide).toHaveBeenCalledWith("ACEPTADA");
+
+    rerender(
+      <RecommendationCard
+        recommendation={{
+          ...RECOMMENDATION,
+          feedback: { decision: "DESCARTADA", reason: null, rankAtDecision: 1, scoreAtDecision: 72.4, decidedAt: "" },
+        }}
+        onExplain={jest.fn()}
+        onDecide={onDecide}
+      />,
+    );
+    expect(screen.getByText("Descartada")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Descartar" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Descartar" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("sin onDecide (ADMIN) solo muestra la decisión", () => {
+    render(
+      <RecommendationCard
+        recommendation={{
+          ...RECOMMENDATION,
+          feedback: { decision: "ACEPTADA", reason: null, rankAtDecision: 1, scoreAtDecision: 72.4, decidedAt: "" },
+        }}
+        onExplain={jest.fn()}
+      />,
+    );
+    expect(screen.getByText("Aceptada")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Aceptar" })).not.toBeInTheDocument();
+  });
 });

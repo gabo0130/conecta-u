@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
-import { Contact, FileUp, Folder, Home, LogOut, LucideIcon, Settings, User, Users, X } from "lucide-react";
+import { Contact, FileUp, Folder, Home, Lightbulb, LogOut, LucideIcon, Settings, User, Users, X } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { IconButton, Logo } from "../../atoms";
 import styles from "./Sidebar.module.css";
@@ -16,6 +16,8 @@ const ICONS: Record<string, LucideIcon> = {
   profiles: Contact,
   upload: FileUp,
   settings: Settings,
+  // Tesis (D1): necesidades institucionales.
+  needs: Lightbulb,
 };
 
 type SidebarProps = {

@@ -20,7 +20,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { AppShell } from "@/components/templates";
 import { ArrowLink, Button, Card } from "@/components/atoms";
 import { BarList, LoadingState, ProjectListItem, StatCard, type BarListItem } from "@/components/molecules";
-import { ReportsCard } from "@/components/organisms";
+import { EvaluationCard, ReportsCard } from "@/components/organisms";
 import type { CountBy, PlatformStats, SkillBalance } from "@/apis/interfaces/admin";
 import { usePlatformStats } from "@/modules/admin/hooks/usePlatformStats/usePlatformStats";
 import { AVAILABILITY_VIEW, PERSON_TYPE_LABEL } from "@/modules/collaborator/utils/collaborator-view";
@@ -406,6 +406,7 @@ function AdminDashboard() {
       </div>
 
       <ReportsCard />
+      <EvaluationCard />
     </>
   );
 }

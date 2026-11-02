@@ -81,4 +81,42 @@ describe("ProjectForm: entidades y duración (v2.2, E5)", () => {
     expect(screen.getByText("Competencias técnicas y blandas requeridas por el proyecto")).toBeInTheDocument();
     expect(screen.queryByText(/habilidades técnicas y blandas conocidas/i)).not.toBeInTheDocument();
   });
+
+  it("precarga un borrador (desde una necesidad) y lo envía como proyecto nuevo", () => {
+    const onSubmit = jest.fn();
+    render(
+      <ProjectForm
+        defaults={{
+          title: "Plataforma de citas",
+          summary: "Los estudiantes no pueden reservar citas.",
+          objectives: "Ofrecer reservas en línea.",
+          executingEntity: "Bienestar Universitario",
+          durationMonths: 6,
+          typeId: "type-1",
+          knownSkills: [],
+          deliverables: [{ name: "Prototipo", scope: "Reservas en línea" }],
+        }}
+        submitLabel="Crear proyecto"
+        isSaving={false}
+        onSubmit={onSubmit}
+        onCancel={jest.fn()}
+      />,
+    );
+    expect(field("Título del proyecto")).toHaveValue("Plataforma de citas");
+    fireEvent.click(screen.getByRole("button", { name: "Crear proyecto" }));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Plataforma de citas",
+        executingEntity: "Bienestar Universitario",
+        durationMonths: 6,
+        typeId: "type-1",
+        // Es un proyecto nuevo: sin patrocinadora ni programa no se envía null.
+        sponsorEntity: undefined,
+        programId: undefined,
+        deliverables: [{ name: "Prototipo", scope: "Reservas en línea" }],
+      }),
+    );
+  });
 });
+

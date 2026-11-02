@@ -1,0 +1,44 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 22px;
+}
+.rowBorder {
+  border-bottom: 1px solid var(--c-line-soft);
+}
+.main {
+  flex: 1;
+  min-width: 0;
+}
+.title {
+  font-weight: 600;
+  font-size: 15px;
+}
+.meta {
+  font-size: 13px;
+  color: var(--c-muted-2);
+  margin-top: 3px;
+}
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.scores {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 200px;
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .row {
+    flex-wrap: wrap;
+  }
+  .scores {
+    order: 3;
+    width: 100%;
+  }
+}

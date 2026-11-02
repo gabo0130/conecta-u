@@ -11,6 +11,7 @@ export {
 } from "./ProfileModals/ProfileModals";
 export { NotificationHost } from "./NotificationHost/NotificationHost";
 export { ProjectForm } from "./ProjectForm/ProjectForm";
+export type { ProjectDefaults } from "./ProjectForm/ProjectForm";
 export { ProjectFormTips } from "./ProjectFormTips/ProjectFormTips";
 export { ProjectView } from "./ProjectView/ProjectView";
 export { SkillPicker } from "./SkillPicker/SkillPicker";
@@ -35,3 +36,5 @@ export { PersonModal } from "./PersonModal/PersonModal";
 export { ReportsCard } from "./ReportsCard/ReportsCard";
 export { InvitationModal } from "./InvitationModal/InvitationModal";
 export { InvitationHistory } from "./InvitationHistory/InvitationHistory";
+export { NeedForm } from "./NeedForm/NeedForm";
+export { EvaluationCard } from "./EvaluationCard/EvaluationCard";

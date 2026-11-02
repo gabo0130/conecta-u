@@ -23,3 +23,6 @@ export { VerificationNotice } from "./VerificationNotice/VerificationNotice";
 export { CertificateField } from "./CertificateField/CertificateField";
 export { BarList } from "./BarList/BarList";
 export type { BarListItem } from "./BarList/BarList";
+export { ScoreMeter } from "./ScoreMeter/ScoreMeter";
+export { NeedListItem } from "./NeedListItem/NeedListItem";
+export type { NeedRow } from "./NeedListItem/NeedListItem";

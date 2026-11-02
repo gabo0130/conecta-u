@@ -89,6 +89,8 @@ export interface Collaborator extends Identification {
   semester: number | null;
   researchGroup: string | null;
   summary: string | null;
+  /** Tesis (D5): hasta 10 temas de interés; entran en el texto del embedding. */
+  interests: string[];
   profileUrl: string | null;
   dataConsent: boolean;
   /** Declaración de veracidad (v2.2, E2): solo la ven la propia persona y el ADMIN. */
@@ -119,6 +121,8 @@ export interface UpdateCollaboratorPayload {
   semester?: number | null;
   researchGroup?: string | null;
   summary?: string | null;
+  /** [] borra los intereses. */
+  interests?: string[];
   profileUrl?: string | null;
   dataConsent?: boolean;
   /** v2.2, E2: el backend la exige en cada cambio de «Mi perfil»; los modales la piden con su casilla. */

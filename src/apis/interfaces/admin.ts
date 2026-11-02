@@ -237,3 +237,17 @@ export interface PlatformStats {
 
 export type ReportKind = "proyectos" | "personas" | "habilidades" | "recomendaciones" | "convocatorias";
 export type ReportFormat = "xlsx" | "csv";
+
+/** Tesis (D6, T7): tasa de aceptación de las recomendaciones (`GET /admin/evaluation`). */
+export interface AcceptanceCounts {
+  accepted: number;
+  discarded: number;
+  decided: number;
+  /** Aceptadas / decididas; null si todavía no hay decisiones. */
+  acceptanceRate: number | null;
+}
+
+export interface EvaluationSummary {
+  acceptance: AcceptanceCounts;
+  byProject: (AcceptanceCounts & { projectId: string; projectTitle: string })[];
+}
