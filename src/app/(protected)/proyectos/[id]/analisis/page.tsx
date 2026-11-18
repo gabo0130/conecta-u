@@ -215,7 +215,7 @@ function AnalysisScreen({ project, canEdit, onRefreshProject }: AnalysisScreenPr
                   {canAnalyze ? (
                     <>
                       {analyzeButton("Analizar con IA")}
-                      <p className={styles.emptyHint}>Puede tardar hasta un minuto.</p>
+                      <p className={styles.emptyHint}>Puede tardar un par de minutos.</p>
                     </>
                   ) : null}
                 </>

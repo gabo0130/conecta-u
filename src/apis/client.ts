@@ -16,8 +16,12 @@ declare module "axios" {
 // Respuestas del proxy del hosting mientras el servidor arranca o está caído.
 const WAKING_STATUSES = new Set([502, 503, 504]);
 
-/** El análisis con IA es síncrono y tarda 15–45 s con Gemini: el timeout global (15 s) no alcanza. */
-export const AI_REQUEST_TIMEOUT_MS = 60_000;
+/**
+ * El análisis con IA es síncrono y tarda 15–45 s con Gemini (más en picos de demanda): el timeout
+ * global (15 s) no alcanza. Debe ser mayor que `AI_TIMEOUT_MS` del backend, que además guarda los
+ * embeddings y responde: si el front corta antes, un análisis que sí se guardó se ve como fallo.
+ */
+export const AI_REQUEST_TIMEOUT_MS = 200_000;
 
 /** Configuración de las peticiones que esperan a la IA (análisis y perfiles que recalculan su embedding). */
 export const AI_REQUEST_CONFIG: AxiosRequestConfig = {
