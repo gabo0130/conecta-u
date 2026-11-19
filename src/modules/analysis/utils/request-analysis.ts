@@ -6,7 +6,7 @@ export const ANALYSIS_TIMEOUT_MESSAGE =
   "El análisis está tardando más de lo esperado. Puede que termine en unos minutos: actualiza la página para ver si ya está listo.";
 
 /**
- * Pide un análisis nuevo (POST síncrono, hasta ~60 s). Solo si el navegador lo corta por tiempo,
+ * Pide un análisis nuevo (POST síncrono, hasta ~100 s). Solo si el navegador lo corta por tiempo,
  * el análisis pudo terminar igual en el servidor: se consulta el último una vez y se usa si es
  * distinto del que había antes (`previousId`). Cualquier otro fallo (sin red, 503, 409, 422) se
  * propaga tal cual, y si la consulta de respaldo falla se muestra el error original.

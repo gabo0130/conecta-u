@@ -61,9 +61,9 @@ describe("apiClient y el aviso de servidor despertando", () => {
     expect(reportMock).not.toHaveBeenCalled();
   });
 
-  it("usa 60 s solo en las peticiones de IA", () => {
+  it("usa 100 s solo en las peticiones de IA", () => {
     expect(apiClient.defaults.timeout).toBe(15000);
-    expect(AI_REQUEST_CONFIG.timeout).toBe(60000);
+    expect(AI_REQUEST_CONFIG.timeout).toBe(100_000);
   });
 });
 
