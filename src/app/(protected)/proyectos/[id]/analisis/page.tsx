@@ -54,10 +54,22 @@ type AnalysisScreenProps = {
 /** Análisis con IA de un proyecto (RF8–RF10): perfiles requeridos con su justificación. */
 function AnalysisScreen({ project, canEdit, onRefreshProject }: AnalysisScreenProps) {
   const router = useRouter();
-  const { analysis, isLoading, error, reload, analyze, isAnalyzing, analyzeState, analyzeError } = useProjectAnalysis(
-    project.id,
-  );
   const history = useAnalysisHistory(project.id);
+  const { reload: reloadHistory } = history;
+  // Al terminar (pedido aquí o retomado al volver a la página): el intento entra al historial
+  // (también los fallidos) y el estado del proyecto cambió.
+  const handleSettled = useCallback(
+    (ok: boolean) => {
+      void reloadHistory();
+      void onRefreshProject();
+      if (ok) {
+        void notify.success("El análisis terminó. Revisa los perfiles propuestos y su justificación.");
+      }
+    },
+    [reloadHistory, onRefreshProject],
+  );
+  const { analysis, isLoading, error, reload, analyze, isAnalyzing, analyzingSince, analyzeState, analyzeError } =
+    useProjectAnalysis(project.id, handleSettled);
   const refreshAnalysis = useCallback(() => reload({ silent: true }), [reload]);
   const { createProfile, updateProfile, discardProfile } = useRequiredProfiles(project.id, refreshAnalysis);
   // `undefined`: cerrado; `null`: agregar uno nuevo; un perfil: editarlo.
@@ -73,13 +85,9 @@ function AnalysisScreen({ project, canEdit, onRefreshProject }: AnalysisScreenPr
   const manualCount = profiles.length - aiCount;
 
   const handleAnalyze = async () => {
-    const ok = await analyze();
-    // También los fallidos quedan en el historial (status ERROR), y el estado del proyecto cambió.
-    void history.reload();
+    await analyze();
+    // El proyecto pasó a EN_ANALISIS: se refleja de inmediato en el encabezado.
     void onRefreshProject();
-    if (ok) {
-      void notify.success("El análisis terminó. Revisa los perfiles propuestos y su justificación.");
-    }
   };
 
   const handleRefresh = async () => {
@@ -181,7 +189,7 @@ function AnalysisScreen({ project, canEdit, onRefreshProject }: AnalysisScreenPr
           </div>
         ) : null}
 
-        {isAnalyzing ? <AnalyzingPanel /> : null}
+        {isAnalyzing ? <AnalyzingPanel since={analyzingSince ?? undefined} /> : null}
 
         {analyzeState === "error" ? (
           <div className={styles.errorBox} role="alert">
@@ -215,7 +223,7 @@ function AnalysisScreen({ project, canEdit, onRefreshProject }: AnalysisScreenPr
                   {canAnalyze ? (
                     <>
                       {analyzeButton("Analizar con IA")}
-                      <p className={styles.emptyHint}>Puede tardar un par de minutos.</p>
+                      <p className={styles.emptyHint}>Suele tardar menos de un minuto.</p>
                     </>
                   ) : null}
                 </>
