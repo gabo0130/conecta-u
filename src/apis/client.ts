@@ -1,6 +1,6 @@
 import axios, { AxiosError, isAxiosError, type AxiosRequestConfig } from "axios";
 import { reportUnreachable } from "@/utils/service-status";
-import { API_BASE_URL } from "./client-config";
+import { AI_REQUEST_TIMEOUT_MS, API_BASE_URL, API_TIMEOUT_MS } from "./client-config";
 
 declare module "axios" {
   interface AxiosRequestConfig {
@@ -17,13 +17,10 @@ declare module "axios" {
 const WAKING_STATUSES = new Set([502, 503, 504]);
 
 /**
- * El análisis con IA es síncrono y tarda 15–45 s con Gemini (más en picos de demanda): el timeout
- * global (15 s) no alcanza. Debe ser mayor que `AI_TIMEOUT_MS` del backend, que además guarda los
- * embeddings y responde: si el front corta antes, un análisis que sí se guardó se ve como fallo.
+ * Peticiones que esperan a la IA dentro de la misma respuesta: generar recomendaciones y guardar
+ * perfiles que recalculan su embedding. El análisis no: corre en segundo plano y se consulta
+ * (`request-analysis.ts`). El timeout global no alcanza para estas (`NEXT_PUBLIC_AI_REQUEST_TIMEOUT_MS`).
  */
-export const AI_REQUEST_TIMEOUT_MS = 200_000;
-
-/** Configuración de las peticiones que esperan a la IA (análisis y perfiles que recalculan su embedding). */
 export const AI_REQUEST_CONFIG: AxiosRequestConfig = {
   timeout: AI_REQUEST_TIMEOUT_MS,
   aiRequest: true,
@@ -41,7 +38,7 @@ function isAiFailure(error: AxiosError): boolean {
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15000,
+  timeout: API_TIMEOUT_MS,
   headers: {
     "Content-Type": "application/json",
   },

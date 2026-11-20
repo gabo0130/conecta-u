@@ -1,6 +1,7 @@
 import { AxiosError, AxiosHeaders, type AxiosAdapter, type InternalAxiosRequestConfig } from "axios";
 import { reportUnreachable } from "@/utils/service-status";
 import { AI_REQUEST_CONFIG, apiClient, isTimeoutError } from "./client";
+import { AI_REQUEST_TIMEOUT_MS, API_TIMEOUT_MS, positiveNumber } from "./client-config";
 
 jest.mock("@/utils/service-status", () => ({ reportUnreachable: jest.fn() }));
 
@@ -61,9 +62,25 @@ describe("apiClient y el aviso de servidor despertando", () => {
     expect(reportMock).not.toHaveBeenCalled();
   });
 
-  it("usa 100 s solo en las peticiones de IA", () => {
-    expect(apiClient.defaults.timeout).toBe(15000);
-    expect(AI_REQUEST_CONFIG.timeout).toBe(100_000);
+  it("las peticiones de IA usan su timeout largo; las demás, el normal", async () => {
+    const seen: (number | undefined)[] = [];
+    const capture: AxiosAdapter = async (config) => {
+      seen.push(config.timeout);
+      return { data: {}, status: 200, statusText: "OK", headers: {}, config };
+    };
+
+    await apiClient.post("/projects/p1/recommendations", {}, { ...AI_REQUEST_CONFIG, adapter: capture });
+    await apiClient.get("/users", { adapter: capture });
+
+    expect(seen).toEqual([AI_REQUEST_TIMEOUT_MS, API_TIMEOUT_MS]);
+    expect(seen[0]).toBeGreaterThan(seen[1]!);
+  });
+
+  it("toma los tiempos de las variables de entorno y, si faltan o son inválidas, usa los por defecto", () => {
+    expect(positiveNumber("90000", 60_000)).toBe(90_000);
+    expect(positiveNumber(undefined, 60_000)).toBe(60_000);
+    expect(positiveNumber("abc", 60_000)).toBe(60_000);
+    expect(positiveNumber("-5", 60_000)).toBe(60_000);
   });
 });
 
